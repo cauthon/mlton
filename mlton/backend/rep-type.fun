@@ -404,7 +404,8 @@ structure ObjectType =
                   not (Type.isUnit ty) 
                   andalso (case !Control.align of
                               Control.Align4 => Bits.isWord32Aligned b
-                            | Control.Align8 => Bits.isWord64Aligned b)
+                            | Control.Align8 => Bits.isWord64Aligned b
+                            | Control.Align16 => Bits.isWord128Aligned b)
                end
           | Stack => true
           | Weak to => Option.fold (to, true, fn (t,_) => Type.isObjptr t)
@@ -419,6 +420,7 @@ structure ObjectType =
                      case !Control.align of
                         Control.Align4 => Bytes.fromInt 4
                       | Control.Align8 => Bytes.fromInt 8
+                      | Control.Align16 => Bytes.fromInt 16
                   val bytesHeader =
                      Bits.toBytes (Control.Target.Size.header ())
                   val bytesCSize =
@@ -730,6 +732,7 @@ fun checkOffset {base, isVector, offset, result} =
          case !Control.align of
             Control.Align4 => Bits.inWord32
           | Control.Align8 => Bits.inWord64
+          | Control.Align16 => Bits.inWord128
 
       val baseBits = width base
       val baseTys = getTys base
@@ -760,7 +763,7 @@ fun checkOffset {base, isVector, offset, result} =
          else offsetBits
    in
       List.exists 
-      ([Bits.inWord8, Bits.inWord16, Bits.inWord32, Bits.inWord64], fn primBits =>
+      ([Bits.inWord8, Bits.inWord16, Bits.inWord32, Bits.inWord64, Bits.inWord128], fn primBits =>
        Bits.equals (resultBits, primBits) 
        andalso Bits.isAligned (offsetBits, {alignment = Bits.min (primBits, alignBits)}))
       andalso

@@ -497,6 +497,7 @@ fun allocate {argOperands,
                          case !Control.align of
                             Control.Align4 => size
                           | Control.Align8 => Bytes.alignWord64 size
+                          | Control.Align16 => Bytes.alignWord128 size
                       end
              val _ =
                 if Bytes.isWord32Aligned size

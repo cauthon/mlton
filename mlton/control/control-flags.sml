@@ -15,11 +15,12 @@ open C
 
 structure Align =
    struct
-      datatype t = Align4 | Align8
+      datatype t = Align4 | Align8 | Align16
 
       val toString =
          fn Align4 => "4"
           | Align8 => "8"
+          | Align16 => "16"
    end
 
 datatype align = datatype Align.t

@@ -27,7 +27,8 @@ val buildConstants: (string * (unit -> string)) list =
    in
       [("MLton_Align_align", fn () => int (case !align of
                                               Align4 => 4
-                                            | Align8 => 8)),
+                                            | Align8 => 8
+                                            | Align16 => 16)),
        ("MLton_Codegen_codegen", fn () => int (case !codegen of
                                                   CCodegen => 0
                                                 | x86Codegen => 1

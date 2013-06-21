@@ -226,13 +226,14 @@ fun makeOptions {usage} =
       List.map
       (
        [
-       (Normal, "align", if defaultAlignIs8 () then " {8|4}" else " {4|8}",
+       (Normal, "align", if defaultAlignIs8 () then " {8|4|16}" else " {4|8|16}",
         "object alignment",
         (SpaceString (fn s =>
                       explicitAlign
                       := SOME (case s of
                                   "4" => Align4
                                 | "8" => Align8
+                                | "16" => Align16
                                 | _ => usage (concat ["invalid -align flag: ",
                                                       s]))))),
        (Expert, "ar-script", " <ar>", "path to a script producing archives",

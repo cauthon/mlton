@@ -830,6 +830,25 @@ structure ObjptrRep =
                                                                   WordSize.word64))))
                                       then Bytes.alignWord64 width
                                    else width
+                            (*needs some work, this probably won't do what i want*)
+                              | Control.Align16 => 
+                                   if (Vector.exists
+                                       (components, fn {component = c, ...} =>
+                                        (case Type.deReal (Component.ty c) of
+                                            NONE => false
+                                          | SOME s =>
+                                               RealSize.equals (s, RealSize.R64))
+                                        orelse
+                                        (case Type.deWord (Component.ty c) of
+                                            NONE => false
+                                          | SOME s =>
+                                               WordSize.equals (s, WordSize.word64))
+                                        orelse
+                                        (Type.isObjptr (Component.ty c)
+                                         andalso WordSize.equals (WordSize.objptr (),
+                                                                  WordSize.word64))))
+                                      then Bytes.alignWord64 width
+                                   else width
                        in
                           Bytes.- (alignWidth, width)
                        end
@@ -845,6 +864,7 @@ structure ObjptrRep =
                           case !Control.align of
                              Control.Align4 => Bytes.alignWord32 width''
                            | Control.Align8 => Bytes.alignWord64 width''
+                           | Control.Align16 => Bytes.alignWord128 width''
                        val alignWidth' = Bytes.- (alignWidth'', Runtime.headerSize ())
                     in
                        Bytes.- (alignWidth', width)
@@ -900,7 +920,8 @@ structure ObjptrRep =
                if Bits.isZero (Type.width componentsTy)
                   then Type.zero (case !Control.align of
                                      Control.Align4 => Bits.inWord32
-                                   | Control.Align8 => Bits.inWord64)
+                                   | Control.Align8 => Bits.inWord64
+                                   | Control.Align16 => Bits.inWord128)
                else componentsTy
          in
             T {components = components,

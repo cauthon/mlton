@@ -355,6 +355,7 @@ fun outputDeclarations
                                   case !Control.align of
                                      Control.Align4 => Bytes.fromInt 4
                                    | Control.Align8 => Bytes.fromInt 8
+                                   | Control.Align16 => Bytes.fromInt 16
                                val bytesCPointer =
                                   Bits.toBytes (Control.Target.Size.cpointer ())
                                val bytesHeader =
@@ -392,6 +393,7 @@ fun outputDeclarations
                case !Control.align of
                   Control.Align4 => 4
                 | Control.Align8 => 8
+                | Control.Align16 => 16
             val magic = C.word (case Random.useed () of
                                    NONE => String.hash (!Control.inputFile)
                                  | SOME w => w)
