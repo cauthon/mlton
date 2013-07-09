@@ -1574,7 +1574,9 @@ structure Program =
                              {alignment = (case !Control.align of
                                                Control.Align4 => Bytes.inWord32
                                              | Control.Align8 => Bytes.inWord64
-                                             | Control.Align16 => Bytes.inWord128)}))
+                                             | Control.Align16
+                                               => Bytes.inWord128
+                                             | Control.Align32 => Bytes.inWord256)}))
                            andalso
                            (case tyconTy tycon of
                                ObjectType.Normal {ty, ...} =>

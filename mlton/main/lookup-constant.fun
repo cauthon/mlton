@@ -28,7 +28,8 @@ val buildConstants: (string * (unit -> string)) list =
       [("MLton_Align_align", fn () => int (case !align of
                                               Align4 => 4
                                             | Align8 => 8
-                                            | Align16 => 16)),
+                                            | Align16 => 16
+                                            | Align32 => 32)),
        ("MLton_Codegen_codegen", fn () => int (case !codegen of
                                                   CCodegen => 0
                                                 | x86Codegen => 1
@@ -108,7 +109,9 @@ fun build (constants, out) =
                          WordSize.W8 => "%\"PRIu8\""
                        | WordSize.W16 => "%\"PRIu16\""
                        | WordSize.W32 => "%\"PRIu32\""
-                       | WordSize.W64 => "%\"PRIu64\"",
+                       | WordSize.W64 => "%\"PRIu64\""
+                       | WordSize.W128 => "%\"PRIu128\""
+                       | WordSize.W256 => "%\"PRIu256\"",
                       value)
          in
             concat ["fprintf (stdout, \"", name, " = ", format, "\\n\", ",

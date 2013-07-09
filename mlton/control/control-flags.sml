@@ -15,12 +15,13 @@ open C
 
 structure Align =
    struct
-      datatype t = Align4 | Align8 | Align16
+      datatype t = Align4 | Align8 | Align16 | Align32
 
       val toString =
          fn Align4 => "4"
           | Align8 => "8"
           | Align16 => "16"
+          | Align32 => "32"
    end
 
 datatype align = datatype Align.t
@@ -1073,6 +1074,8 @@ fun mlbPathMap () =
              path = String.toLower (MLton.Platform.OS.toString
                                     (!Target.os))},
             {var = "OBJPTR_REP",
+(*TUCKER: Might need to add 128 & 256 here, not sure though, so leaving it
+ *alone for right now*)
              path = (case Bits.toInt (Target.Size.objptr ()) of
                         32 => "rep32"
                       | 64 => "rep64"

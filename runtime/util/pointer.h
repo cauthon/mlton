@@ -15,6 +15,8 @@ typedef pointerAux* pointer;
 #define FMTPTR "0x%08"PRIxPTR
 #elif POINTER_BITS == 64
 #define FMTPTR "0x%016"PRIxPTR
+#elif POINTER_BITS == 128
+#define FMTPTR "0x%032"PRIxPRI
 #else
 #error POINTER_BITS undefined
 #endif

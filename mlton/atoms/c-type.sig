@@ -28,6 +28,8 @@ signature C_TYPE =
        | Word16
        | Word32
        | Word64
+       | Word128
+       | Word256
 
       val align: t * Bytes.t -> Bytes.t
       val all: t list

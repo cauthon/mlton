@@ -847,8 +847,27 @@ structure ObjptrRep =
                                         (Type.isObjptr (Component.ty c)
                                          andalso WordSize.equals (WordSize.objptr (),
                                                                   WordSize.word64))))
-                                      then Bytes.alignWord64 width
+                                      then Bytes.alignWord128 width
                                    else width
+                              | Control.Align32 => 
+                                   if (Vector.exists
+                                       (components, fn {component = c, ...} =>
+                                        (case Type.deReal (Component.ty c) of
+                                            NONE => false
+                                          | SOME s =>
+                                               RealSize.equals (s, RealSize.R64))
+                                        orelse
+                                        (case Type.deWord (Component.ty c) of
+                                            NONE => false
+                                          | SOME s =>
+                                               WordSize.equals (s, WordSize.word64))
+                                        orelse
+                                        (Type.isObjptr (Component.ty c)
+                                         andalso WordSize.equals (WordSize.objptr (),
+                                                                  WordSize.word64))))
+                                      then Bytes.alignWord256 width
+                                   else width
+
                        in
                           Bytes.- (alignWidth, width)
                        end
@@ -865,6 +884,7 @@ structure ObjptrRep =
                              Control.Align4 => Bytes.alignWord32 width''
                            | Control.Align8 => Bytes.alignWord64 width''
                            | Control.Align16 => Bytes.alignWord128 width''
+                           | Control.Align32 => Bytes.alignWord256 width''
                        val alignWidth' = Bytes.- (alignWidth'', Runtime.headerSize ())
                     in
                        Bytes.- (alignWidth', width)
@@ -921,7 +941,8 @@ structure ObjptrRep =
                   then Type.zero (case !Control.align of
                                      Control.Align4 => Bits.inWord32
                                    | Control.Align8 => Bits.inWord64
-                                   | Control.Align16 => Bits.inWord128)
+                                   | Control.Align16 => Bits.inWord128
+                                   | Control.Align32 => Bits.inWord256)
                else componentsTy
          in
             T {components = components,
@@ -1086,6 +1107,7 @@ structure TupleRep =
        * sub-word32 components must be at the low byte offset (but
        * high bit offset) of the containing word32.
        *)
+(*TUCKER: More stuff here that might matter*)
       fun make (objptrTycon: ObjptrTycon.t,
                 rs: {isMutable: bool,
                      rep: Rep.t,

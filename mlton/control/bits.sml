@@ -37,6 +37,7 @@ local
                val inWord32: t
                val inWord64: t
                val inWord128: t
+               val inWord256: t
                val isAligned: t * {alignment: t} -> bool
                val isByteAligned: t -> bool
                val isWord8Aligned: t -> bool
@@ -44,6 +45,7 @@ local
                val isWord32Aligned: t -> bool
                val isWord64Aligned: t -> bool
                val isWord128Aligned: t -> bool
+               val isWord256Aligned: t -> bool
                val isZero: t -> bool
                val layout: t -> Layout.t
                val max: t * t -> t
@@ -75,6 +77,7 @@ local
                val alignWord32: t -> t
                val alignWord64: t -> t
                val alignWord128: t -> t
+               val alignWord256: t -> t
                val compare: t * t -> Relation.t
                val equals: t * t -> bool
                val fromInt: int -> t
@@ -84,6 +87,7 @@ local
                val inWord32: t
                val inWord64: t
                val inWord128: t
+               val inWord256: t
                (* val isAligned: t * {alignment: t} -> bool *)
                val isWord32Aligned: t -> bool
                (* val isWord64Aligned: t -> bool *)
@@ -130,6 +134,7 @@ local
                val inWord32: bits = 32
                val inWord64: bits = 64
                val inWord128: bits = 128
+               val inWord256: bits = 256
 
                fun isAligned (b, {alignment = a}) = 0 = rem (b, a)
                fun isByteAligned b = isAligned (b, {alignment = inByte})
@@ -138,7 +143,7 @@ local
                fun isWord32Aligned b = isAligned (b, {alignment = inWord32})
                fun isWord64Aligned b = isAligned (b, {alignment = inWord64})
                fun isWord128Aligned b = isAligned (b, {alignment = inWord128})
-
+               fun isWord256Aligned b = isAligned (b, {alignment = inWord256})
                fun toBytes b =
                   if isByteAligned b
                      then quot (b, inByte)
@@ -161,6 +166,7 @@ local
                val inWord32: bytes = 4
                val inWord64: bytes = 8
                val inWord128: bytes = 16
+               val inWord256: bytes = 32
 
                fun isAligned (b, {alignment = a}) = 0 = rem (b, a)
                (* fun isWord8Aligned b = isAligned (b, {alignment = inWord8}) *)
@@ -177,6 +183,7 @@ local
                fun alignWord32 b = align (b, {alignment = inWord32})
                fun alignWord64 b = align (b, {alignment = inWord64}) 
                fun alignWord128 b = align (b, {alignment = inWord128})
+               fun alignWord256 b = align (b, {alignment = inWord256})
            end
       end
 

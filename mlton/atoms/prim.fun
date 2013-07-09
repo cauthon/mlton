@@ -688,6 +688,8 @@ fun cpointerGet ctype =
        | Word16 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 64))
+       | Word128 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 128))
+       | Word256 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 256))
    end
 val cpointerLt = CPointer_lt
 fun cpointerSet ctype = 
@@ -706,6 +708,8 @@ fun cpointerSet ctype =
        | Word16 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 64))
+       | Word128 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 128))
+       | Word256 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 256))
    end
 val cpointerSub = CPointer_sub
 val cpointerToWord = CPointer_toWord

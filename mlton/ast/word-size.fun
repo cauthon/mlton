@@ -26,7 +26,7 @@ fun fromBits (b: Bits.t): t =
    else Error.bug (concat ["WordSize.fromBits: strange word size: ", Bits.toString b])
 
 fun isValidSize (i: int) =
-   (1 <= i andalso i <= 32) orelse i = 64
+   (1 <= i andalso i <= 32) orelse i = 64 orelse i = 128 orelse i = 256
 
 val byte = fromBits (Bits.inByte)
 
@@ -46,6 +46,8 @@ val word8 = fromBits (Bits.fromInt 8)
 val word16 = fromBits (Bits.fromInt 16)
 val word32 = fromBits (Bits.fromInt 32)
 val word64 = fromBits (Bits.fromInt 64)
+val word128 = fromBits (Bits.fromInt 128)
+val word256 = fromBits (Bits.fromInt 256)
 
 val allVector = Vector.tabulate (65, fn i =>
                                   if isValidSize i
@@ -54,7 +56,7 @@ val allVector = Vector.tabulate (65, fn i =>
 
 val all: t list = Vector.toList (Vector.keepAllMap (allVector, fn so => so))
 
-val prims = List.map ([8, 16, 32, 64], fromBits o Bits.fromInt)
+val prims = List.map ([8, 16, 32, 64, 128, 256], fromBits o Bits.fromInt)
 
 val memoize: (t -> 'a) -> t -> 'a =
    fn f =>
@@ -76,6 +78,10 @@ fun roundUpToPrim s =
                       then 32
                    else if bits = 64
                            then 64
+                      else if bits = 128
+                              then 128
+                        else if bits = 256
+                                then 256         
                         else Error.bug "WordSize.roundUpToPrim"
    in
       fromBits (Bits.fromInt bits)
@@ -105,7 +111,7 @@ fun isInRange (s, i, sg) =
       min <= i andalso i <= max
    end
 
-datatype prim = W8 | W16 | W32 | W64
+datatype prim = W8 | W16 | W32 | W64 | W128 | W256
 
 fun primOpt (s: t): prim option =
    case Bits.toInt (bits s) of
@@ -113,6 +119,8 @@ fun primOpt (s: t): prim option =
     | 16 => SOME W16
     | 32 => SOME W32
     | 64 => SOME W64
+    | 128 => SOME W128
+    | 256 => SOME W256
     | _ => NONE
 
 fun prim s =

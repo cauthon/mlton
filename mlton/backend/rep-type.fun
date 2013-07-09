@@ -405,7 +405,8 @@ structure ObjectType =
                   andalso (case !Control.align of
                               Control.Align4 => Bits.isWord32Aligned b
                             | Control.Align8 => Bits.isWord64Aligned b
-                            | Control.Align16 => Bits.isWord128Aligned b)
+                            | Control.Align16 => Bits.isWord128Aligned b
+                            | Control.Align32 => Bits.isWord256Aligned b)
                end
           | Stack => true
           | Weak to => Option.fold (to, true, fn (t,_) => Type.isObjptr t)
@@ -421,6 +422,7 @@ structure ObjectType =
                         Control.Align4 => Bytes.fromInt 4
                       | Control.Align8 => Bytes.fromInt 8
                       | Control.Align16 => Bytes.fromInt 16
+                      | Control.Align32 => Bytes.fromInt 32
                   val bytesHeader =
                      Bits.toBytes (Control.Target.Size.header ())
                   val bytesCSize =
@@ -451,6 +453,7 @@ structure ObjectType =
 
       (* Order in the following vector matters.  The basic pointer tycons must
        * correspond to the constants in gc/object.h.
+       *TUCKER: This might be revelent
        * STACK_TYPE_INDEX,
        * THREAD_TYPE_INDEX,
        * WEAK_GONE_TYPE_INDEX,
@@ -763,7 +766,8 @@ fun checkOffset {base, isVector, offset, result} =
          else offsetBits
    in
       List.exists 
-      ([Bits.inWord8, Bits.inWord16, Bits.inWord32, Bits.inWord64, Bits.inWord128], fn primBits =>
+      ([Bits.inWord8, Bits.inWord16, Bits.inWord32, Bits.inWord64,
+        Bits.inWord128, Bits.inWord256], fn primBits =>
        Bits.equals (resultBits, primBits) 
        andalso Bits.isAligned (offsetBits, {alignment = Bits.min (primBits, alignBits)}))
       andalso

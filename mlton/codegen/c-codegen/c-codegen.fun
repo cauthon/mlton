@@ -78,6 +78,7 @@ structure WordX =
              | W16 => simple "16"
              | W32 => concat ["0x", toString w]
              | W64 => concat ["0x", toString w, "llu"]
+(*TUCKER: Figure out what this is and fix it*)
          end
    end
 

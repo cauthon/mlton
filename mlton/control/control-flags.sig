@@ -19,7 +19,7 @@ signature CONTROL_FLAGS =
       (*            Begin Flags             *)
       (*------------------------------------*)
 
-      datatype align = Align4 | Align8 | Align16
+      datatype align = Align4 | Align8 | Align16 | Align32
       val align: align ref
 
       val atMLtons: string vector ref

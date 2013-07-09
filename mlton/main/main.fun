@@ -226,7 +226,7 @@ fun makeOptions {usage} =
       List.map
       (
        [
-       (Normal, "align", if defaultAlignIs8 () then " {8|4|16}" else " {4|8|16}",
+       (Normal, "align", if defaultAlignIs8 () then " {8|4|16|32}" else " {4|8|16|32}",
         "object alignment",
         (SpaceString (fn s =>
                       explicitAlign
@@ -234,6 +234,7 @@ fun makeOptions {usage} =
                                   "4" => Align4
                                 | "8" => Align8
                                 | "16" => Align16
+                                | "32" => Align32
                                 | _ => usage (concat ["invalid -align flag: ",
                                                       s]))))),
        (Expert, "ar-script", " <ar>", "path to a script producing archives",
