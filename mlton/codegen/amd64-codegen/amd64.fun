@@ -76,7 +76,7 @@ struct
              | SNGL => str "s"
              | DBLE => str "d"
              | VXMM => str "x"
-             | VAVX => str "a"
+             | VYMM => str "y"
           end
       val toString = Layout.toString o layout
 
@@ -86,7 +86,7 @@ struct
            | 4 => LONG
            | 8 => QUAD
            | 16 => VSSE
-           | 32 => VAVX
+           | 32 => VYMM
            | _ => Error.bug "amd64.Size.fromBytes"
       val toBytes : t -> int
         = fn BYTE => 1
@@ -96,7 +96,7 @@ struct
            | SNGL => 4
            | DBLE => 8
            | VSSE => 16
-           | VAVX => 32
+           | VYMM => 32
 (*TUCKER: Not sure how to deal with new types in the rest of this structure*)
       local
          datatype z = datatype CType.t
@@ -115,6 +115,8 @@ struct
              | Word16 => Vector.new1 WORD
              | Word32 => Vector.new1 LONG
              | Word64 => Vector.new1 QUAD
+             | Word128 => Vector.new1 VXMM
+             | Word256 => Vector.new1 VYMM
       end
 
       val class
@@ -125,7 +127,7 @@ struct
            | SNGL => FLT
            | DBLE => FLT
            | VXMM => VEC
-           | VAVX => VEC
+           | VYMM => VEC
 
       val eq = fn (s1, s2) => s1 = s2
       val lt = fn (s1, s2) => (toBytes s1) < (toBytes s2)
@@ -365,7 +367,7 @@ struct
                     XMM8, XMM9, XMM10, XMM11, XMM12, XMM13, XMM14, XMM15]
 
       datatype part
-        = V | D | S
+        = Y | X | D | S
 
       datatype t = T of {reg: reg, part: part}
 
@@ -373,87 +375,115 @@ struct
         = case part
             of D => Size.DBLE
              | S => Size.SNGL
-             | V => Size.VXMM
+             | X => Size.VXMM
+             | Y => Size.VYMM
 
-      fun layout (T {reg, ...})
+      fun layout (T {reg, part})
         = let
              open Layout
+             fun doit num =
+               let
+                  val base =
+                     case part of 
+                        S => "%xmm"
+                      | D => "%xmm"
+                      | X => "%xmm"
+                      | L => "%ymm"
+               in
+                  str (String.concat [base, num])
+               end
           in
             case reg
-             of XMM0 => str "%xmm0"
-              | XMM1 => str "%xmm1"
-              | XMM2 => str "%xmm2"
-              | XMM3 => str "%xmm3"
-              | XMM4 => str "%xmm4"
-              | XMM5 => str "%xmm5"
-              | XMM6 => str "%xmm6"
-              | XMM7 => str "%xmm7"
-              | XMM8 => str "%xmm8"
-              | XMM9 => str "%xmm9"
-              | XMM10 => str "%xmm10"
-              | XMM11 => str "%xmm11"
-              | XMM12 => str "%xmm12"
-              | XMM13 => str "%xmm13"
-              | XMM14 => str "%xmm14"
-              | XMM15 => str "%xmm15"
+             of XMM0 => doit "0"
+              | XMM1 => doit "1"
+              | XMM2 => doit "2"
+              | XMM3 => doit "3"
+              | XMM4 => doit "4"
+              | XMM5 => doit "5"
+              | XMM6 => doit "6"
+              | XMM7 => doit "7"
+              | XMM8 => doit "8"
+              | XMM9 => doit "9"
+              | XMM10 => doit "10"
+              | XMM11 => doit "11"
+              | XMM12 => doit "12"
+              | XMM13 => doit "13"
+              | XMM14 => doit "14"
+              | XMM15 => doit "15"
           end
       val toString = Layout.toString o layout
 
       fun eq(T r1, T r2) = r1 = r2
 (*(let ((start (point)))
   (dotimes (i 16)
-         (dolist (j '(?S ?D ?V))
+         (dolist (j '(?S ?D ?X ?Y))
                  (insert (format "val xmm%d%c = T {reg = XMM%d, part = %c}\n"
                                  i j i j))))
   (indent-region start (point)))*)
       val xmm0S = T {reg = XMM0, part = S}
       val xmm0D = T {reg = XMM0, part = D}
-      val xmm0V = T {reg = XMM0, part = V}
+      val xmm0X = T {reg = XMM0, part = X}
+      val ymm0 = T {reg = XMM0, part = Y}
       val xmm1S = T {reg = XMM1, part = S}
       val xmm1D = T {reg = XMM1, part = D}
-      val xmm1V = T {reg = XMM1, part = V}
+      val xmm1X = T {reg = XMM1, part = X}
+      val ymm1 = T {reg = XMM1, part = Y}
       val xmm2S = T {reg = XMM2, part = S}
       val xmm2D = T {reg = XMM2, part = D}
-      val xmm2V = T {reg = XMM2, part = V}
+      val xmm2X = T {reg = XMM2, part = X}
+      val ymm2 = T {reg = XMM2, part = Y}
       val xmm3S = T {reg = XMM3, part = S}
       val xmm3D = T {reg = XMM3, part = D}
-      val xmm3V = T {reg = XMM3, part = V}
+      val xmm3X = T {reg = XMM3, part = X}
+      val ymm3 = T {reg = XMM3, part = Y}
       val xmm4S = T {reg = XMM4, part = S}
       val xmm4D = T {reg = XMM4, part = D}
-      val xmm4V = T {reg = XMM4, part = V}
+      val xmm4X = T {reg = XMM4, part = X}
+      val ymm4 = T {reg = XMM4, part = Y}
       val xmm5S = T {reg = XMM5, part = S}
       val xmm5D = T {reg = XMM5, part = D}
-      val xmm5V = T {reg = XMM5, part = V}
+      val xmm5X = T {reg = XMM5, part = X}
+      val ymm5 = T {reg = XMM5, part = Y}
       val xmm6S = T {reg = XMM6, part = S}
       val xmm6D = T {reg = XMM6, part = D}
-      val xmm6V = T {reg = XMM6, part = V}
+      val xmm6X = T {reg = XMM6, part = X}
+      val ymm6 = T {reg = XMM6, part = Y}
       val xmm7S = T {reg = XMM7, part = S}
       val xmm7D = T {reg = XMM7, part = D}
-      val xmm7V = T {reg = XMM7, part = V}
+      val xmm7X = T {reg = XMM7, part = X}
+      val ymm7 = T {reg = XMM7, part = Y}
       val xmm8S = T {reg = XMM8, part = S}
       val xmm8D = T {reg = XMM8, part = D}
-      val xmm8V = T {reg = XMM8, part = V}
+      val xmm8X = T {reg = XMM8, part = X}
+      val ymm8 = T {reg = XMM8, part = Y}
       val xmm9S = T {reg = XMM9, part = S}
       val xmm9D = T {reg = XMM9, part = D}
-      val xmm9V = T {reg = XMM9, part = V}
+      val xmm9X = T {reg = XMM9, part = X}
+      val ymm9 = T {reg = XMM9, part = Y}
       val xmm10S = T {reg = XMM10, part = S}
       val xmm10D = T {reg = XMM10, part = D}
-      val xmm10V = T {reg = XMM10, part = V}
+      val xmm10X = T {reg = XMM10, part = X}
+      val ymm10 = T {reg = XMM10, part = Y}
       val xmm11S = T {reg = XMM11, part = S}
       val xmm11D = T {reg = XMM11, part = D}
-      val xmm11V = T {reg = XMM11, part = V}
+      val xmm11X = T {reg = XMM11, part = X}
+      val ymm11 = T {reg = XMM11, part = Y}
       val xmm12S = T {reg = XMM12, part = S}
       val xmm12D = T {reg = XMM12, part = D}
-      val xmm12V = T {reg = XMM12, part = V}
+      val xmm12X = T {reg = XMM12, part = X}
+      val ymm12 = T {reg = XMM12, part = Y}
       val xmm13S = T {reg = XMM13, part = S}
       val xmm13D = T {reg = XMM13, part = D}
-      val xmm13V = T {reg = XMM13, part = V}
+      val xmm13X = T {reg = XMM13, part = X}
+      val ymm13 = T {reg = XMM13, part = Y}
       val xmm14S = T {reg = XMM14, part = S}
       val xmm14D = T {reg = XMM14, part = D}
-      val xmm14V = T {reg = XMM14, part = V}
+      val xmm14X = T {reg = XMM14, part = X}
+      val ymm14 = T {reg = XMM14, part = Y}
       val xmm15S = T {reg = XMM15, part = S}
       val xmm15D = T {reg = XMM15, part = D}
-      val xmm15V = T {reg = XMM15, part = V}
+      val xmm15X = T {reg = XMM15, part = X}
+      val ymm15 = T {reg = XMM15, part = Y}
 
       local
          fun make part =
@@ -477,15 +507,19 @@ struct
       in
          val singleRegisters = make S
          val doubleRegisters = make D
-         val vectorRegisters = make V
+         val xmmRegisters = make X
+         val ymmRegisters = make Y
       end
 
-      val all = List.concat [singleRegisters, doubleRegisters]
+      val all = List.concat [singleRegisters, doubleRegisters,
+                             xmmRegisters, ymmRegisters]
 
       fun valid r = List.contains(all, r, eq)
 
       val contains 
-        = fn (D, D) => true | (D, S) => true
+        = fn (Y, S) => true | (Y, D) => true | (Y, X) => true | (Y, Y) => true
+           | (X, S) => true | (X, D) => true | (X, X) => true
+           | (D, S) => true | (D, D) => true 
            | (S, S) => true
            | _      => false
 
@@ -495,7 +529,7 @@ struct
                                contains(part2,part1))
 
       fun coincident' reg
-        = List.keepAllMap([D, S],
+        = List.keepAllMap([Y, X, D, S],
                           fn part 
                            => let
                                 val register' = T {reg = reg, part = part}
@@ -513,149 +547,16 @@ struct
       val registers
         = fn Size.SNGL => singleRegisters
            | Size.DBLE => doubleRegisters
-           | Size.VXMM => vectorRegisters
+           | Size.VXMM => xmmRegisters
+           | Size.VYMM => ymmRegisters
            | _ => Error.bug "amd64.XmmRegister.registers"
 
       val callerSaveRegisters = all
       val calleeSaveRegisters = []
+(*do we need a withLowPart or lowPartOf now?*)
     end
 
-    structure YmmRegister =
-(*AVX registers*)
-    struct
-      datatype reg
-        = YMM0 | YMM1 | YMM2 | YMM3 | YMM4 | YMM5 | YMM6 | YMM7 
-          | YMM8 | YMM9 | YMM10 | YMM11 | YMM12 | YMM13 | YMM14 | YMM15 
-        val allReg = [YMM0, YMM1, YMM2, YMM3, YMM4, YMM5, YMM6, YMM7, YMM8,
-                      YMM9, YMM10, YMM11, YMM12, YMM13, YMM14, YMM15]
-                         
-        datatype part = YMM | XMM
-        datatype t = T of {reg: reg, part: part}
-     fun size (T {part, ...})
-        = case part
-             | YMM => Size.VAVX
-             | XMM => Size.VXMM
 
-      fun layout (T {reg, ...})
-        = let
-             open Layout
-          in
-            case reg
-             of YMM0 => str "%ymm0"
-              | YMM1 => str "%ymm1"
-              | YMM2 => str "%ymm2"
-              | YMM3 => str "%ymm3"
-              | YMM4 => str "%ymm4"
-              | YMM5 => str "%ymm5"
-              | YMM6 => str "%ymm6"
-              | YMM7 => str "%ymm7"
-              | YMM8 => str "%ymm8"
-              | YMM9 => str "%ymm9"
-              | YMM10 => str "%ymm10"
-              | YMM11 => str "%ymm11"
-              | YMM12 => str "%ymm12"
-              | YMM13 => str "%ymm13"
-              | YMM14 => str "%ymm14"
-              | YMM15 => str "%ymm15"
-          end
-(*(let ((start (point)))
-  (dotimes (i 16)
-                 (insert (format "val xmm%d = T {reg = XMM%d, part = XMM}\n"
-                                 i i))))
-  (indent-region start (point)))*)
-      val xmm0 = T {reg = YMM0, part = XMM}
-      val xmm1 = T {reg = YMM1, part = XMM}
-      val xmm2 = T {reg = YMM2, part = XMM}
-      val xmm3 = T {reg = YMM3, part = XMM}
-      val xmm4 = T {reg = YMM4, part = XMM}
-      val xmm5 = T {reg = YMM5, part = XMM}
-      val xmm6 = T {reg = YMM6, part = XMM}
-      val xmm7 = T {reg = YMM7, part = XMM}
-      val xmm8 = T {reg = YMM8, part = XMM}
-      val xmm9 = T {reg = YMM9, part = XMM}
-      val xmm10 = T {reg = YMM10, part = XMM}
-      val xmm11 = T {reg = YMM11, part = XMM}
-      val xmm12 = T {reg = YMM12, part = XMM}
-      val xmm13 = T {reg = YMM13, part = XMM}
-      val xmm14 = T {reg = YMM14, part = XMM}
-      val xmm15 = T {reg = YMM15, part = XMM}
-      val ymm0 = T {reg = YMM0, part = YMM}
-      val ymm1 = T {reg = YMM1, part = YMM}
-      val ymm2 = T {reg = YMM2, part = YMM}
-      val ymm3 = T {reg = YMM3, part = YMM}
-      val ymm4 = T {reg = YMM4, part = YMM}
-      val ymm5 = T {reg = YMM5, part = YMM}
-      val ymm6 = T {reg = YMM6, part = YMM}
-      val ymm7 = T {reg = YMM7, part = YMM}
-      val ymm8 = T {reg = YMM8, part = YMM}
-      val ymm9 = T {reg = YMM9, part = YMM}
-      val ymm10 = T {reg = YMM10, part = YMM}
-      val ymm11 = T {reg = YMM11, part = YMM}
-      val ymm12 = T {reg = YMM12, part = YMM}
-      val ymm13 = T {reg = YMM13, part = YMM}
-      val ymm14 = T {reg = YMM14, part = YMM}
-      val ymm15 = T {reg = YMM15, part = YMM}
-
-      local
-         fun make part =
-            List.rev
-            [T {reg = YMM0, part = part},
-             T {reg = YMM1, part = part},
-             T {reg = YMM2, part = part},
-             T {reg = YMM3, part = part},
-             T {reg = YMM4, part = part},
-             T {reg = YMM5, part = part},
-             T {reg = YMM6, part = part},
-             T {reg = YMM7, part = part},
-             T {reg = YMM8, part = part},
-             T {reg = YMM9, part = part},
-             T {reg = YMM10, part = part},
-             T {reg = YMM11, part = part},
-             T {reg = YMM12, part = part},
-             T {reg = YMM13, part = part},
-             T {reg = YMM14, part = part},
-             T {reg = YMM15, part = part}]
-      in
-         val xmmRegisters = make XMM
-         val ymmRegisters = make YMM
-      end
-
-      val all = List.concat [xmmRegisters, ymmRegisters]
-
-      fun valid r = List.contains(all, r, eq)
-(*TUCKER: need to figure out how to do below, also same for xmm above*)
-      val contains 
-        = fn (D, D) => true | (D, S) => true
-           | (S, S) => true
-           | _      => false
-
-      fun coincide (T {reg = reg1, part = part1}, 
-                    T {reg = reg2, part = part2}) 
-        = reg1 = reg2 andalso (contains(part1,part2) orelse 
-                               contains(part2,part1))
-
-      fun coincident' reg
-        = List.keepAllMap([D, S],
-                          fn part 
-                           => let
-                                val register' = T {reg = reg, part = part}
-                              in 
-                                if valid register' andalso 
-                                   coincide(T {reg = reg, part = D}, register')
-                                  then SOME register'
-                                  else NONE
-                              end)
-
-      fun coincident (T {reg, ...}) = coincident' reg
-      (* quell unused warning *)
-      val _ = coincident
-
-      val registers
-        = fn Size.VXMM => xmmRegisters
-           | Size.VAVX => ymmRegisters
-           | _ => Error.bug "amd64.YmmRegister.registers"
-
-    end
 
   structure Immediate =
     struct
@@ -751,6 +652,7 @@ struct
 
       val word = construct o Word
       val label = construct o Label
+(*TUCKER: might need to add in another case here*)
       val labelPlusWord = fn (l, w) =>
          if WordSize.equals (WordX.size w, WordSize.word64)
             then construct (LabelPlusWord (l, w))
@@ -1803,11 +1705,11 @@ struct
             open Layout
           in
             fn SSE_ADDP => str "addp"
-          | fn SSE_SUBP => str "subp"
-          | fn SSE_MULP => str "mulp"
-          | fn SSE_DIVP => str "divp"
-          | fn SSE_MAXP => str "maxp"
-          | fn SEE_MINP => str "minp"
+            fn SSE_SUBP => str "subp"
+            fn SSE_MULP => str "mulp"
+            fn SSE_DIVP => str "divp"
+            fn SSE_MAXP => str "maxp"
+            fn SEE_MINP => str "minp"
       (* Scalar SSE unary arithmetic instructions. *)
       datatype sse_unas
         = SSE_SQRTS (* square root; p. 360,362 *)
@@ -2907,11 +2809,6 @@ struct
                                    weight: int,
                                    sync: bool,
                                    reserve: bool} list}
-        | YmmAssume of {assumes: {register: YmmRegister.t,
-                                   memloc: MemLoc.t, 
-                                   weight: int,
-                                   sync: bool,
-                                   reserve: bool} list}
           (* Ensure that memloc is in the register, possibly reserved; 
            * used at bot of basic blocks to establish passing convention,
            * also used before C calls to set-up %rsp.
@@ -2920,9 +2817,6 @@ struct
                              memloc: MemLoc.t,
                              reserve: bool} list}
         | XmmCache of {caches: {register: XmmRegister.t,
-                                 memloc: MemLoc.t,
-                                 reserve: bool} list}
-        | YmmCache of {caches: {register: YmmRegister.t,
                                  memloc: MemLoc.t,
                                  reserve: bool} list}
           (* Reset the register allocation;
@@ -2954,14 +2848,12 @@ struct
            *)
         | Reserve of {registers: Register.t list}
         | XmmReserve of {registers: XmmRegister.t list}
-        | YmmReserve of {registers: YmmRegister.t list}
           (* Assert that the register is free for the allocator;
            * used to free registers at fall-thru;
            * also used after C calls to free %rsp.
            *)
         | Unreserve of {registers : Register.t list}
         | XmmUnreserve of {registers : XmmRegister.t list}
-        | YmmUnreserve of {registers : YmmRegister.t list}
           (* Save the register allocation in id and
            *  assert that live are used at this point;
            * used at bot of basic blocks to delay establishment
@@ -3004,19 +2896,6 @@ struct
                                  if sync then " (sync)" else "",
                                  " ",
                                  s])]
-           | YmmAssume {assumes}
-           => concat["YmmAssume: ",
-                     "assumes: ",
-                     List.fold
-                     (assumes,
-                      "",
-                      fn ({register, memloc, sync, reserve, ...}, s)
-                       => concat[MemLoc.toString memloc, 
-                                 " -> ", YmmRegister.toString register,
-                                 if reserve then " (reserved)" else "",
-                                 if sync then " (sync)" else "",
-                                 " ",
-                                 s])]
            | Cache {caches}
            => concat["Cache: ",
                      "caches: ",
@@ -3038,18 +2917,6 @@ struct
                       fn ({register, memloc, reserve}, s)
                        => concat[MemLoc.toString memloc, 
                                  " -> ", XmmRegister.toString register,
-                                 if reserve then " (reserved)" else "",
-                                 " ",
-                                 s])]
-           | YmmCache {caches}
-           => concat["YmmCache: ",
-                     "caches: ",
-                     List.fold
-                     (caches,
-                      "",
-                      fn ({register, memloc, reserve}, s)
-                       => concat[MemLoc.toString memloc, 
-                                 " -> ", YmmRegister.toString register,
                                  if reserve then " (reserved)" else "",
                                  " ",
                                  s])]
@@ -3118,13 +2985,6 @@ struct
                                "",
                                fn (register,s)
                                 => concat[XmmRegister.toString register, " ", s])]
-           | YmmReserve {registers}
-           => concat["YmmReserve: ", 
-                     "registers: ",
-                     List.fold(registers,
-                               "",
-                               fn (register,s)
-                                => concat[YmmRegister.toString register, " ", s])]
            | Unreserve {registers}
            => concat["Unreserve: ", 
                      "registers: ",
@@ -3139,13 +2999,6 @@ struct
                                "",
                                fn (register,s)
                                 => concat[XmmRegister.toString register, " ", s])]
-           | YmmUnreserve {registers}
-           => concat["YmmUnreserve: ", 
-                     "registers: ",
-                     List.fold(registers,
-                               "",
-                               fn (register,s)
-                                => concat[YmmRegister.toString register, " ", s])]
            | SaveRegAlloc {live, id}
            => concat["SaveRegAlloc: ", 
                      "live: ",
@@ -3185,15 +3038,6 @@ struct
                 => {uses = (Operand.memloc memloc)::uses,
                     defs = (Operand.xmmregister register)::defs, 
                     kills = []})
-           | YmmAssume {assumes}
-           => List.fold
-              (assumes,
-               {uses = [], defs = [], kills = []},
-               fn ({register, memloc, ...},
-                   {uses, defs, ...})
-                => {uses = (Operand.memloc memloc)::uses,
-                    defs = (Operand.ymmregister register)::defs, 
-                    kills = []})
            | Cache {caches}
            => List.fold
               (caches,
@@ -3212,15 +3056,6 @@ struct
                 => {uses = (Operand.memloc memloc)::uses,
                     defs = (Operand.xmmregister register)::defs, 
                     kills = []})
-           | YmmCache {caches}
-           => List.fold
-              (caches,
-               {uses = [], defs = [], kills = []},
-               fn ({register, memloc, ...},
-                   {uses, defs, ...})
-                => {uses = (Operand.memloc memloc)::uses,
-                    defs = (Operand.ymmregister register)::defs, 
-                    kills = []})
            | Reset => {uses = [], defs = [], kills = []}
            | Force {commit_memlocs, remove_memlocs, ...}
            => {uses = List.map(MemLocSet.toList commit_memlocs, Operand.memloc) @
@@ -3237,10 +3072,8 @@ struct
               end
            | Reserve {...} => {uses = [], defs = [], kills = []}
            | XmmReserve {...} => {uses = [], defs = [], kills = []}
-           | YmmReserve {...} => {uses = [], defs = [], kills = []}
            | Unreserve {...} => {uses = [], defs = [], kills = []}
            | XmmUnreserve {...} => {uses = [], defs = [], kills = []}
-           | YmmUnreserve {...} => {uses = [], defs = [], kills = []}
            | SaveRegAlloc {live, ...} 
            => {uses = List.map(MemLocSet.toList live, Operand.memloc), 
                defs = [], 
@@ -3305,20 +3138,6 @@ struct
                                             of Operand.MemLoc memloc => memloc
                                              | _ => Error.bug "amd64.Directive.replace: XmmCache, memloc",
                                  reserve = reserve})}
-           | YmmCache {caches}
-           => YmmCache {caches
-                         = List.map
-                           (caches,
-                            fn {register, memloc, reserve}
-                             => {register = case replacer {use = false, def = true}
-                                                 (Operand.ymmregister register)
-                                              of Operand.YmmRegister register => register
-                                               | _ => Error.bug "amd64.Directive.replace: YmmCache, ymmregister",
-                                 memloc = case replacer {use = true, def = false}
-                                               (Operand.memloc memloc)
-                                            of Operand.MemLoc memloc => memloc
-                                             | _ => Error.bug "amd64.Directive.replace: YmmCache, memloc",
-                                 reserve = reserve})}
            | Reset => Reset
            | Force {commit_memlocs, commit_classes, 
                     remove_memlocs, remove_classes,
@@ -3362,29 +3181,23 @@ struct
                                      | _ => Error.bug "amd64.Directive.replace: Return, returns"})}
            | Reserve {registers} => Reserve {registers = registers}
            | XmmReserve {registers} => XmmReserve {registers = registers}
-           | YmmReserve {registers} => YmmReserve {registers = registers}
            | Unreserve {registers} => Unreserve {registers = registers}
            | XmmUnreserve {registers} => XmmUnreserve {registers = registers}
-           | YmmUnreserve {registers} => YmmUnreserve {registers = registers}
            | SaveRegAlloc {live, id} => SaveRegAlloc {live = live, id = id}
            | RestoreRegAlloc {live, id} => RestoreRegAlloc {live = live, id = id}
 
       val assume = Assume
       val xmmassume = XmmAssume
-      val ymmassume = YmmAssume
       val cache = Cache
       val xmmcache = XmmCache
-      val ymmcache = YmmCache
       val reset = fn () => Reset
       val force = Force
       val ccall = fn () => CCall
       val return = Return
       val reserve = Reserve
       val xmmreserve = XmmReserve
-      val ymmreserve = YmmReserve
       val unreserve = Unreserve
       val xmmunreserve = XmmUnreserve
-      val ymmunreserve = YmmUnreserve
       val saveregalloc = SaveRegAlloc
       val restoreregalloc = RestoreRegAlloc
     end
@@ -3610,20 +3423,16 @@ struct
       val directive = Directive
       val directive_assume = Directive o Directive.assume
       val directive_xmmassume = Directive o Directive.xmmassume
-      val directive_ymmassume = Directive o Directive.ymmassume
       val directive_cache = Directive o Directive.cache
       val directive_xmmcache = Directive o Directive.xmmcache
-      val directive_ymmcache = Directive o Directive.ymmcache
       val directive_reset = Directive o Directive.reset
       val directive_force = Directive o Directive.force
       val directive_ccall = Directive o Directive.ccall
       val directive_return = Directive o Directive.return
       val directive_reserve = Directive o Directive.reserve
       val directive_xmmreserve = Directive o Directive.xmmreserve
-      val directive_ymmreserve = Directive o Directive.ymmreserve
       val directive_unreserve = Directive o Directive.unreserve
       val directive_xmmunreserve = Directive o Directive.xmmunreserve
-      val directive_ymmunreserve = Directive o Directive.ymmunreserve
       val directive_saveregalloc = Directive o Directive.saveregalloc
       val directive_restoreregalloc = Directive o Directive.restoreregalloc
       val pseudoop = PseudoOp
@@ -3674,6 +3483,8 @@ struct
       val instruction_lea = Instruction o Instruction.lea
       val instruction_sse_binas = Instruction o Instruction.sse_binas
       val instruction_sse_unas = Instruction o Instruction.sse_unas
+      val instruction_sse_binap = Instruction o Instruction.sse_binap
+      val instruction_sse_unap = Instruction o Instruction.sse_unap
       val instruction_sse_binlp = Instruction o Instruction.sse_binlp
       val instruction_sse_movs = Instruction o Instruction.sse_movs
       val instruction_sse_comis = Instruction o Instruction.sse_comis

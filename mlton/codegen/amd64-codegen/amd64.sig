@@ -42,11 +42,11 @@ signature AMD64 =
 
     structure Size :
       sig
-        datatype class = INT | FLT
+        datatype class = INT | FLT | VEC
 
         datatype t 
           = BYTE | WORD | LONG | QUAD
-          | SNGL | DBLE 
+          | SNGL | DBLE | VXMM | VAVX
 
         val toString : t -> string
         val fromBytes : int -> t
@@ -132,7 +132,7 @@ signature AMD64 =
         val allReg : reg list
 
         datatype part
-          = V | D | S
+          = Y | X | D | S
 
         datatype t = T of {reg: reg, part: part}
         val all : t list
@@ -151,96 +151,74 @@ signature AMD64 =
 
         val xmm0D : t
         val xmm0S : t
-        val xmm0V : t
+        val xmm0X : t
+        val ymm0 : t
         val xmm1D : t
         val xmm1S : t
-        val xmm1V : t
+        val xmm1X : t
+        val ymm1 : t
         val xmm2D : t
         val xmm2S : t
-        val xmm2V : t
+        val xmm2X : t
+        val ymm2 : t
         val xmm3D : t
         val xmm3S : t
-        val xmm3V : t
+        val xmm3X : t
+        val ymm3 : t
         val xmm4D : t
         val xmm4S : t
-        val xmm4V : t
+        val xmm4X : t
+        val ymm4 : t
         val xmm5D : t
         val xmm5S : t
-        val xmm5V : t
+        val xmm5X : t
+        val ymm5 : t
         val xmm6D : t
         val xmm6S : t
-        val xmm6V : t
+        val xmm6X : t
+        val ymm6 : t
         val xmm7D : t
         val xmm7S : t
-        val xmm7V : t
+        val xmm7X : t
+        val ymm7 : t
         val xmm8D : t
         val xmm8S : t
-        val xmm8V : t
+        val xmm8X : t
+        val ymm8 : t
         val xmm9D : t
         val xmm9S : t
-        val xmm9V : t
+        val xmm9X : t
+        val ymm9 : t
         val xmm10D : t
         val xmm10S : t
-        val xmm10V : t
+        val xmm10X : t
+        val ymm10 : t
         val xmm11D : t
         val xmm11S : t
-        val xmm11V : t
+        val xmm11X : t
+        val ymm11 : t
         val xmm12D : t
         val xmm12S : t
-        val xmm12V : t
+        val xmm12X : t
+        val ymm12 : t
         val xmm13D : t
         val xmm13S : t
-        val xmm13V : t
+        val xmm13X : t
+        val ymm13 : t
         val xmm14D : t
         val xmm14S : t
-        val xmm14V : t
+        val xmm14X : t
+        val ymm14 : t
         val xmm15D : t
         val xmm15S : t
-        val xmm15V : t
+        val xmm15X : t
+        val ymm15 : t
 
         val registers : Size.t -> t list
         val callerSaveRegisters : t list
         val calleeSaveRegisters : t list
       end
-    structure YmmRegister :
-(*AVX registers*)
-      sig
-        datatype reg
-          = YMM0 | YMM1 | YMM2 | YMM3 | YMM4 | YMM5 | YMM6 | YMM7 
-          | YMM8 | YMM9 | YMM10 | YMM11 | YMM12 | YMM13 | YMM14 | YMM15 
-        val allReg : reg list
-                         
-        datatype part = YMM | XMM
-        datatype t = T of {reg: reg, part: part}
 
-        val all : t list
-
-        val toString : t -> string
-        val size : t -> Size.t
-        val eq : t * t -> bool
-        val valid  : t -> bool
-        val coincide : t * t -> bool
-        val coincident' : reg -> t list
-        val coincident : t -> t list
-
-(*
-        val return : Size.t -> t
-*)
-        val ymm1 : t
-        val ymm2 : t
-        val ymm3 : t
-        val ymm4 : t
-        val ymm5 : t
-        val ymm6 : t
-        val ymm7 : t
-        val ymm8 : t
-        val ymm9 : t
-        val ymm10 : t
-        val ymm11 : t
-        val ymm12 : t
-        val ymm13 : t
-        val ymm14 : t
-      end
 
     structure Immediate :
       sig
@@ -741,11 +719,6 @@ signature AMD64 =
                                      weight: int,
                                      sync: bool,
                                      reserve: bool} list}
-          | YmmAssume of {assumes: {register: YmmRegister.t,
-                                     memloc: MemLoc.t, 
-                                     weight: int,
-                                     sync: bool,
-                                     reserve: bool} list}
             (* Ensure that memloc is in the register, possibly reserved; 
              * used at bot of basic blocks to establish passing convention,
              * also used before C calls to set-up %esp.
@@ -754,9 +727,6 @@ signature AMD64 =
                                memloc: MemLoc.t,
                                reserve: bool} list}
           | XmmCache of {caches: {register: XmmRegister.t,
-                                   memloc: MemLoc.t,
-                                   reserve: bool} list}
-          | YmmCache of {caches: {register: YmmRegister.t,
                                    memloc: MemLoc.t,
                                    reserve: bool} list}
             (* Reset the register allocation;
@@ -788,14 +758,12 @@ signature AMD64 =
              *)
           | Reserve of {registers: Register.t list}
           | XmmReserve of {registers: XmmRegister.t list}
-          | YmmReserve of {registers: YmmRegister.t list}
             (* Assert that the register is free for the allocator;
              * used to free registers at fall-thru;
              * also used after C calls to free %esp.
              *)
           | Unreserve of {registers: Register.t list}
           | XmmUnreserve of {registers: XmmRegister.t list}
-          | YmmUnreserve of {registers: YmmRegister.t list}
             (* Save the register allocation in id and
              *  assert that live are used at this point;
              * used at bot of basic blocks to delay establishment
@@ -828,18 +796,10 @@ signature AMD64 =
                                     weight: int,
                                     sync: bool,
                                     reserve: bool} list} -> t
-        val ymmassume : {assumes: {register: YmmRegister.t,
-                                    memloc: MemLoc.t,
-                                    weight: int,
-                                    sync: bool,
-                                    reserve: bool} list} -> t
         val cache : {caches: {register: Register.t,
                               memloc: MemLoc.t,
                               reserve: bool} list} -> t
         val xmmcache : {caches: {register: XmmRegister.t,
-                                  memloc: MemLoc.t,
-                                  reserve: bool} list} -> t
-        val ymmcache : {caches: {register: YmmRegister.t,
                                   memloc: MemLoc.t,
                                   reserve: bool} list} -> t
         val reset : unit -> t
@@ -853,10 +813,8 @@ signature AMD64 =
         val return : {returns: {src: Operand.t, dst: MemLoc.t} list} -> t
         val reserve : {registers: Register.t list} -> t
         val xmmreserve : {registers: XmmRegister.t list} -> t
-        val ymmreserve : {registers: YmmRegister.t list} -> t
         val unreserve : {registers: Register.t list} -> t
         val xmmunreserve : {registers: XmmRegister.t list} -> t
-        val ymmunreserve : {registers: YmmRegister.t list} -> t
         val saveregalloc : {live: MemLocSet.t,
                             id: Id.t} -> t
         val restoreregalloc : {live: MemLocSet.t,
@@ -934,18 +892,10 @@ signature AMD64 =
                                               weight: int,
                                               sync: bool,
                                               reserve: bool} list} -> t
-        val directive_ymmassume : {assumes: {register: YmmRegister.t,
-                                              memloc: MemLoc.t,
-                                              weight: int,
-                                              sync: bool,
-                                              reserve: bool} list} -> t
         val directive_cache : {caches: {register: Register.t,
                                         memloc: MemLoc.t,
                                         reserve: bool} list} -> t
         val directive_xmmcache : {caches: {register: XmmRegister.t,
-                                            memloc: MemLoc.t,
-                                            reserve: bool} list} -> t
-        val directive_ymmcache : {caches: {register: YmmRegister.t,
                                             memloc: MemLoc.t,
                                             reserve: bool} list} -> t
         val directive_reset : unit -> t
@@ -959,10 +909,8 @@ signature AMD64 =
         val directive_return : {returns: {src: Operand.t, dst: MemLoc.t} list} -> t
         val directive_reserve : {registers: Register.t list} -> t
         val directive_xmmreserve : {registers: XmmRegister.t list} -> t
-        val directive_ymmreserve : {registers: YmmRegister.t list} -> t
         val directive_unreserve : {registers: Register.t list} -> t
         val directive_xmmunreserve : {registers: XmmRegister.t list} -> t
-        val directive_ymmunreserve : {registers: YmmRegister.t list} -> t
         val directive_saveregalloc : {live: MemLocSet.t,
                                       id: Directive.Id.t} -> t
         val directive_restoreregalloc : {live: MemLocSet.t,
