@@ -736,6 +736,7 @@ fun checkOffset {base, isVector, offset, result} =
             Control.Align4 => Bits.inWord32
           | Control.Align8 => Bits.inWord64
           | Control.Align16 => Bits.inWord128
+          | Control.Align32 => Bits.inWord256
 
       val baseBits = width base
       val baseTys = getTys base

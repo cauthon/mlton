@@ -6,7 +6,8 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*TUCKER: This file is one place to write the word128/256 primitives, so they can be used in
+ *Actual sml code*)
 functor amd64MLton (S: AMD64_MLTON_STRUCTS): AMD64_MLTON =
 struct
 
@@ -40,6 +41,9 @@ struct
             | W16 => true
             | W32 => true
             | W64 => false
+            | W128 => false
+            | W256 => false
+
         datatype z = datatype Prim.Name.t
      in
         case Prim.name p of

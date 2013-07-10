@@ -456,7 +456,8 @@ signature AMD64 =
           | NGE (* not greater than or equal *)
         val condition_negate : condition -> condition
         val condition_reverse : condition -> condition
-
+(*SSE Instructions, any instruction requiring sse3 or greated is noted as such,
+ *all other instructions should work with all amd64/x86_64 processors*)
         (*Floating Point SSE instructions*)
         (* Scalar SSE binary arithmetic instructions. *)
         datatype sse_binas
@@ -487,18 +488,40 @@ signature AMD64 =
           | SSE_ANDP (* and; p. 21,23 *)
           | SSE_ORP (* or; p. 206,208 *)
           | SSE_XORP (* xor; p. 391,393 *)
+        (*TODO:sse fp shuffle, pack, and blend operations*)
+        (*sse3 binary artihmatic opperations (hadd/sub & addsub*)
+        datatype sse3_binap
+          = SSE_ADDSUBP (*add odd pairs, subtract even pairs*)
+          | SSE_HADDP (*horizontal add*)
+          | SSE_HSUBP (*horizontal subtract*)
         (*floating point sse move instructions*)
         datatype sse_movfp
           = SSE_MOVAP
           | SSE_MOVUP
           | SSE_MOVLP
           | SSE_MOVHP
+(*there are also instructions to duplicate elements and move*)
 (*          | SSE_MOVS*)
         (* TODO: Integer SSE instructions(TUCKER)*)
-        (* Packed SSE binary arithmetic instructions. *)
-        (* Packed SSE unary arithmetic instructions. *)
+        (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
+        (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
+        datatype sse_ibinap
+          = SSE_PADD (*add signed or unsignedb,w,d,q*)
+          | SSE_PADDS (*add signed integers w/saturation,b,w*)
+          | SSE_PADDUS (*add  unsigned integers w/saturation*)
+          | SSE_PSUB (*subtract signed or unsigned, b,w,d,q*)
+          | SSE_PSUBS (*subtract signed ints w/saturation, b,w*)
+          | SSE_PSUBUS (*subtract unsigned ints w/saturation, b,w*)
+          | SSE_PMAXS (*max of signed ints, w(sse2), b,d(sse4.1)*)
+          | SSE_PMAXU (*max of unsigned ints b(sse2), d,w(sse4.1)*)
+          | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
+          | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
+          | SSE_PAVG (*average of packed ints, b,w*)
+        datatype sse_pmd (*multiply and divide for packed ints*)
+        datatype ssse3_ibinap
+        (* Packed SSE unary arithmetic instructions.*)
         (* Packed SSE binary logical instructions *)
-
+        datatype sse_ibinlp
 (*TODO: AVX Instructions (TUCKER)*)
 
 
@@ -508,6 +531,9 @@ signature AMD64 =
          * dst operands are changed by the instruction.
          *)
 (*TODO: Add in a bunch mode stuff to account for SIMD instructions (TUCKER)*)
+(*signular sse instructions to add:
+ *rsqrtps/ss inverse square root, single precision only
+ *)
         datatype t
           (* No operation *)
           = NOP
