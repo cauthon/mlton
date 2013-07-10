@@ -2133,8 +2133,18 @@ struct
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
+             | SSE_BinAP {oper, src, dst, size}
+             => bin (sse_binap_layout oper,
+                     Size.layout size,
+                     Operand.layout src,
+                     Operand.layout dst)
              | SSE_UnAS {oper, src, dst, size}
              => bin (sse_unas_layout oper,
+                     Size.layout size,
+                     Operand.layout src,
+                     Operand.layout dst)
+             | SSE_UnAP {oper, src, dst, size}
+             => bin (sse_unap_layout oper,
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
@@ -2351,7 +2361,11 @@ struct
            => {uses = [src], defs = [dst], kills = []}
            | SSE_BinAS {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
+           | SSE_BinAP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_UnAS {src, dst, ...}
+           => {uses = [src], defs = [dst], kills = []}
+           | SSE_UnAP {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
            | SSE_BinLP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
@@ -2592,7 +2606,11 @@ struct
            => {srcs = SOME [src], dsts = SOME [dst]}
            | SSE_BinAS {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE_BinAP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_UnAS {src, dst, ...}
+           => {srcs = SOME [src], dsts = SOME [dst]}
+           | SSE_UnAP {src, dst, ...}
            => {srcs = SOME [src], dsts = SOME [dst]}
            | SSE_BinLP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
@@ -2718,8 +2736,18 @@ struct
                          src = replacer {use = true, def = false} src,
                          dst = replacer {use = true, def = true} dst,
                          size = size}
+           | SSE_BinAP {oper, src, dst, size}
+           => SSE_BinAP {oper = oper,
+                         src = replacer {use = true, def = false} src,
+                         dst = replacer {use = true, def = true} dst,
+                         size = size}
            | SSE_UnAS {oper, src, dst, size}
            => SSE_UnAS {oper = oper,
+                        src = replacer {use = true, def = false} src,
+                        dst = replacer {use = false, def = true} dst,
+                        size = size}
+           | SSE_UnAP {oper, src, dst, size}
+           => SSE_UnAP {oper = oper,
                         src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         size = size}
@@ -2788,7 +2816,9 @@ struct
       val xvom = XVOM
       val lea = LEA
       val sse_binas = SSE_BinAS
+      val sse_binap = SSE_BinAP
       val sse_unas = SSE_UnAS
+      val sse_unap = SSE_UnAP
       val sse_binlp = SSE_BinLP
       val sse_movs = SSE_MOVS
       val sse_comis = SSE_COMIS
@@ -3511,7 +3541,9 @@ struct
       val instruction_xvom = Instruction o Instruction.xvom
       val instruction_lea = Instruction o Instruction.lea
       val instruction_sse_binas = Instruction o Instruction.sse_binas
+      val instruction_sse_binap = Instruction o Instruction.sse_binap
       val instruction_sse_unas = Instruction o Instruction.sse_unas
+      val instruction_sse_unap = Instruction o Instruction.sse_unap
       val instruction_sse_binlp = Instruction o Instruction.sse_binlp
       val instruction_sse_movs = Instruction o Instruction.sse_movs
       val instruction_sse_comis = Instruction o Instruction.sse_comis

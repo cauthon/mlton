@@ -5,7 +5,8 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*TUCKER: this is mostly optimizations, need to add to it eventually,
+ *but its not critical*)
 functor amd64Simplify(S: AMD64_SIMPLIFY_STRUCTS): AMD64_SIMPLIFY =
 struct
 

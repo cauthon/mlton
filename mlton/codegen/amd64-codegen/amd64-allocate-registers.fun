@@ -6,6 +6,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
+(*Does What it says on the tin, allocates registers*)
 (*TUCKER: TODO: Add ymm registers*)
 functor amd64AllocateRegisters(S: AMD64_ALLOCATE_REGISTERS_STRUCTS) : AMD64_ALLOCATE_REGISTERS =
 struct

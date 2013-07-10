@@ -6,7 +6,8 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*Core mlton stuff, memory allocation, gc stuff etc. not much
+ *if anything to do here*)
 functor amd64MLtonBasic (S: AMD64_MLTON_BASIC_STRUCTS): AMD64_MLTON_BASIC =
 struct
 
@@ -254,7 +255,10 @@ struct
              | Word8 => w "8"
              | Word16 => w "16"
              | Word32 => w "32"
-             | Word64 => w "64")
+             | Word64 => w "64"
+(*TUCKER: not sure if I actually need to insert this*)
+             | Word128 => w "128"
+             | Word256 => w "256")
         end
   in
      val local_base = make "local"

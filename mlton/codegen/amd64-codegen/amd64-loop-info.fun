@@ -5,7 +5,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*TUCKER: Long term might be a place to add autovectorization*)
 functor amd64LoopInfo(S: AMD64_LOOP_INFO_STRUCTS) : AMD64_LOOP_INFO =
 struct
   open S

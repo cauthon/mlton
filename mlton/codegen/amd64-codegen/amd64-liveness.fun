@@ -6,7 +6,8 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*Basically determines if a variable/value is live, which essentally
+ *is weather or not it's in use, kinda*)
 functor amd64Liveness(S: AMD64_LIVENESS_STRUCTS) : AMD64_LIVENESS =
 struct
   open S

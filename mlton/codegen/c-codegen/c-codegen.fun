@@ -6,7 +6,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*TUCKER: need to add word128/256 primitives here*)
 functor CCodegen (S: C_CODEGEN_STRUCTS): C_CODEGEN =
 struct
 

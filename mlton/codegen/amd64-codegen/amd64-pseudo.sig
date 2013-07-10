@@ -6,7 +6,8 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*TUCKER: Not sure what this is for, seems like its mostly just a copy
+ *of amd64.sig*)
 signature AMD64_PSEUDO =
   sig
     structure CFunction: C_FUNCTION

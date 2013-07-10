@@ -6,6 +6,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
+(*Define SML primitives as machine instructions*)
 (*TUCKER: This file is one place to write the word128/256 primitives, so they can be used in
  *Actual sml code*)
 functor amd64MLton (S: AMD64_MLTON_STRUCTS): AMD64_MLTON =
@@ -107,6 +108,15 @@ struct
          | Word_sub _ => true
          | Word_subCheck _ => true
          | Word_xorb _ => true
+(*TUCKER: TODO:
+ *probably add a whole bunch of SIMD_operation primops
+ *Maybe SSE_op & AVX_op?
+ *ideas
+ *SIMD_fp_{add,sub,mul,div,max,min,hadd,hsub,addsub,comp,sqrt,&,|,^,&!
+ *SIMD_word8...
+ *SIMD_word16...
+ *SIMD_word32...
+ *SIMD_word64...*)
          | _ => false
      end
 
@@ -577,6 +587,54 @@ struct
                 transfer = NONE}]
             end
 
+        fun sse_binap oper
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+              val _ 
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize)
+
+              (* Reverse src1/src2 when src1 and src2 are temporaries
+               * and the oper is commutative. 
+               *)
+              val (src1,src2)
+                = if (oper = Instruction.SSE_ADDP)
+                     orelse
+                     (oper = Instruction.SSE_MULP)
+                     orelse
+                     (oper = Instruction.SSE_MAXP)
+                     orelse
+                     (oper = Instruction.SSE_MINP)
+                    then case (Operand.deMemloc src1, Operand.deMemloc src2)
+                           of (SOME memloc_src1, SOME memloc_src2)
+                            => if amd64Liveness.track memloc_src1
+                                  andalso
+                                  amd64Liveness.track memloc_src2
+                                 then (src2,src1)
+                                 else (src1,src2)
+                            | _ => (src1,src2)
+                    else (src1,src2)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movfp
+                   {dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_sse_binap
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
+                    size = dstsize}],
+                transfer = NONE}]
+            end
+(*TUCKER: what is this, multiplication? but multiplication was defined above*)
         fun sse_binas_mul oper
           = let
               val ((src1,src1size),
@@ -631,6 +689,27 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
+        fun sse_unap oper
+          = let
+              val (src,srcsize) = getSrc1 ()
+              val (dst,dstsize) = getDst1 ()
+              val _ 
+                = Assert.assert
+(*TUCKER: what is unal?*)
+                  ("amd64MLton.prim: unal, dstsize/srcsize",
+                   fn () => srcsize = dstsize)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements 
+                = [Assembly.instruction_sse_unap
+                   {oper = oper,
+                    src = src,
+                    dst = dst,
+                    size = dstsize}],
+                transfer = NONE}]
+            end
 
         val (comment_begin,
              comment_end)
@@ -658,6 +737,8 @@ struct
         AppendList.appends
         [comment_begin,
          (case Prim.name prim of
+(*TUCKER: These are the primitives, I need to decide what simd operations
+ *(maybe all of them?) I should make primitives*)
                CPointer_add => binal Instruction.ADD
              | CPointer_diff => binal Instruction.SUB
              | CPointer_equal => cmp Instruction.E
