@@ -1,4 +1,4 @@
-(* Copyright (C) 2009 Matthew Fluet.
+(* Copyright (C) 2009,2013 Matthew Fluet.
  * Copyright (C) 1999-2008 Henry Cejtin, Matthew Fluet, Suresh
  *    Jagannathan, and Stephen Weeks.
  * Copyright (C) 1997-2000 NEC Research Institute.
@@ -190,11 +190,11 @@ fun toMachine (program: Ssa.Program.t, codegen) =
             val p = maybePass ({name = "rssaShrink1", 
                                 doit = Program.shrink}, p)
             val p = pass ({name = "insertLimitChecks", 
-                           doit = LimitCheck.insert}, p)
+                           doit = LimitCheck.transform}, p)
             val p = pass ({name = "insertSignalChecks", 
-                           doit = SignalCheck.insert}, p)
+                           doit = SignalCheck.transform}, p)
             val p = pass ({name = "implementHandlers", 
-                           doit = ImplementHandlers.doit}, p)
+                           doit = ImplementHandlers.transform}, p)
             val p = maybePass ({name = "rssaShrink2", 
                                 doit = Program.shrink}, p)
             val () = Program.checkHandlers p
@@ -441,8 +441,16 @@ let
       end
       fun bogusOp (t: Type.t): M.Operand.t =
          case Type.deReal t of
-            NONE => M.Operand.Word (WordX.fromIntInf
-                                    (0, WordSize.fromBits (Type.width t)))
+            NONE => let
+                       val bogusWord =
+                          M.Operand.Word
+                          (WordX.zero
+                           (WordSize.fromBits (Type.width t)))
+                    in
+                       case Type.deWord t of
+                          NONE => M.Operand.Cast (bogusWord, t)
+                        | SOME _ => bogusWord
+                    end
           | SOME s => globalReal (RealX.zero s)
       fun constOperand (c: Const.t): M.Operand.t =
          let

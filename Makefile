@@ -1,4 +1,4 @@
-## Copyright (C) 2009,2011 Matthew Fluet.
+## Copyright (C) 2009,2011,2013 Matthew Fluet.
  # Copyright (C) 1999-2007 Henry Cejtin, Matthew Fluet, Suresh
  #    Jagannathan, and Stephen Weeks.
  # Copyright (C) 1997-2000 NEC Research Institute.
@@ -75,8 +75,7 @@ basis-no-check:
 	mkdir -p "$(LIB)/sml"
 	rm -rf "$(LIB)/sml/basis"
 	$(CP) "$(SRC)/basis-library/." "$(LIB)/sml/basis"
-	find "$(LIB)/sml/basis" -type d -name .svn | xargs rm -rf
-	find "$(LIB)/sml/basis" -type f -name .ignore | xargs rm -rf
+	find "$(LIB)/sml/basis" -name .gitignore | xargs rm -rf
 
 .PHONY: basis
 basis:
@@ -96,9 +95,9 @@ bootstrap-nj:
 clean:
 	bin/clean
 
-.PHONY: clean-svn
-clean-svn:
-	find . -type d | grep .svn | xargs rm -rf
+.PHONY: clean-git
+clean-git:
+	find . -type d -name .git | xargs rm -rf
 
 .PHONY: compiler
 compiler:
@@ -130,9 +129,7 @@ dirs:
 docs: dirs
 	$(MAKE) -C "$(LEX)" docs
 	$(MAKE) -C "$(YACC)" docs
-	if htmldoc --version >/dev/null 2>&1; then \
-		bin/make-pdf-guide; \
-	fi
+	$(MAKE) -C doc/guide
 
 LIBRARIES := ckit-lib cml mllpt-lib mlnlffi-lib mlrisc-lib mlyacc-lib smlnj-lib
 
@@ -153,8 +150,7 @@ libraries-no-check:
 	$(CP) "$(SRC)/lib/mlyacc-lib/." "$(LIB)/sml/mlyacc-lib"
 	$(CP) "$(SRC)/lib/smlnj-lib/smlnj-lib/." "$(LIB)/sml/smlnj-lib"
 	find "$(LIB)/sml" -type d -name .cm | xargs rm -rf
-	find "$(LIB)/sml" -type d -name .svn | xargs rm -rf
-	find "$(LIB)/sml" -type f -name .ignore | xargs rm -rf
+	find "$(LIB)/sml" -name .gitignore | xargs rm -rf
 
 .PHONY: libraries
 libraries:
@@ -267,6 +263,7 @@ version:
 		"$(SPEC)"						\
 		package/freebsd/Makefile				\
 		mlton/control/version_sml.src;				\
+		doc/guide/conf/asciidoc-html5.flags			\
 	do								\
 		sed "s/\(.*\)MLTONVERSION\(.*\)/\1$(VERSION)\2/" <"$$f" >z && \
 		mv z "$$f";						\
@@ -363,10 +360,13 @@ install-docs:
 	mkdir -p "$(TDOC)"
 	(								\
 		cd "$(SRC)/doc" &&					\
-		$(CP) changelog examples guide license README "$(TDOC)/" \
+		$(CP) changelog examples license README "$(TDOC)/"	\
 	)
-	if [ -r "$(TDOC)/guide/mlton-guide.pdf" ]; then			\
-		cp "$(TDOC)/guide/mlton-guide.pdf" "$(TDOC)/";		\
+	if [ -d "$(SRC)/doc/guide/localhost" ]; then			\
+		$(CP) "$(SRC)/doc/guide/localhost" "$(TDOC)/guide";	\
+	fi
+	if [ -r "$(SRC)/doc/guide/mlton-guide.pdf" ]; then		\
+		$(CP) "$(SRC)/doc/guide/mlton-guide.pdf" "$(TDOC)/";	\
 	fi
 	(								\
 		cd "$(SRC)/util" &&					\
@@ -377,16 +377,14 @@ install-docs:
 		; do							\
 		$(CP) "$(SRC)/regression/$$f.sml" "$(TEXM)/";		\
 	done
-	if test -r $(LEX)/$(LEX).pdf; then                              \
-		$(CP) $(LEX)/$(LEX).pdf $(TDOC);                        \
+	if [ -r "$(LEX)/$(LEX).pdf" ]; then				\
+		$(CP) "$(LEX)/$(LEX).pdf" "$(TDOC)/";			\
 	fi
-	if test -r $(YACC)/$(YACC).pdf; then                            \
-		$(CP) $(YACC)/$(YACC).pdf $(TDOC);                      \
+	if [ -r "$(YACC)/$(YACC).pdf" ]; then				\
+		$(CP) "$(YACC)/$(YACC).pdf" "$(TDOC)/";			\
 	fi
-	find "$(TDOC)/" -name .svn -type d | xargs rm -rf
-	find "$(TDOC)/" -name .ignore -type f | xargs rm -rf
-	find "$(TEXM)/" -name .svn -type d | xargs rm -rf
-	find "$(TEXM)/" -name .ignore -type f | xargs rm -rf
+	find "$(TDOC)/" -name .gitignore | xargs rm -rf
+	find "$(TEXM)/" -name .gitignore | xargs rm -rf
 
 
 .PHONY: move-docs
@@ -398,14 +396,14 @@ move-docs:	install-docs install-no-docs
 .PHONY: release
 release: version
 	tar cvzf ../mlton-$(VERSION).tar.gz \
-		--exclude .svn --exclude package \
+		--exclude .git --exclude package \
 		--transform "s@^@mlton-$(VERSION)/@" \
 		*
 
 BSDSRC := /tmp/mlton-$(VERSION)
 .PHONY: freebsd
 freebsd:
-	$(MAKE) clean clean-svn version
+	$(MAKE) clean clean-git version
 	rm -rf "$(BSDSRC)"
 	mkdir -p "$(BSDSRC)"
 	( cd $(SRC) && tar -cpf - . ) | ( cd "$(BSDSRC)" && tar -xpf - )
@@ -419,7 +417,7 @@ TOPDIR := 'TOPDIR-unset'
 SOURCEDIR := $(TOPDIR)/SOURCES/mlton-$(VERSION)
 .PHONY: rpms
 rpms:
-	$(MAKE) clean clean-svn version
+	$(MAKE) clean clean-git version
 	mkdir -p "$(TOPDIR)"
 	cd "$(TOPDIR)" && mkdir -p BUILD RPMS/i386 SOURCES SPECS SRPMS
 	rm -rf "$(SOURCEDIR)"
