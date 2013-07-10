@@ -141,6 +141,7 @@ datatype 'a t =
  | Ref_deref (* backend *)
  | Ref_ref (* backend *)
  | String_toWord8Vector (* defunctorize *)
+(*TUCKER: Instert SSE/SIMD primitives here*)
  | Thread_atomicBegin (* backend *)
  | Thread_atomicEnd (* backend *)
  | Thread_atomicState (* backend *)
