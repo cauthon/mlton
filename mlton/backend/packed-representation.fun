@@ -9,7 +9,7 @@
 (* Has a special case to make sure that true is represented as 1
  * and false is represented as 0.
  *)
-
+(*TUCKER: What exactly is this file*)
 functor PackedRepresentation (S: REPRESENTATION_STRUCTS): REPRESENTATION =
 struct
 
@@ -81,7 +81,9 @@ structure Type =
                check (Bits.inWord16, fn () =>
                check (Bits.inWord32, fn () =>
                check (Bits.inWord64, fn () =>
-               Error.bug "PackedRepresentation.Type.mkPadToPrim")))))
+               check (Bits.inWord128, fn () =>
+               check (Bits.inWord256, fn () =>
+               Error.bug "PackedRepresentation.Type.mkPadToPrim")))))))
             end
          fun mkPadToWidth (t: t, b': Bits.t, mk): t =
             let
@@ -842,11 +844,11 @@ structure ObjptrRep =
                                         (case Type.deWord (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
-                                               WordSize.equals (s, WordSize.word64))
+                                               WordSize.equals (s, WordSize.word128))
                                         orelse
                                         (Type.isObjptr (Component.ty c)
                                          andalso WordSize.equals (WordSize.objptr (),
-                                                                  WordSize.word64))))
+                                                                  WordSize.word128))))
                                       then Bytes.alignWord128 width
                                    else width
                               | Control.Align32 => 
@@ -860,11 +862,11 @@ structure ObjptrRep =
                                         (case Type.deWord (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
-                                               WordSize.equals (s, WordSize.word64))
+                                               WordSize.equals (s, WordSize.word256))
                                         orelse
                                         (Type.isObjptr (Component.ty c)
                                          andalso WordSize.equals (WordSize.objptr (),
-                                                                  WordSize.word64))))
+                                                                  WordSize.word256))))
                                       then Bytes.alignWord256 width
                                    else width
 

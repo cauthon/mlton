@@ -27,10 +27,10 @@ signature AMD64_PSEUDO =
 
     structure Size :
       sig
-        datatype class = INT | FLT
+        datatype class = INT | FLT | VEC
         datatype t 
           = BYTE | WORD | LONG  | QUAD
-          | SNGL | DBLE
+          | SNGL | DBLE | VXMM  | VYMM
         val fromBytes : int -> t
         val toBytes : t -> int
         val fromCType : CType.t -> t vector
@@ -55,7 +55,7 @@ signature AMD64_PSEUDO =
 
     structure Scale :
       sig
-        datatype t = One | Two | Four | Eight
+        datatype t = One | Two | Four | Eight | Sixteen | ThirtyTwo
         val fromBytes : int -> t
         val fromCType : CType.t -> t
       end
@@ -206,6 +206,7 @@ signature AMD64_PSEUDO =
         val condition_negate : condition -> condition
         val condition_reverse : condition -> condition
 
+        (*Floating Point SSE instructions*)
         (* Scalar SSE binary arithmetic instructions. *)
         datatype sse_binas
           = SSE_ADDS (* addition; p. 7,10 *)
@@ -214,15 +215,34 @@ signature AMD64_PSEUDO =
           | SSE_DIVS (* division; p. 97,100 *)
           | SSE_MAXS (* maximum; p. 128, 130 *)
           | SSE_MINS (* minimum; p. 132, 134 *)
+        (* Packed SSE binary arithmetic instructions. *)
+        datatype sse_binap
+          = SSE_ADDP
+          | SSE_SUBP
+          | SSE_MULP
+          | SSE_DIVP
+          | SSE_MAXP
+          | SEE_MINP
         (* Scalar SSE unary arithmetic instructions. *)
         datatype sse_unas
           = SSE_SQRTS (* square root; p. 360,362 *)
-        (* Packed SSE binary logical instructions (used as scalar). *)
+        (* Packed SSE unary arithmetic instructions. *)
+        datatype sse_unap
+          = SSE_SQRTP
+        (* Packed SSE binary logical instructions 
+         *(same for scalar and packed). *)
         datatype sse_binlp
           = SSE_ANDNP (* and-not; p. 17,19 *)
           | SSE_ANDP (* and; p. 21,23 *)
           | SSE_ORP (* or; p. 206,208 *)
           | SSE_XORP (* xor; p. 391,393 *)
+        (*floating point sse move instructions*)
+        datatype sse_movfp
+          = SSE_MOVAP
+          | SSE_MOVUP
+          | SSE_MOVLP
+          | SSE_MOVHP
+(*          | SSE_MOVS*)
 
         type t
       end

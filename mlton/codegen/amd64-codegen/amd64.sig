@@ -46,7 +46,7 @@ signature AMD64 =
 
         datatype t 
           = BYTE | WORD | LONG | QUAD
-          | SNGL | DBLE | VXMM | VAVX
+          | SNGL | DBLE | VXMM | VYMM
 
         val toString : t -> string
         val fromBytes : int -> t
@@ -359,7 +359,6 @@ signature AMD64 =
         datatype t
           = Register of Register.t
           | XmmRegister of XmmRegister.t
-          | YmmRegister of YmmRegister.t
           | Immediate of Immediate.t
           | Label of Label.t
           | Address of Address.t
@@ -372,8 +371,6 @@ signature AMD64 =
         val deRegister : t -> Register.t option
         val xmmregister : XmmRegister.t -> t
         val deXmmregister : t -> XmmRegister.t option
-        val ymmregister : YmmRegister.t -> t
-        val deYmmregister : t -> YmmRegister.t option
         val immediate : Immediate.t -> t
         val immediate_word : WordX.t -> t
         val immediate_int' : int * WordSize.t -> t
@@ -397,8 +394,8 @@ signature AMD64 =
 
     structure Instruction :
       sig
-(*What book are these pages from, I have no clue, it doesn't fit with the
- *Current Intel Intstruction set reference*)
+(*pages from 2006 amd instruction set list*)
+
         (* Integer binary arithmetic(w/o mult & div)/logic instructions. *)
         datatype binal
           = ADD (* signed/unsigned addition; p. 58 *)
@@ -482,7 +479,7 @@ signature AMD64 =
           = SSE_SQRTS (* square root; p. 360,362 *)
         (* Packed SSE unary arithmetic instructions. *)
         datatype sse_unap
-          = SEE_SQRTP
+          = SSE_SQRTP
         (* Packed SSE binary logical instructions 
          *(same for scalar and packed). *)
         datatype sse_binlp
@@ -490,6 +487,13 @@ signature AMD64 =
           | SSE_ANDP (* and; p. 21,23 *)
           | SSE_ORP (* or; p. 206,208 *)
           | SSE_XORP (* xor; p. 391,393 *)
+        (*floating point sse move instructions*)
+        datatype sse_movfp
+          = SSE_MOVAP
+          | SSE_MOVUP
+          | SSE_MOVLP
+          | SSE_MOVHP
+(*          | SSE_MOVS*)
         (* TODO: Integer SSE instructions(TUCKER)*)
         (* Packed SSE binary arithmetic instructions. *)
         (* Packed SSE unary arithmetic instructions. *)
@@ -633,9 +637,21 @@ signature AMD64 =
                           src: Operand.t,
                           dst: Operand.t,
                           size: Size.t}
+          (* Packed SSE binary arithmetic instructions.
+           *)
+          | SSE_BinAP of {oper: sse_binap,
+                          src: Operand.t,
+                          dst: Operand.t,
+                          size: Size.t}
           (* Scalar SSE unary arithmetic instructions.
            *)
           | SSE_UnAS of {oper: sse_unas,
+                         src: Operand.t,
+                         dst: Operand.t,
+                         size: Size.t}
+          (* Packed SSE unary arithmetic instructions.
+           *)
+          | SSE_UnAP of {oper: sse_unap,
                          src: Operand.t,
                          dst: Operand.t,
                          size: Size.t}

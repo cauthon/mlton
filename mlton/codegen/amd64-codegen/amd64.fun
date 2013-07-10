@@ -1,3 +1,5 @@
+
+
 (* Copyright (C) 2012 Matthew Fluet.
  * Copyright (C) 1999-2008 Henry Cejtin, Matthew Fluet, Suresh
  *    Jagannathan, and Stephen Weeks.
@@ -63,7 +65,7 @@ struct
 
       datatype t 
         = BYTE | WORD | LONG | QUAD
-        | SNGL | DBLE | VXMM | VAVX
+        | SNGL | DBLE | VXMM | VYMM
 
       val layout
         = let
@@ -85,7 +87,7 @@ struct
            | 2 => WORD
            | 4 => LONG
            | 8 => QUAD
-           | 16 => VSSE
+           | 16 => VXMM
            | 32 => VYMM
            | _ => Error.bug "amd64.Size.fromBytes"
       val toBytes : t -> int
@@ -95,7 +97,7 @@ struct
            | QUAD => 8
            | SNGL => 4
            | DBLE => 8
-           | VSSE => 16
+           | VXMM => 16
            | VYMM => 32
 (*TUCKER: Not sure how to deal with new types in the rest of this structure*)
       local
@@ -1361,7 +1363,6 @@ struct
       datatype t
         = Register of Register.t
         | XmmRegister of XmmRegister.t
-        | YmmRegister of YmmRegister.t
         | Immediate of Immediate.t
         | Label of Label.t
         | Address of Address.t
@@ -1370,7 +1371,6 @@ struct
       val size
         = fn Register r => SOME (Register.size r)
            | XmmRegister x => SOME (XmmRegister.size x)
-           | YmmRegister y => SOME (YmmRegister.size y)
            | Immediate _ => NONE
            | Label _ => NONE
            | Address _ => NONE
@@ -1382,7 +1382,6 @@ struct
           in 
             fn Register r => Register.layout r
              | XmmRegister x => XmmRegister.layout x
-             | YmmRegister y => YmmRegister.layout y
              | Immediate i => seq [str "$", Immediate.layout i]
              | Label l => Label.layout l
              | Address a => Address.layout a
@@ -1393,7 +1392,6 @@ struct
       val eq
         = fn (Register r1,    Register r2)    => Register.eq(r1, r2)
            | (XmmRegister x1, XmmRegister x2) => XmmRegister.eq(x1, x2)
-           | (YmmRegister x1, YmmRegister x2) => YmmRegister.eq(x1, x2)
            | (Immediate i1,   Immediate i2)   => Immediate.eq(i1, i2)
            | (Label l1,       Label l2)       => Label.equals(l1, l2)
            | (Address a1,     Address a2)     => Address.eq(a1, a2)
@@ -1405,8 +1403,6 @@ struct
            | (Register _,     _)                => false
            | (XmmRegister x1, XmmRegister x2) => XmmRegister.eq(x1, x2)
            | (XmmRegister _,  _)               => false
-           | (YmmRegister x1, YmmRegister x2) => YmmRegister.eq(x1, x2)
-           | (YmmRegister _,  _)               => false
            | (Immediate i1,   Immediate i2)     => Immediate.eq(i1, i2)
            | (Immediate _,    _)                => false
            | (Label l1,       Label l2)         => Label.equals(l1, l2)
@@ -1425,10 +1421,6 @@ struct
       val xmmregister = XmmRegister
       val deXmmregister
         = fn XmmRegister x => SOME x
-           | _ => NONE
-      val ymmregister = YmmRegister
-      val deYmmregister
-        = fn YmmRegister y => SOME y
            | _ => NONE
       val immediate = Immediate
       val deImmediate
@@ -1481,6 +1473,10 @@ struct
                      [{src = xmmregister x, dst = cReturnTempContent (0, s)}]
                   val x32 = x (XmmRegister.xmm0S, SNGL)
                   val x64 = x (XmmRegister.xmm0D, DBLE)
+                  fun v (x, s) =
+                      [{src = xmmregister x, dst = cReturnTempContent (0,s)}]
+                  val v128 = v (XmmRegister.xmm0X, VXMM)
+                  val v256 = v (XmmRegister.ymm0, VYMM)
                in
                   case RepType.toCType ty of
                      CPointer => w64
@@ -1495,14 +1491,13 @@ struct
                    | Word16 => w16
                    | Word32 => w32
                    | Word64 => w64
+                   | word128 => v128
+                   | word256 => v256
                end
       end
     end
-
   structure Instruction =
     struct
-(*What book are these pages from, I have no clue, it doesn't fit with the
- *Current Intel Intstruction set reference*)
       (* Integer binary arithmetic(w/o mult & div)/logic instructions. *)
       datatype binal
         = ADD (* signed/unsigned addition; p. 58 *)
@@ -1705,11 +1700,12 @@ struct
             open Layout
           in
             fn SSE_ADDP => str "addp"
-            fn SSE_SUBP => str "subp"
-            fn SSE_MULP => str "mulp"
-            fn SSE_DIVP => str "divp"
-            fn SSE_MAXP => str "maxp"
-            fn SEE_MINP => str "minp"
+             | SSE_SUBP => str "subp"
+             | SSE_MULP => str "mulp"
+             | SSE_DIVP => str "divp"
+             | SSE_MAXP => str "maxp"
+             | SEE_MINP => str "minp"
+          end
       (* Scalar SSE unary arithmetic instructions. *)
       datatype sse_unas
         = SSE_SQRTS (* square root; p. 360,362 *)
@@ -1728,7 +1724,8 @@ struct
           in
             fn SSE_SQRTP => str "sqrtp"
           end
-      (* Packed SSE binary logical instructions (used as scalar). *)
+      (* Packed SSE binary logical instructions 
+       * work for both scalar and packed data*)
       datatype sse_binlp
         = SSE_ANDNP (* and-not; p. 17,19 *)
         | SSE_ANDP (* and; p. 21,23 *)
@@ -1743,6 +1740,26 @@ struct
               | SSE_ORP => str "orp"
               | SSE_XORP => str "xorp"
           end
+      (*floating point sse move instructions*)
+      datatype sse_movfp
+        =   SSE_MOVAP (*Move aligned fp data*)
+          | SSE_MOVUP (*Move unaligned fp data*)
+          | SSE_MOVLP (*Move low fp value(s)*)
+          | SSE_MOVHP (*Move high fp value (s)*)
+(*          | SSE_MOVS  (*Move scalar fp value*)*)
+      val sse_movfp_layout
+          = let
+               open Layout
+            in
+               fn SSE_MOVAP => str "movap"
+                | SSE_MOVUP => str "movup"
+                | SSE_MOVLP => str "movlp"
+                | SSE_MOVHP => str "movhp"
+(*                | SSE_MOVS => str "movs"*)
+            end
+      (*Now integer sse intsructions*)
+      (*packed binary arithmitic*)
+(*      datatype sse_pbina*)
 
       (* amd64 Instructions.
        * src operands are not changed by the instruction.
@@ -1878,9 +1895,21 @@ struct
                         src: Operand.t,
                         dst: Operand.t,
                         size: Size.t}
+        (* Packed SSE binary arithmetic instructions
+         *)
+        | SSE_BinAP of {oper: sse_binap,
+                        src: Operand.t,
+                        dst: Operand.t,
+                        size: Size.t}
         (* Scalar SSE unary arithmetic instructions.
          *)
         | SSE_UnAS of {oper: sse_unas,
+                       src: Operand.t,
+                       dst: Operand.t,
+                       size: Size.t}
+        (* Packed SSE unary arithmetic instructions.
+         *)
+        | SSE_UnAP of {oper: sse_unap,
                        src: Operand.t,
                        dst: Operand.t,
                        size: Size.t}
@@ -3483,8 +3512,6 @@ struct
       val instruction_lea = Instruction o Instruction.lea
       val instruction_sse_binas = Instruction o Instruction.sse_binas
       val instruction_sse_unas = Instruction o Instruction.sse_unas
-      val instruction_sse_binap = Instruction o Instruction.sse_binap
-      val instruction_sse_unap = Instruction o Instruction.sse_unap
       val instruction_sse_binlp = Instruction o Instruction.sse_binlp
       val instruction_sse_movs = Instruction o Instruction.sse_movs
       val instruction_sse_comis = Instruction o Instruction.sse_comis
