@@ -127,7 +127,7 @@ signature AMD64 =
     structure XmmRegister :
       sig
         datatype reg
-          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7 
+v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7 
           | XMM8 | XMM9 | XMM10 | XMM11 | XMM12 | XMM13 | XMM14 | XMM15 
         val allReg : reg list
 
@@ -523,12 +523,33 @@ signature AMD64 =
         (*SSE4.1*)
           | SSE_PMOVSX (*packed move with sign extend*)
           | SSE_PMOVZX (*packed move with zero extend*)
-(*        datatype sse_pmd (*multiply and divide for packed ints*)
-          =
+        datatype sse_pmd (*multiply and divide for packed ints*)
+          = SSE_PCMULQDQ (*this is special, it has its own cpuid flag*)
+          | SSE_PMULHW (*multiply signed words, store high 16 bits of result*)
+          | SSE_PMULHUW (*same as above but unsigned*)
+          | SSE_PMULLW (*save low 16 bits of results instead*)
+          | SSE_PMADDWD (*multiply words, add adjecent dword results & store*)
+          (*sse4.1*)
+          | SSE_PMULDQ (*multiply 1st & 3rd doublewords, save quadword results*)
+          | SSE_PMULUDQ (*same as above, but unsigned*)
+          | SSE_PMULD (*just multiply dwords and store low bits of result*)
         datatype ssse3_ibinap
+          = SSE_PHADD (*horozintal add of signed words or doublewords*)
+          | SSE_PHADDSW (*horozontal saturated add of signed words*)
+          | SSE_PHSUB (*horizontal sub words or doublewords*)
+          | SSE_PHSUBSW (*horizonal sub words w/saturation*)
+          | SSE_PMULHRSW (*word multiply, but scale results & store high bits*)
+
         (* Packed SSE unary arithmetic instructions.*)
         (* Packed SSE binary logical instructions *)
-        datatype sse_ibinlp*)
+        datatype sse_ibinlp
+          = SSE_PAND
+          | SSE_PANDN
+          | SSE_PXOR
+          | SSE_POR
+          | SSE_PSLL (*logical shift left, w,d,q,dq*)
+          | SSE_PSRL (*logical shift right w,d,q,dq*)
+          | SSE_PSRA (*arithmetic shift right, w/d*)
 (*TODO: AVX Instructions (TUCKER)*)
 
 
