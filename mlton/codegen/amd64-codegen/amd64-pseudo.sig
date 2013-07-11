@@ -244,6 +244,20 @@ signature AMD64_PSEUDO =
           | SSE_MOVLP
           | SSE_MOVHP
 (*          | SSE_MOVS*)
+        (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
+        (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
+        datatype sse_ibinap
+          = SSE_PADD (*add signed or unsignedb,w,d,q*)
+          | SSE_PADDS (*add signed integers w/saturation,b,w*)
+          | SSE_PADDUS (*add  unsigned integers w/saturation*)
+          | SSE_PSUB (*subtract signed or unsigned, b,w,d,q*)
+          | SSE_PSUBS (*subtract signed ints w/saturation, b,w*)
+          | SSE_PSUBUS (*subtract unsigned ints w/saturation, b,w*)
+          | SSE_PMAXS (*max of signed ints, w(sse2), b,d(sse4.1)*)
+          | SSE_PMAXU (*max of unsigned ints b(sse2), d,w(sse4.1)*)
+          | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
+          | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
+          | SSE_PAVG (*average of packed ints, b,w*)
 
         type t
       end
@@ -354,6 +368,10 @@ signature AMD64_PSEUDO =
                                     dst: Operand.t,
                                     size: Size.t} -> t
         val instruction_sse_binlp : {oper: Instruction.sse_binlp,
+                                     src: Operand.t,
+                                     dst: Operand.t,
+                                     size: Size.t} -> t
+        val instruction_sse_ibinap : {oper: Instruction.sse_ibinap,
                                      src: Operand.t,
                                      dst: Operand.t,
                                      size: Size.t} -> t

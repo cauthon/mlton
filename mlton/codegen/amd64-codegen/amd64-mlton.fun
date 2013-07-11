@@ -539,6 +539,47 @@ struct
                 transfer = NONE}]
             end
 
+        fun sse_movfp instr
+          = let
+              val (dst,dstsize) = getDst1 ()
+              val (src,srcsize) = getSrc1 ()
+              val _ 
+                = Assert.assert
+                  ("amd64MLton.prim: sse_movd, dstsize/srcsize",
+                   fn () => srcsize <> dstsize)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movfp
+                   {intstr = intsr,
+                    dst = dst,
+                    src = src,
+                    size = srcsize}],
+                transfer = NONE}]
+            end
+        fun sse_imov intsr
+          = let
+              val (dst,dstsize) = getDst1 ()
+              val (src,srcsize) = getSrc1 ()
+              val _ 
+                = Assert.assert
+                  ("amd64MLton.prim: sse_movd, dstsize/srcsize",
+                   fn () => srcsize <> dstsize)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_imov
+                   {intsr = instr,
+                    dst = dst,
+                    src = src,
+                    size = srcsize}],
+                transfer = NONE}]
+            end
+
         fun sse_binas oper
           = let
               val ((src1,src1size),
@@ -597,7 +638,7 @@ struct
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
-
+              val instr = SSE_MOVAP (*TUCKER: how to select right move instr*)
               (* Reverse src1/src2 when src1 and src2 are temporaries
                * and the oper is commutative. 
                *)
@@ -624,7 +665,8 @@ struct
                {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_movfp
-                   {dst = dst,
+                   {instr = instr,
+                    dst = dst,
                     src = src1,
                     size = src1size},
                    Assembly.instruction_sse_binap
@@ -707,6 +749,62 @@ struct
                    {oper = oper,
                     src = src,
                     dst = dst,
+                    size = dstsize}],
+                transfer = NONE}]
+            end
+        fun sse_ibinap oper
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+              val _ 
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize)
+              val instr = Instructon.SSE_MOVDQA
+              (* Reverse src1/src2 when src1 and src2 are temporaries
+               * and the oper is commutative. 
+               *)
+              val (src1,src2)
+                = if (oper = Instruction.SSE_PADD)
+                     orelse
+                     (oper = Instruction.SSE_PADDS)
+                     orelse
+                     (oper = Instruction.SSE_PADDUS)
+                     orelse
+                     (oper = Instruction.SSE_PMAXS)
+                     orelse
+                     (oper = Instruction.SSE_PMAXU)
+                     orelse
+                     (oper = Instruction.SSE_PMINS)
+                     orelse
+                     (oper = Instruction.SSE_PMINU)
+                     orelse
+                     (oper = Instruction.SSE_PAVG)
+                    then case (Operand.deMemloc src1, Operand.deMemloc src2)
+                           of (SOME memloc_src1, SOME memloc_src2)
+                            => if amd64Liveness.track memloc_src1
+                                  andalso
+                                  amd64Liveness.track memloc_src2
+                                 then (src2,src1)
+                                 else (src1,src2)
+                            | _ => (src1,src2)
+                    else (src1,src2)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_imov
+                   {instr = instr,
+                    dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_sse_ibinap
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
                     size = dstsize}],
                 transfer = NONE}]
             end

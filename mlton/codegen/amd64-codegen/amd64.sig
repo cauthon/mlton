@@ -517,11 +517,18 @@ signature AMD64 =
           | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
           | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
           | SSE_PAVG (*average of packed ints, b,w*)
-        datatype sse_pmd (*multiply and divide for packed ints*)
+        datatype sse_imov
+          = SSE_MOVDQA (*move aligned double quadword*)
+          | SSE_MOVDQU (*move unaligned double quadword*)
+        (*SSE4.1*)
+          | SSE_PMOVSX (*packed move with sign extend*)
+          | SSE_PMOVZX (*packed move with zero extend*)
+(*        datatype sse_pmd (*multiply and divide for packed ints*)
+          =
         datatype ssse3_ibinap
         (* Packed SSE unary arithmetic instructions.*)
         (* Packed SSE binary logical instructions *)
-        datatype sse_ibinlp
+        datatype sse_ibinlp*)
 (*TODO: AVX Instructions (TUCKER)*)
 
 
@@ -675,21 +682,39 @@ signature AMD64 =
                          src: Operand.t,
                          dst: Operand.t,
                          size: Size.t}
-          (* Packed SSE unary arithmetic instructions.
+          (* Packed SSE fp unary arithmetic instructions.
            *)
           | SSE_UnAP of {oper: sse_unap,
                          src: Operand.t,
                          dst: Operand.t,
                          size: Size.t}
-          (* Packed SSE binary logic instructions (used as scalar). 
+          (* Packed SSE fp binary logic instructions (used as scalar). 
            *)
           | SSE_BinLP of {oper: sse_binlp,
                           src: Operand.t,
                           dst: Operand.t,
                           size: Size.t}
+          (* Packed SSE int binary add/sub/min/max/avg instructions
+           *)
+          | SSE_IBinAP of {oper: sse_ibinap,
+                           src: Operand.t,
+                           dst Operand.t,
+                           size: Size.t}
           (* Scalar SSE move instruction.
            *)
           | SSE_MOVS of {src: Operand.t,
+                         dst: Operand.t,
+                         size: Size.t}
+          (* Packed fp SSE move instruction.
+           *)
+          | SSE_MOVFP of {instr: sse_movfp,
+                         src: Operand.t,
+                         dst: Operand.t,
+                         size: Size.t}
+          (* Packed int SSE move instruction.
+           *)
+          | SSE_IMOV of {instr: sse_imov,
+                         src: Operand.t,
                          dst: Operand.t,
                          size: Size.t}
           (* Scalar SSE compare instruction.
@@ -1061,6 +1086,18 @@ signature AMD64 =
                                      src: Operand.t,
                                      dst: Operand.t,
                                      size: Size.t} -> t
+        val instruction_sse_ibinap : {oper: Instruction.sse_ibinap,
+                                     src: Operand.t,
+                                     dst: Operand.t,
+                                     size: Size.t} -> t
+        val instruction_sse_movfp : {instr: Instruction.sse_movfp,
+                                    src: Operand.t,
+                                    dst: Operand.t,
+                                    size: Size.t} -> t
+        val instruction_sse_imov : {intsr: Instruction.sse_imov,
+                                    src: Operand.t,
+                                    dst: Operand.t,
+                                    size: Size.t} -> t
         val instruction_sse_movs : {src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t

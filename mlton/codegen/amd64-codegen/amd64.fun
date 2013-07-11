@@ -1758,7 +1758,37 @@ struct
 (*                | SSE_MOVS => str "movs"*)
             end
       (*Now integer sse intsructions*)
-      (*packed binary arithmitic*)
+        (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
+        (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
+        datatype sse_ibinap
+          = SSE_PADD (*add signed or unsignedb,w,d,q*)
+          | SSE_PADDS (*add signed integers w/saturation,b,w*)
+          | SSE_PADDUS (*add  unsigned integers w/saturation*)
+          | SSE_PSUB (*subtract signed or unsigned, b,w,d,q*)
+          | SSE_PSUBS (*subtract signed ints w/saturation, b,w*)
+          | SSE_PSUBUS (*subtract unsigned ints w/saturation, b,w*)
+          | SSE_PMAXS (*max of signed ints, w(sse2), b,d(sse4.1)*)
+          | SSE_PMAXU (*max of unsigned ints b(sse2), d,w(sse4.1)*)
+          | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
+          | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
+          | SSE_PAVG (*average of packed ints, b,w*)
+        val sse_ibinap_layout
+            = let
+                 open Layout
+              in
+                fn SSE_PADD => str "padd"
+              | SSE_PADDS => str "padds"
+              | SSE_PADUS => str "paddus"
+              | SSE_PSUB => str "psub"
+              | SSE_PSUBS => str "psubs"
+              | SSE_PSUBUS => str "psubus"
+              | SSE_PMAXS => str "pmaxs"
+              | SSE_PMAXU => str "pmaxu"
+              | SEE_PMINS => str "pmins"
+              | SSE_PMINU => str "pminu"
+              | SSE_PAVG => str "pavg"
+        end
+
 (*      datatype sse_pbina*)
 
       (* amd64 Instructions.
@@ -1919,6 +1949,12 @@ struct
                         src: Operand.t,
                         dst: Operand.t,
                         size: Size.t}
+        (* Packed SSE int binary add/sub/min/max/avg instructions
+         *)
+        | SSE_IBinAP of {oper: sse_ibinap,
+                         src: Operand.t,
+                         dst Operand.t,
+                         size: Size.t}
         (* Scalar SSE move instruction.
          *)
         | SSE_MOVS of {src: Operand.t,
@@ -2153,6 +2189,11 @@ struct
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
+             | SSE_IBinAP {oper, src, dst, size}
+               => bin (sse_ibinap_layout oper,
+                       Size.layout size,
+                       Operand.layout src,
+                       Operand.layout dst)
              | SSE_MOVS {src, dst, size}
              => bin (str "movs", 
                      Size.layout size,
@@ -2369,6 +2410,8 @@ struct
            => {uses = [src], defs = [dst], kills = []}
            | SSE_BinLP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
+           | SSE_IBinAP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_MOVS {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
            | SSE_COMIS {src1, src2, ...}
@@ -2383,6 +2426,9 @@ struct
            => {uses = [src], defs = [dst], kills = []}
            | SSE_MOVD {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
+(*TUCKER:
+ *avx should like kind like this
+ *{uses [src1, src2], defs = [dst], kills []}*)
 
       val hints
         = fn pMD {dst, size, ...}
@@ -2614,6 +2660,8 @@ struct
            => {srcs = SOME [src], dsts = SOME [dst]}
            | SSE_BinLP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE_IBinAP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_MOVS {src, dst, ...}
            => {srcs = SOME [src], dsts = SOME [dst]}
            | SSE_COMIS {src1, src2, ...}
@@ -2756,6 +2804,11 @@ struct
                          src = replacer {use = true, def = false} src,
                          dst = replacer {use = true, def = true} dst,
                          size = size}
+           | SSE_IBinAP {oper, src, dst, size}
+           => SSE_IBinAP {oper = oper,
+                         src = replacer {use = true, def = false} src,
+                         dst = replacer {use = true, def = true} dst,
+                         size = size}
            | SSE_MOVS {src, dst, size}
            => SSE_MOVS {src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
@@ -2820,6 +2873,7 @@ struct
       val sse_unas = SSE_UnAS
       val sse_unap = SSE_UnAP
       val sse_binlp = SSE_BinLP
+      val sse_ibinap = SSE_IBinAP
       val sse_movs = SSE_MOVS
       val sse_comis = SSE_COMIS
       val sse_ucomis = SSE_UCOMIS
@@ -3545,6 +3599,7 @@ struct
       val instruction_sse_unas = Instruction o Instruction.sse_unas
       val instruction_sse_unap = Instruction o Instruction.sse_unap
       val instruction_sse_binlp = Instruction o Instruction.sse_binlp
+      val instruction_sse_ibinap = Instruction o Instruction.sse_ibinap
       val instruction_sse_movs = Instruction o Instruction.sse_movs
       val instruction_sse_comis = Instruction o Instruction.sse_comis
       val instruction_sse_ucomis = Instruction o Instruction.sse_ucomis
