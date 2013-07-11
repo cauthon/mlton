@@ -1,0 +1,66 @@
+* TODO SIMD Research [30%]
+  DEADLINE:<2013-07-18 Thu>
+** TODO GCC Research [3/5]
+*** DONE Use of SIMD Primitives
+*** DONE Basic implementation of SIMD Primitives
+*** TODO Advanced implementation details [1/2]
+**** DONE Vector type implementations
+**** TODO Autovectorization
+** TODO llvm Research [1/3]
+*** DONE Read up on LLVM implementation (basic stuff)
+*** TODO Read/dig through code to learn about LLVM vector type, vectorization,
+    compilier intrinsics etc...
+*** TODO Rather unlikely but figure out how hard implementing an llvm backend would be 
+** TODO D Research
+** TODO Mono.Simd Research
+** TODO Non C-language Research [2/3]
+*** DONE GHC SIMD implementation via llvm
+*** TODO cl-simd, generic and sbcl specific
+*** DONE Any other useful languages?
+** TODO Write MLton SIMD implementation specification [0/3]
+*** TODO Orginize Code Structure
+*** TODO Writeup basic signature files
+*** TODO Write formal spec
+* TODO Write MLton SIMD implementation [31%]
+  DEADLINE: <2013-09-16 Mon>
+** TODO MLton Research/Hacking
+*** DONE C-ffi stuff [2/2]
+    DEADLINE: <2013-06-14 Fri>
+**** DONE TODO Look through ffi code, figure out how to implement
+     gcc vector types as mlton ffi types(also requires some research on the gcc side)
+
+**** DONE Look into issues with linking,includes etc. for using the *intrin.h 
+     headers for ffi stuff.
+*** TODO Intermediate languages [0/4]
+**** TODO ast & coreml
+**** TODO xml
+**** TODO ssa (1&2)
+**** TODO rsa
+**** TODO machine
+*** DONE MLton specific libraries etc
+** DONE Finalize Signature files
+** TODO Write C backend [2/6]
+   DEADLINE: <2013-07-28 Sun>
+*** TODO Unit tests everywhere
+*** DONE SSE implementation
+*** DONE SSE2 implementation
+*** TODO SSE3(etc) implementation
+*** TODO SSE4(.1,.2) implementation
+*** TODO AVX implementation
+** TODO Write AMD-64 backend
+   DEADLINE: <2013-09-16 Mon>
+** TODO Write Software backend
+** TODO Figure out how to align to 16 bit boundries
+   Its pretty important to figure this out, simd stuff really needs
+   to be aligned
+* TODO Write MLton SIMD Library
+  DEADLINE: <2013-09-16 Mon>
+
+* NOTES
+Start <2013-06-17 Mon>
+Midterm <2013-07-29 Sat> - <2013-08-02 Fri>
+End <2013-09-16 Mon>
+Due <2013-09-23 Mon>
+* TODO <2013-07-02 Tue>
+  Write frontend & update backend to fit with using Word8 arrays for
+  all int types
