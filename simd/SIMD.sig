@@ -13,16 +13,8 @@ signature SIMD_FLOAT =
 (*there are enough differences between floating pt simd instructions and 
  *integer ones that they merit different signatures*)
 sig
-(*lots of ways this could be done, if we stick just to
- *machine possible types it could be v2df or v4sf for sse
- *or v4df/v8sf for avx.
- *But we could do 3 types
- *type size = RealX, where x is probably just 32 or 64
- *type length = X + (X%2) (*it's a lot eaiser with an even type*)
- *type t = vector type (*vector,vector slice,n-tuple,array,array-slice,etc*)
- *type v = size vector
- *val pack = t->v
- *val unpack v->t(*or MLton.Pointer->t*)*)
+  val vec_size:int (*size of the simd vector, multiple of 128*)
+  val element_size:
   type v (*the vector type we're using, for now*)
   type e (*the element type*)
   type m128i (*lets call this some integer type for now*)

@@ -419,6 +419,7 @@ structure Word64 : PRIM_WORD =
    end
 
 end
+(* Probably not going to use these*)
 structure Word128 =
    struct
       open Word128

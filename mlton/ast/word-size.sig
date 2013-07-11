@@ -37,7 +37,7 @@ signature WORD_SIZE =
       val memoize: (t -> 'a) -> t -> 'a
       val objptr: unit -> t
       val objptrHeader: unit -> t
-      datatype prim = W8 | W16 | W32 | W64 | W128 | W256
+      datatype prim = W8 | W16 | W32 | W64 (*| W128 | W256*)
       val prim: t -> prim
       val prims: t list
       val roundUpToPrim: t -> t
@@ -49,6 +49,6 @@ signature WORD_SIZE =
       val word16: t
       val word32: t
       val word64: t
-      val word128: t
-      val word256: t
+(*      val word128: t
+      val word256: t*)
    end
