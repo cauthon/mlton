@@ -502,6 +502,11 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
           | SSE_MOVHP
 (*there are also instructions to duplicate elements and move*)
 (*          | SSE_MOVS*)
+        datatype sse_shuffp (*shuffle floating point*)
+          = SSE_SHUFP (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                       *selected by imm8*)
+          | SSE_BLENDP (*BLEND xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                       *chosen from src or dst based on imm8*)
         (* TODO: Integer SSE instructions(TUCKER)*)
         (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
         (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
@@ -550,9 +555,36 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
           | SSE_PSLL (*logical shift left, w,d,q,dq*)
           | SSE_PSRL (*logical shift right w,d,q,dq*)
           | SSE_PSRA (*arithmetic shift right, w/d*)
-(*TODO: AVX Instructions (TUCKER)*)
-
-
+(*TODO: AVX Instructions (TUCKER)
+ *because there are AVX 128 bit vex incoded int instructions and
+ *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
+ *AVX and AVX2 instructions, or maybe just do VEX128 & VEX256?*)
+(*lets just do avx 256 bit fp stuff 1st*)
+        datatype avx_fp_binap
+          = AVX_ADDP
+          | AVX_MULP
+          | AVX_DIVP
+          | AVX_SUBP
+          | AVX_ADDSUBP
+          | AVX_HADDP
+          | AVX_HSUBP
+          | AVX_MINP
+          | AVX_MAXP
+        datatype avx_fp_binlp
+          = AVX_ANDP
+          | AVX_ANDNP
+          | AVX_ORP
+          | AVX_XORP
+        datatype avx_fp_mov
+          = MOVAPS
+          | MOVAPD
+          | MOVUPS
+          | MOVUPD
+          | MOVDQA
+          | MOVDQU
+        datatype avx_fp_shuf
+          = SHUFP
+          | BLENDP
 
         (* amd64 Instructions.
          * src operands are not changed by the instruction.
@@ -721,6 +753,11 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
                            src: Operand.t,
                            dst Operand.t,
                            size: Size.t}
+          (* SSE shuffle/blend w/imm8 operand*)
+          | SSE_ShufFp of {oper: sse_shuffp,
+                           src: Operand.t,
+                           dst: Operand.t,
+                           imm: Operand.t}
           (* Scalar SSE move instruction.
            *)
           | SSE_MOVS of {src: Operand.t,
@@ -764,6 +801,11 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
                               srcsize: Size.t,
                               dst: Operand.t,
                               dstsize: Size.t}
+          (*BLENDVP xmm,xmm/m128 <XMM0>, same as BLENDP but Selection is
+           * implicit via most significant bit in each element of XMM0*)
+          | SSE_BLENDVP  of {src: Operand.t,
+                             dst: Operand.t,
+                             size: Size.t}
           (* Scalar SSE move data instruction.
            *)
           | SSE_MOVD of {src: Operand.t,

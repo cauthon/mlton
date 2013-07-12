@@ -1666,8 +1666,6 @@ struct
            | c  => seq [str "n", condition_layout (condition_negate c)]
       end
       val condition_toString = Layout.toString o condition_layout
-
-
       (* Scalar SSE binary arithmetic instructions. *)
       datatype sse_binas
         = SSE_ADDS (* addition; p. 7,10 *)
@@ -1740,6 +1738,31 @@ struct
               | SSE_ORP => str "orp"
               | SSE_XORP => str "xorp"
           end
+      (*sse3 binary artihmatic opperations (hadd/sub & addsub*)
+      datatype sse3_binap
+        = SSE_ADDSUBP (*add odd pairs, subtract even pairs*)
+        | SSE_HADDP (*horizontal add*)
+        | SSE_HSUBP (*horizontal subtract*)
+      val sse3_binap_layout
+          = let
+              open Layout
+            in
+              fn SSE_ADDSUBP => str "addsubp"
+               | SSE_HADDP => str "haddp"
+               | SSE_HUSBP => str "hsubp"
+            end
+      datatype sse_shuffp (*shuffle floating point*)
+        = SSE_SHUFP (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                     *selected by imm8*)
+        | SSE_BLENDP (*BLEND xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                      *chosen from src or dst based on imm8*)
+      val sse_shuffp_layout
+          = let
+              open Layout
+            in
+              fn SSE_SHUFP => str "shufp"
+               | SSE_BLENDP => str "blendp"
+            end
       (*floating point sse move instructions*)
       datatype sse_movfp
         =   SSE_MOVAP (*Move aligned fp data*)
@@ -1760,37 +1783,181 @@ struct
       (*Now integer sse intsructions*)
         (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
         (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
-        datatype sse_ibinap
-          = SSE_PADD (*add signed or unsignedb,w,d,q*)
-          | SSE_PADDS (*add signed integers w/saturation,b,w*)
-          | SSE_PADDUS (*add  unsigned integers w/saturation*)
-          | SSE_PSUB (*subtract signed or unsigned, b,w,d,q*)
-          | SSE_PSUBS (*subtract signed ints w/saturation, b,w*)
-          | SSE_PSUBUS (*subtract unsigned ints w/saturation, b,w*)
-          | SSE_PMAXS (*max of signed ints, w(sse2), b,d(sse4.1)*)
-          | SSE_PMAXU (*max of unsigned ints b(sse2), d,w(sse4.1)*)
-          | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
-          | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
-          | SSE_PAVG (*average of packed ints, b,w*)
-        val sse_ibinap_layout
-            = let
-                 open Layout
-              in
-                fn SSE_PADD => str "padd"
-              | SSE_PADDS => str "padds"
-              | SSE_PADUS => str "paddus"
-              | SSE_PSUB => str "psub"
-              | SSE_PSUBS => str "psubs"
-              | SSE_PSUBUS => str "psubus"
-              | SSE_PMAXS => str "pmaxs"
-              | SSE_PMAXU => str "pmaxu"
-              | SEE_PMINS => str "pmins"
-              | SSE_PMINU => str "pminu"
-              | SSE_PAVG => str "pavg"
-        end
+      datatype sse_ibinap
+        = SSE_PADD (*add signed or unsignedb,w,d,q*)
+        | SSE_PADDS (*add signed integers w/saturation,b,w*)
+        | SSE_PADDUS (*add  unsigned integers w/saturation*)
+        | SSE_PSUB (*subtract signed or unsigned, b,w,d,q*)
+        | SSE_PSUBS (*subtract signed ints w/saturation, b,w*)
+        | SSE_PSUBUS (*subtract unsigned ints w/saturation, b,w*)
+        | SSE_PMAXS (*max of signed ints, w(sse2), b,d(sse4.1)*)
+        | SSE_PMAXU (*max of unsigned ints b(sse2), d,w(sse4.1)*)
+        | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
+        | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
+        | SSE_PAVG (*average of packed ints, b,w*)
+      val sse_ibinap_layout
+          = let
+              open Layout
+            in
+               fn SSE_PADD => str "padd"
+                | SSE_PADDS => str "padds"
+                | SSE_PADUS => str "paddus"
+                | SSE_PSUB => str "psub"
+                | SSE_PSUBS => str "psubs"
+                | SSE_PSUBUS => str "psubus"
+                | SSE_PMAXS => str "pmaxs"
+                | SSE_PMAXU => str "pmaxu"
+                | SEE_PMINS => str "pmins"
+                | SSE_PMINU => str "pminu"
+                | SSE_PAVG => str "pavg"
+            end
+      datatype sse_imov
+        = SSE_MOVDQA (*move aligned double quadword*)
+        | SSE_MOVDQU (*move unaligned double quadword*)
+        (*SSE4.1*)
+        | SSE_PMOVSX (*packed move with sign extend*)
+        | SSE_PMOVZX (*packed move with zero extend*)
+      val sse_imov_layout
+          = let
+               open Layout
+            in
+               fn SSE_MOVDQA => str "movdqa"
+                | SSE_MOVDQU => str "movdqu"
+                | SSE_PMOVSX => str "pmovsx"
+                | SSE_PMOVZX => str "pmovzx"
+            end
+      datatype sse_pmd (*multiply and divide for packed ints*)
+        = SSE_PCMULQDQ (*this is special, it has its own cpuid flag*)
+        | SSE_PMULHW (*multiply signed words, store high 16 bits of result*)
+        | SSE_PMULHUW (*same as above but unsigned*)
+        | SSE_PMULLW (*save low 16 bits of results instead*)
+        | SSE_PMADDWD (*multiply words, add adjecent dword results & store*)
+        (*sse4.1*)
+        | SSE_PMULDQ (*multiply 1st & 3rd doublewords, save quadword results*)
+        | SSE_PMULUDQ (*same as above, but unsigned*)
+        | SSE_PMULD (*just multiply dwords and store low bits of result*)
+      val sse_pmd_layout
+          = let
+               open Layout
+            in
+               fn SSE_PCMULQDQ => str "pcmulqdq"
+                | SSE_PMULHW => str "pmulhw"
+                | SSE_PMULHUW => str "pmulhuw"
+                | SSE_PUMLLW => str "pumllw"
+                | SSE_PMADDWD => str "pmaddwd"
+                | SSE_PMULDQ => str "pmuldq"
+                | SSE_PMULUDQ => str "pmuludq"
+                | SSE_PMULD => str "pmuld"
+            end
 
-(*      datatype sse_pbina*)
+      datatype ssse3_ibinap
+        = SSE_PHADD (*horozintal add of signed words or doublewords*)
+        | SSE_PHADDSW (*horozontal saturated add of signed words*)
+        | SSE_PHSUB (*horizontal sub words or doublewords*)
+        | SSE_PHSUBSW (*horizonal sub words w/saturation*)
+        | SSE_PMULHRSW (*word multiply, but scale results & store high bits*)
+      val ssse3_ibinap_layout
+          = let
+               open Layout
+            in
+               fn SSE_PHADD => str "phadd"
+                | SSE_PHADDSW => str "phaddsw"
+                | SSE_PHSUB => str "phsub"
+                | SSE_PHSUBSW => str "phsubsw"
+                | SSE_PMULHRSW => str "pmulhrsw"
+            end
+      (* Packed SSE binary logical instructions *)
+      datatype sse_ibinlp
+        = SSE_PAND
+        | SSE_PANDN
+        | SSE_PXOR
+        | SSE_POR
+        | SSE_PSLL (*logical shift left, w,d,q,dq*)
+        | SSE_PSRL (*logical shift right w,d,q,dq*)
+        | SSE_PSRA (*arithmetic shift right, w/d*)
+      val sse_ibinlp_layout
+          = let
+               open Layout
+            in
+               fn SSE_PAND => str "pand"
+                | SSE_PANDN => str "pandn"
+                | SSE_PXOR => str "pxor"
+                | SSE_POR => str "por"
+                | SSE_PSLL => str "psll"
+                | SSE_PSRL => str "psrl"
+                | SSE_PSRA => str "psra"
+            end
+      (*because there are AVX 128 bit vex incoded int instructions and
+       *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
+       *AVX and AVX2 instructions, or maybe just do VEX128 & VEX256?*)
+      (*lets just do avx 256 bit fp stuff 1st*)
+      datatype avx_fp_binap
+        = AVX_ADDP
+        | AVX_MULP
+        | AVX_DIVP
+        | AVX_SUBP
+        | AVX_ADDSUBP
+        | AVX_HADDP
+        | AVX_HSUBP
+        | AVX_MINP
+        | AVX_MAXP
+      val avx_fp_binap_layout
+          = let
+               open Layout
+            in
+               fn AVX_ADDP => str "addp"
+                | AVX_MULP => str "mulp"
+                | AVX_DIVP => str "divp"
+                | AVX_SUBP => str "subp"
+                | AVX_ADDSUBP => str "addsubp"
+                | AVX_HADDP => str "haddp"
+                | AVX_HSUBP => str "hsubp"
+                | AVX_MINP => str "minp"
+                | AVX_MAXP => str "maxp"
+            end
+      datatype avx_fp_binlp
+        = AVX_ANDP
+        | AVX_ANDNP
+        | AVX_ORP
+        | AVX_XORP
 
+      val avx_fp_binlp_layout
+          = let
+               open Layout
+            in
+               fn AVX_ANDP => str "andp"
+                | AVX_ANDNP => str "andnp"
+                | AVX_ORP => str "orp"
+                | AVX_XORP => str "xorp"
+            end
+      datatype avx_fp_mov
+        = MOVAPS
+        | MOVAPD
+        | MOVUPS
+        | MOVUPD
+        | MOVDQA
+        | MOVDQU
+      val avx_fp_mov_layout
+          = let
+               open Layout
+            in
+               fn AVX_MOVAPS => str "movaps"
+                | AVX_MOVAPD => str "movapd"
+                | AVX_MOVUPS => str "movups"
+                | AVX_MOVUPD => str "movupd"
+                | AVX_MOVDQA => str "movdqa"
+                | AVX_MOVDQU => str "movdqu"
+            end
+      datatype avx_fp_shuf
+        = SHUFP
+        | BLENDP
+      val avx_fp_shuf_layout
+          = let
+               open Layout
+            in
+               fn AVX_SHUFP => str "shufp"
+                | AVX_BLENDP => str "blendp"
+            end
       (* amd64 Instructions.
        * src operands are not changed by the instruction.
        * dst operands are changed by the instruction.
