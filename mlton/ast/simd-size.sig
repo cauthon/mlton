@@ -8,10 +8,9 @@ sig
   val bytes: t -> Bytes.t
   val equals: t * t -> bool
   val toString: t -> string
+  val fromBits: Bits.t -> t
   datatype prim = V128 | V256
   val prim: t -> prim
   val prims: t list
   val all: t list
-  val primReals: t*RealSize.t list
-  val primWords: t*WordSize.t list
 end

@@ -14,6 +14,7 @@ signature PRIM_STRUCTS =
       structure Const: CONST
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
+      structure SimdSize: SIMD_SIZE
       sharing RealSize = Const.RealX.RealSize
       sharing WordSize = Const.WordX.WordSize
    end
@@ -138,13 +139,13 @@ signature PRIM =
              | Simd_Real_min of SimdSize.t*RealSize.t (* codegen *)
              | Simd_Real_max of SimdSize.t*RealSize.t (* codegen *)
              | Simd_Real_sqrt of SimdSize.t*RealSize.t (* codegen *)
-             | Simd_Real_and of SimdSize.t*Realsize.t (* codegen *)
-             | Simd_Real_andn of SimdSize.t*Realsize.t (* codegen *)
-             | Simd_Real_or of SimdSize.t*Realsize.t (* codegen *)
-             | Simd_Real_xor of SimdSize.t*Realsize.t (* codegen *)
-             | Simd_Real_hadd of SimdSize.t*Realsize.t (* codegen *)
-             | Simd_Real_hsub of SimdSize.t*Realsize.t (* codegen *)
-             | Simd_Real_addsub of SimdSize.t*Realsize.t (* codegen *)
+             | Simd_Real_and of SimdSize.t*RealSize.t (* codegen *)
+             | Simd_Real_andn of SimdSize.t*RealSize.t (* codegen *)
+             | Simd_Real_or of SimdSize.t*RealSize.t (* codegen *)
+             | Simd_Real_xor of SimdSize.t*RealSize.t (* codegen *)
+             | Simd_Real_hadd of SimdSize.t*RealSize.t (* codegen *)
+             | Simd_Real_hsub of SimdSize.t*RealSize.t (* codegen *)
+             | Simd_Real_addsub of SimdSize.t*RealSize.t (* codegen *)
 (*             | Simd_Real_cmp of SimdSize.t*Realsize.t*Word8.word (* codegen *)*)
              | String_toWord8Vector (* defunctorize *)
              | Thread_atomicBegin (* backend *)

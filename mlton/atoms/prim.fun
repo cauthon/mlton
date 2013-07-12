@@ -147,14 +147,14 @@ datatype 'a t =
  | Simd_Real_min of SimdSize.t*RealSize.t (* codegen *)
  | Simd_Real_max of SimdSize.t*RealSize.t (* codegen *)
  | Simd_Real_sqrt of SimdSize.t*RealSize.t (* codegen *)
- | Simd_Real_and of SimdSize.t*Realsize.t (* codegen *)
- | Simd_Real_andn of SimdSize.t*Realsize.t (* codegen *)
- | Simd_Real_or of SimdSize.t*Realsize.t (* codegen *)
- | Simd_Real_xor of SimdSize.t*Realsize.t (* codegen *)
- | Simd_Real_hadd of SimdSize.t*Realsize.t (* codegen *)
- | Simd_Real_hsub of SimdSize.t*Realsize.t (* codegen *)
- | Simd_Real_addsub of SimdSize.t*Realsize.t (* codegen *)
- | Simd_Real_cmp of SimdSize.t*Realsize.t*Word8.word (* codegen *)
+ | Simd_Real_and of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_andn of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_or of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_xor of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_hadd of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_hsub of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_addsub of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word (* codegen *)
 (* | Simd_Real_castToWord of SimdSize.t*Realsize.t*WordSize.t
  | Simd_Word_castToWord of SimdSize.t*WordSize.t*WordSize.t*)
  | String_toWord8Vector (* defunctorize *)
@@ -1168,7 +1168,7 @@ in
        World_save]
       @ List.concat [List.concatMap (RealSize.all, reals),
                      List.concatMap (WordSize.prims, words),
-                     List.concatMap (SimdSize.primReals, simdReals]
+                     List.concatMap (SimdSize.primReals, simdReals)]
       @ let
            val real = RealSize.all
            val word = WordSize.all

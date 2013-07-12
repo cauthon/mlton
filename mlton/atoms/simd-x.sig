@@ -37,4 +37,4 @@ signature SIMD_REAL_X =
       val toString: t -> string
       val layout: t -> Layout.t
       val hash: t -> word
-
+   end
