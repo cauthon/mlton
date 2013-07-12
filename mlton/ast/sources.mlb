@@ -31,6 +31,8 @@ local
    prim-cons.fun
    real-size.sig
    real-size.fun
+   simd-size.sig   
+   simd-size.fun
    word-size.sig
    word-size.fun
    tycon-kind.sig
@@ -67,6 +69,7 @@ in
    signature TYCON_KIND
    signature TYVAR
    signature WORD_SIZE
+   signature SIMD_SIZE
 
    functor AdmitsEquality
    functor Ast

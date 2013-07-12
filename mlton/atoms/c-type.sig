@@ -9,6 +9,7 @@ signature C_TYPE_STRUCTS =
    sig
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
+      structure SimdSize: SIMD_SIZE
    end
 
 signature C_TYPE = 
@@ -28,8 +29,8 @@ signature C_TYPE =
        | Word16
        | Word32
        | Word64
-       | Word128
-       | Word256
+       | Simd128
+       | Simd256
 
       val align: t * Bytes.t -> Bytes.t
       val all: t list

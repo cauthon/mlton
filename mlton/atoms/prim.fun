@@ -140,8 +140,24 @@ datatype 'a t =
  | Ref_assign (* backend *)
  | Ref_deref (* backend *)
  | Ref_ref (* backend *)
+ | Simd_Real_add of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_sub of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_mul of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_div of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_min of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_max of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_sqrt of SimdSize.t*RealSize.t (* codegen *)
+ | Simd_Real_and of SimdSize.t*Realsize.t (* codegen *)
+ | Simd_Real_andn of SimdSize.t*Realsize.t (* codegen *)
+ | Simd_Real_or of SimdSize.t*Realsize.t (* codegen *)
+ | Simd_Real_xor of SimdSize.t*Realsize.t (* codegen *)
+ | Simd_Real_hadd of SimdSize.t*Realsize.t (* codegen *)
+ | Simd_Real_hsub of SimdSize.t*Realsize.t (* codegen *)
+ | Simd_Real_addsub of SimdSize.t*Realsize.t (* codegen *)
+ | Simd_Real_cmp of SimdSize.t*Realsize.t*Word8.word (* codegen *)
+(* | Simd_Real_castToWord of SimdSize.t*Realsize.t*WordSize.t
+ | Simd_Word_castToWord of SimdSize.t*WordSize.t*WordSize.t*)
  | String_toWord8Vector (* defunctorize *)
-(*TUCKER: Instert SSE/SIMD primitives here*)
  | Thread_atomicBegin (* backend *)
  | Thread_atomicEnd (* backend *)
  | Thread_atomicState (* backend *)
@@ -202,6 +218,9 @@ fun toString (n: 'a t): string =
    let
       fun real (s: RealSize.t, str: string): string =
          concat ["Real", RealSize.toString s, "_", str]
+      fun simd_real (s: SimdSize.t, r: RealSize.t, str: string): string =
+            concat ["Simd", SimdSize.toString s, "_", "Real",
+                    RealSize.toString r, "_", str]
       fun sign {signed} = if signed then "WordS" else "WordU"
       fun word (s: WordSize.t, str: string): string =
          concat ["Word", WordSize.toString s, "_", str]
@@ -310,6 +329,20 @@ fun toString (n: 'a t): string =
        | Ref_assign => "Ref_assign"
        | Ref_deref => "Ref_deref"
        | Ref_ref => "Ref_ref"
+       | Simd_Real_add (s,r) => simd_real (s,r,"add")
+       | Simd_Real_sub (s,r) => simd_real (s,r,"sub")
+       | Simd_Real_mul (s,r) => simd_real (s,r,"mul")
+       | Simd_Real_div (s,r) => simd_real (s,r,"div")
+       | Simd_Real_max (s,r) => simd_real (s,r,"max")
+       | Simd_Real_min (s,r) => simd_real (s,r,"min")
+       | Simd_Real_sqrt (s,r) => simd_real (s,r,"sqrt")
+       | Simd_Real_and (s,r) => simd_real (s,r,"and")
+       | Simd_Real_andn (s,r) => simd_real (s,r,"andn")
+       | Simd_Real_or (s,r) => simd_real (s,r,"or")
+       | Simd_Real_xor (s,r) => simd_real (s,r,"xor")
+       | Simd_Real_hadd (s,r) => simd_real (s,r,"hadd")
+       | Simd_Real_hsub (s,r) => simd_real (s,r,"hsub")
+       | Simd_Real_addsub (s,r) => simd_real (s,r,"addsub")
        | String_toWord8Vector => "String_toWord8Vector"
        | Thread_atomicBegin => "Thread_atomicBegin"
        | Thread_atomicEnd => "Thread_atomicEnd"
@@ -457,6 +490,34 @@ val equals: 'a t * 'a t -> bool =
     | (Ref_assign, Ref_assign) => true
     | (Ref_deref, Ref_deref) => true
     | (Ref_ref, Ref_ref) => true
+    | (Simd_Real_add (s,r), Simd_Real_add (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_sub (s,r), Simd_Real_sub (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_mul (s,r), Simd_Real_mul (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_div (s,r), Simd_Real_div (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_max (s,r), Simd_Real_max (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_min (s,r), Simd_Real_min (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_sqrt (s,r), Simd_Real_sqrt (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_and (s,r), Simd_Real_and (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_andn (s,r), Simd_Real_andn (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_or (s,r), Simd_Real_or (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_xor (s,r), Simd_Real_xor (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_hadd (s,r), Simd_Real_hadd (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_hsub (s,r), Simd_Real_hsub (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
+    | (Simd_Real_addsub (s,r), Simd_Real_addsub (s',r')) => 
+         SimdSize.equals (s,s') andalso RealSize.equals (r,r')
     | (String_toWord8Vector, String_toWord8Vector) => true
     | (Thread_atomicBegin, Thread_atomicBegin) => true
     | (Thread_atomicEnd, Thread_atomicEnd) => true
@@ -615,6 +676,20 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Ref_assign => Ref_assign
     | Ref_deref => Ref_deref
     | Ref_ref => Ref_ref
+    | Simd_Real_add (s,r) => Simd_Real_add (s,r)
+    | Simd_Real_sub (s,r) => Simd_Real_sub (s,r)
+    | Simd_Real_mul (s,r) => Simd_Real_mul (s,r)
+    | Simd_Real_div (s,r) => Simd_Real_div (s,r)
+    | Simd_Real_max (s,r) => Simd_Real_max (s,r)
+    | Simd_Real_min (s,r) => Simd_Real_min (s,r)
+    | Simd_Real_sqrt (s,r) => Simd_Real_sqrt (s,r)
+    | Simd_Real_and (s,r) => Simd_Real_and (s,r)
+    | Simd_Real_andn (s,r) => Simd_Real_andn (s,r)
+    | Simd_Real_or (s,r) => Simd_Real_or (s,r)
+    | Simd_Real_xor (s,r) => Simd_Real_xor (s,r)
+    | Simd_Real_hadd (s,r) => Simd_Real_hadd (s,r)
+    | Simd_Real_hsub (s,r) => Simd_Real_hsub (s,r)
+    | Simd_Real_addsub (s,r) => Simd_Real_addsub (s,r)
     | String_toWord8Vector => String_toWord8Vector
     | Thread_atomicBegin => Thread_atomicBegin
     | Thread_atomicEnd => Thread_atomicEnd
@@ -689,8 +764,8 @@ fun cpointerGet ctype =
        | Word16 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 64))
-       | Word128 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 128))
-       | Word256 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 256))
+       | Simd128 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 128))
+       | Simd256 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 256))
    end
 val cpointerLt = CPointer_lt
 fun cpointerSet ctype = 
@@ -709,8 +784,8 @@ fun cpointerSet ctype =
        | Word16 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 64))
-       | Word128 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 128))
-       | Word256 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 256))
+       | Simd128 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 128))
+       | Simd256 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 256))
    end
 val cpointerSub = CPointer_sub
 val cpointerToWord = CPointer_toWord
@@ -748,6 +823,7 @@ val wordRshift = Word_rshift
 val wordSub = Word_sub
 val wordXorb = Word_xorb
 
+(*TUCKER: Maybe add to here*)
 val isCommutative =
    fn IntInf_equal => true
     | MLton_eq => true
@@ -868,6 +944,20 @@ val kind: 'a t -> Kind.t =
        | Ref_assign => SideEffect
        | Ref_deref => DependsOnState
        | Ref_ref => Moveable
+       | Simd_Real_add _ => DependsOnState (* all DependsOnState are *)
+       | Simd_Real_sub _ => DependsOnState (* because of rounding mode *)
+       | Simd_Real_mul _ => DependsOnState
+       | Simd_Real_div _ => DependsOnState
+       | Simd_Real_max _ => Functional
+       | Simd_Real_min _ => Functional
+       | Simd_Real_sqrt _ => DependsOnState
+       | Simd_Real_and _ => Functional
+       | Simd_Real_andn _ => Functional
+       | Simd_Real_or _ => Functional
+       | Simd_Real_xor _ => Functional
+       | Simd_Real_hadd _ => DependsOnState
+       | Simd_Real_hsub _ => DependsOnState
+       | Simd_Real_addsub _ => DependsOnState
        | String_toWord8Vector => Functional
        | Thread_atomicBegin => SideEffect
        | Thread_atomicEnd => SideEffect
@@ -948,6 +1038,21 @@ local
        (Real_qequal s),
        (Real_round s),
        (Real_sub s)]
+   fun simdReals (s: SimdSize.t, r: RealSize.t) =
+      [(Simd_Real_add (s,r)),
+       (Simd_Real_sub (s,r)),
+       (Simd_Real_mul (s,r)),
+       (Simd_Real_div (s,r)),
+       (Simd_Real_max (s,r)),
+       (Simd_Real_min (s,r)),
+       (Simd_Real_sqrt (s,r)),
+       (Simd_Real_and (s,r)),
+       (Simd_Real_andn (s,r)),
+       (Simd_Real_or (s,r)),
+       (Simd_Real_xor (s,r)),
+       (Simd_Real_hadd (s,r)),
+       (Simd_Real_hsub (s,r)),
+       (Simd_Real_addsub (s,r))]
 
    fun wordSigns (s: WordSize.t, signed: bool) =
       let
@@ -1062,10 +1167,14 @@ in
        Word8Vector_toString,
        World_save]
       @ List.concat [List.concatMap (RealSize.all, reals),
-                     List.concatMap (WordSize.prims, words)]
+                     List.concatMap (WordSize.prims, words),
+                     List.concatMap (SimdSize.primReals, simdReals]
       @ let
            val real = RealSize.all
            val word = WordSize.all
+(*TUCKER: TODO: write in casts here, reals ->  words, reals -> reals,
+ * words->words*)
+           val simdReal = SimdSize.primReals
            fun coerces (name, sizes, sizes', ac) =
               List.fold
               (sizes, ac, fn (s, ac) =>
@@ -1093,7 +1202,9 @@ in
              List.concatMap (all, fn s => [get s, set s])
        in
           List.concat [doit (RealSize.all, CPointer_getReal, CPointer_setReal),
-                       doit (WordSize.prims, CPointer_getWord, CPointer_setWord)]
+                       doit (WordSize.prims, CPointer_getWord, CPointer_setWord),
+                       doit (SimdSize.primReals, CPointer_getSimd,
+                             CPointer_setSimd)]
        end
 end
 
@@ -1138,6 +1249,7 @@ fun 'a checkApp (prim: 'a t,
                              intInf: 'a,
                              real: RealSize.t -> 'a,
                              reff: 'a -> 'a,
+                             simd: SimdSize.t -> 'a,
                              thread: 'a,
                              unit: 'a,
                              vector: 'a -> 'a,
@@ -1176,6 +1288,7 @@ fun 'a checkApp (prim: 'a t,
                         end
       in
          val realUnary = make real
+         val simdUnary = make simd
          val wordUnary = make word
       end
       local
@@ -1184,6 +1297,7 @@ fun 'a checkApp (prim: 'a t,
                         end
       in
          val realBinary = make real
+         val simdBinary = make simd
          val wordBinary = make word
       end
       local
@@ -1331,6 +1445,20 @@ fun 'a checkApp (prim: 'a t,
        | Ref_assign => oneTarg (fn t => (twoArgs (reff t, t), unit))
        | Ref_deref => oneTarg (fn t => (oneArg (reff t), t))
        | Ref_ref => oneTarg (fn t => (oneArg t, reff t))
+       | Simd_Real_add (r,s) => simdBinary (r,s)
+       | Simd_Real_sub (r,s) => simdBinary (r,s)
+       | Simd_Real_mul (r,s) => simdBinary (r,s)
+       | Simd_Real_div (r,s) => simdBinary (r,s)
+       | Simd_Real_max (r,s) => simdBinary (r,s)
+       | Simd_Real_min (r,s) => simdBinary (r,s)
+       | Simd_Real_sqrt (r,s) => simdUnary (r,s)
+       | Simd_Real_and (r,s) => simdBinary (r,s)
+       | Simd_Real_andn (r,s) => simdBinary (r,s)
+       | Simd_Real_or (r,s) => simdBinary (r,s)
+       | Simd_Real_xor (r,s) => simdBinary (r,s)
+       | Simd_Real_hadd (r,s) => simdBinary (r,s)
+       | Simd_Real_hsub (r,s) => simdBinary (r,s)
+       | Simd_Real_addsub (r,s) => simdBinary (r,s)
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))
        | Thread_atomicState => noTargs (fn () => (noArgs, word32))
@@ -1395,6 +1523,8 @@ val checkApp =
    fn z =>
    Trace.trace ("Prim.check", layout o #1, Layout.ignore) checkApp z
 
+(*Should probably define some new functions here & add 
+ *In simd stuff, because you can extract stuff from simd vectors*)
 fun ('a, 'b) extractTargs (prim: 'b t,
                            {args: 'a vector,
                             result: 'a,
@@ -1513,7 +1643,8 @@ structure ApplyResult =
  * A = B --> false
  * A x = B y --> false
  *)
-
+(* TUCKER: This seems to be optimization stuff, So I can put it off until
+ * after I've got stuff working*)
 fun ('a, 'b) apply (p: 'a t,
                     args: 'b ApplyArg.t list,
                     varEquals: 'b * 'b -> bool): ('a, 'b) ApplyResult.t =
@@ -2092,6 +2223,21 @@ fun ('a, 'b) layoutApp (p: 'a t,
        | Ref_assign => two ":="
        | Ref_deref => one "!"
        | Ref_ref => one "ref"
+       (* TUCKER: Might need to change things here, we'll see*)
+       | Simd_Real_add _ => two "add"
+       | Simd_Real_sub _ => two "sub"
+       | Simd_Real_mul _ => two "mul"
+       | Simd_Real_div _ => two "div"
+       | Simd_Real_max _ => two "max"
+       | Simd_Real_min _ => two "min"
+       | Simd_Real_sqrt _ => one "sqrt"
+       | Simd_Real_and _ => two "and"
+       | Simd_Real_andn _ => two "andn"
+       | Simd_Real_or _ => two "or"
+       | Simd_Real_xor _ => two "xor"
+       | Simd_Real_hadd _ => two "hadd"
+       | Simd_Real_hsub _ => two "hsub"
+       | Simd_Real_addsub _ => two "addsub"
        | Vector_length => one "length"
        | Word_add _ => two "+"
        | Word_addCheck _ => two "+"

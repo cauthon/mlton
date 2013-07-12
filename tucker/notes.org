@@ -43,6 +43,16 @@
   QUESTIONS: adding Ymm register stuff to amd64 codegen
   -alias the ymm registers to the xmm registers
   -keep just xmm register structure and work on that
+* google hangout <2013-07-12 Fri>
+  -primitives, start at prim.sig/fun & ast is where typedefs are
+  -ssa is where to start recoginizing the fact that my type is a primitive
+  -simd_wordx & simd_realx are ok names
+  -ast/ is where types are defined
+  -put explict cast primitive for ints of different sizes
+  -make debug compiles with exception trace histories
+  -smlnj speeds up compilations
+
+
 * Low level details
 ** Immediate opperands
 *** Compairson
