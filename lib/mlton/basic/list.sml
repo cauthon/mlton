@@ -288,6 +288,13 @@ fun pop r =
 
 fun push (r, x) = r := x :: !r
 
+fun zipConst (l, c) = let
+  val l1 = ref l
+  val l2 = ref []
+  val _ = while (!l1 <> []) do
+                push (l2,((pop l1),c))
+in rev (!l2) end
+
 fun remFst (l, f, notFound) =
    let
       fun loop (l, ac) =

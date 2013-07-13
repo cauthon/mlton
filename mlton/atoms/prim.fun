@@ -255,7 +255,7 @@ fun toString (n: 'a t): string =
        | CPointer_getReal s => cpointerGet ("Real", RealSize.toString s)
        | CPointer_getWord s => cpointerGet ("Word", WordSize.toString s)
        | CPointer_lt => "CPointer_lt"
-       | CPointer_setCPointer => "CPointer_setCPointer"
+       | CPointer_Setcpointer => "CPointer_setCPointer"
        | CPointer_setObjptr => "CPointer_setObjptr"
        | CPointer_setReal s => cpointerSet ("Real", RealSize.toString s)
        | CPointer_setWord s => cpointerSet ("Word", WordSize.toString s)
@@ -764,8 +764,8 @@ fun cpointerGet ctype =
        | Word16 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 64))
-       | Simd128 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 128))
-       | Simd256 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 256))
+(*       | Simd128 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 128))
+       | Simd256 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 256))*)
    end
 val cpointerLt = CPointer_lt
 fun cpointerSet ctype = 
@@ -784,8 +784,8 @@ fun cpointerSet ctype =
        | Word16 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 64))
-       | Simd128 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 128))
-       | Simd256 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 256))
+(*       | Simd128 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 128))
+       | Simd256 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 256))*)
    end
 val cpointerSub = CPointer_sub
 val cpointerToWord = CPointer_toWord
@@ -1202,9 +1202,7 @@ in
              List.concatMap (all, fn s => [get s, set s])
        in
           List.concat [doit (RealSize.all, CPointer_getReal, CPointer_setReal),
-                       doit (WordSize.prims, CPointer_getWord, CPointer_setWord),
-                       doit (SimdSize.primReals, CPointer_getSimd,
-                             CPointer_setSimd)]
+                       doit (WordSize.prims, CPointer_getWord, CPointer_setWord)]
        end
 end
 

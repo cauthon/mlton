@@ -168,6 +168,7 @@ signature LIST =
 (*      val unzip3: ('a * 'b * 'c) t -> 'a t * 'b t * 'c t *)
       val zip: 'a t * 'b t -> ('a * 'b) t
 (*      val zip3: 'a t * 'b t * 'c t -> ('a * 'b * 'c) t *)
+      val zipConst: 'a t * 'b -> ('a * 'b) t
    end 
 
 

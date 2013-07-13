@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
-#Script to generate a platform dependend mlton script
+#Script to generate a platform dependent mlton script
 #Rather than deducing the platform and necessary options each time
 #mlton is called, do it once and generate a script with platform dependent
 #variables builtin
 #TODO Add option -m InstructionSet to decide to use specific instructions
 help(){  
   echo -e "usage: gen-mlton.sh [options]\nOptions:"
-    echo -e "\t -h|--help print this help and exit"
-    echo -e "\t -v|--version print version information"
-    echo -e "\t -d|--default generate script using default options"
-    echo -e "\t --default-opts OPTS, additional default options for mlton"
-    echo -e "\t --prefix DIR:prefix for mlton & mlton libs [/usr/local]"
-    echo -e "\t --libdir DIR:location of mlton libs [/usr/local/lib]"
-    echo -e "\t --bindir DIR:location of mlton excutable (aka. this script)
-\t\t[/usr/local/bin]"
-    echo -e "\t -f|--file FILE: name of mlton excutable
-\t\t[bindir/mlton], if host=mingw append .exe"
-    echo -e "\t -a|--arch ARCH: generate script for architecture ARCH
+    echo -e "\t-h|--help print this help and exit"
+    echo -e "\t-v|--version print version information"
+    echo -e "\t-d|--default generate script using default options"
+    echo -e "\t--default-opts OPTS, additional default options for mlton"
+    echo -e "\t--prefix DIR:prefix for mlton & mlton libs [/usr/local]"
+    echo -e "\t--libdir DIR:location of mlton libs [prefix/lib]"
+    echo -e "\t-f|--file FILE: name of mlton script to generate
+\t\t[prefix/bin/mlton], if host=mingw append .exe"
+    echo -e "\t-a|--arch ARCH: generate script for architecture ARCH
 \t\tdefault determined by current architecture"
+    echo -e "\t-m NAME for amd64 set available simd functions"
+    echo -e "\tNAME is the desired feature, one of sse3,ssse3,sse4.1,sse4.1,avx,fma,aes,avx2"
+    echo -e "\tsse3-avx implictly include earlier features [detected based on current machine]"
     echo -e "\t -c|--cc FILE: name of default c compiler [gcc]"
     echo -e "\t -o|--os OS: generate script for operating system OS
 \t\tdefault deturmined by current os"
@@ -25,12 +26,13 @@ help(){
 \t\tgiven as a number from 0-1 as a % of total ram [0.25]"
     exit 0
 }
-source $(dirname "$0")/gen-mlton-platform #functions to get host-os & host-arch
-VERSION="0.01"
+source $(dirname "$0")/gen-mlton-funs #functions to get host-os & host-arch
+#also for x86_64 runs cpuid to determin features
+VERSION="0.02"
 [[ $# = 0 ]] && help
 #run getopt on args
 TEMP=$(getopt -o a:,c:,f:,h,o:,v,d \
--l prefix:,libdir:,bindir:,file:,os:,arch:,cc:,help,version,default,default-opts: \
+-l prefix:,libdir:,file:,os:,arch:,cc:,help,version,default,default-opts: \
 -n 'gen-mlton.sh' -- "$@")
 if [ $? != 0 ] ; then echo "Getopt failed, error $?" >&2 ; exit 1 ; fi
 
@@ -42,13 +44,20 @@ while true;do
         -v|--version) echo "mlton.sh version $VERSION"; exit 0;;
         --prefix) prefix="$2";shift 2;;
         --libdir) libdir="$2";shift 2;;
-        --bindir) bindir="$2";shift 2;;
         --default-opts) default_opts="$2";shift 2;;
         -o|--os) HOST_OS="$2";shift 2;;
         -a|--arch) HOST_ARCH="$2";shift 2;;
         -f|--file) script="$2";shift 2;;
         -c|--cc) CC="$2";shift 2;;
         -r|--ram)ram_slop="$2";shift 2;;
+        -m) case "$2" in
+              avx2|fma|aes) declare "$2"=1;;
+              avx) avx=1;&
+              sse4.1) sse4_1=1;&
+              sse4.2) sse4_2=1;&
+              ssse3) ssse3=1;&
+              sse3) sse3=1;&
+            esac; simd=1; shift 2;;
         --) shift ; break;;
         *) echo "Internal error!, remaining args: $@"; exit 1 ;;
     esac
@@ -62,6 +71,10 @@ done
 [[ -z "$HOST_OS" ]] && HOST_OS=$(get_os)
 [[ -z "$CC" ]] && CC=gcc
 [[ -z "$ram_slop" ]] && ram_slop=0.25
+if [[ $HOST_ARCH = amd64 ]] && [[ -z "$simd" ]]; then
+    cpuid();
+fi
+    
 #os specific options
 case "$HOST_OS" in
     mingw)
@@ -189,7 +202,7 @@ doitMLton () {
     exec "$mlton_compile" @MLton ram-slop $ram_slop "\${rargs[@]}" -- "\$@"
 }
 doitSMLNJ () {
-    exec sml @SMLload="$mlton_smlnj_heap" "\$@"
+    exec sml @SMLload="\$mlton_smlnj_heap" "\$@"
 }
 doitPolyML () {
     exec "$mlton_polyml" "\$@"
