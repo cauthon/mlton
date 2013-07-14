@@ -2116,6 +2116,11 @@ struct
                         src: Operand.t,
                         dst: Operand.t,
                         size: Size.t}
+        (* Packe fp binary instructions from SSE3 *)
+        | SSE3_BinAP of {oper: sse3_binap,
+                         src: Operand.t,
+                         dst: Operand.t,
+                         size: Size.t}
         (* Packed SSE int binary add/sub/min/max/avg instructions
          *)
         | SSE_IBinAP of {oper: sse_ibinap,
@@ -2356,6 +2361,11 @@ struct
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
+             | SSE3_BinAp {oper, src, dst, size}
+             => bin (sse3_binap_layout size,
+                     Size.layout size,
+                     Operand.layout src,
+                     Operand.layout dst)
              | SSE_IBinAP {oper, src, dst, size}
                => bin (sse_ibinap_layout oper,
                        Size.layout size,
@@ -2576,6 +2586,8 @@ struct
            | SSE_UnAP {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
            | SSE_BinLP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
+           | SSE3_BinAP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_IBinAP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
@@ -2827,6 +2839,8 @@ struct
            => {srcs = SOME [src], dsts = SOME [dst]}
            | SSE_BinLP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE3_BinAP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_IBinAP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_MOVS {src, dst, ...}
@@ -2971,6 +2985,11 @@ struct
                          src = replacer {use = true, def = false} src,
                          dst = replacer {use = true, def = true} dst,
                          size = size}
+           | SSE3_BinAP {oper, src, dst, size}
+           => SSE3_BinAP {oper = oper,
+                         src = replacer {use = true, def = false} src,
+                         dst = replacer {use = true, def = true} dst,
+                         size = size}
            | SSE_IBinAP {oper, src, dst, size}
            => SSE_IBinAP {oper = oper,
                          src = replacer {use = true, def = false} src,
@@ -3040,6 +3059,7 @@ struct
       val sse_unas = SSE_UnAS
       val sse_unap = SSE_UnAP
       val sse_binlp = SSE_BinLP
+      val sse3_binap = SSE3_BinAP
       val sse_ibinap = SSE_IBinAP
       val sse_movs = SSE_MOVS
       val sse_comis = SSE_COMIS
@@ -3766,6 +3786,7 @@ struct
       val instruction_sse_unas = Instruction o Instruction.sse_unas
       val instruction_sse_unap = Instruction o Instruction.sse_unap
       val instruction_sse_binlp = Instruction o Instruction.sse_binlp
+      val instruction_sse3_binap = Instruction o Instruction.sse3_binap
       val instruction_sse_ibinap = Instruction o Instruction.sse_ibinap
       val instruction_sse_movs = Instruction o Instruction.sse_movs
       val instruction_sse_comis = Instruction o Instruction.sse_comis

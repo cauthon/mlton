@@ -741,6 +741,11 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
                          src: Operand.t,
                          dst: Operand.t,
                          size: Size.t}
+          (* Packe fp binary instructions from SSE3 *)
+          | SSE3_BinAP of {oper: sse3_binap,
+                           src: Operand.t,
+                           dst: Operand.t,
+                           size: Size.t}
           (* Packed SSE fp binary logic instructions (used as scalar). 
            *)
           | SSE_BinLP of {oper: sse_binlp,
@@ -801,6 +806,7 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
                               srcsize: Size.t,
                               dst: Operand.t,
                               dstsize: Size.t}
+(* Available cvt instructions...*)
           (*BLENDVP xmm,xmm/m128 <XMM0>, same as BLENDP but Selection is
            * implicit via most significant bit in each element of XMM0*)
           | SSE_BLENDVP  of {src: Operand.t,
@@ -1146,6 +1152,10 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
                                     dst: Operand.t,
                                     size: Size.t} -> t
         val instruction_sse_binlp : {oper: Instruction.sse_binlp,
+                                     src: Operand.t,
+                                     dst: Operand.t,
+                                     size: Size.t} -> t
+        val instruction_sse3_binap : {oper: Instruction.sse3_binap,
                                      src: Operand.t,
                                      dst: Operand.t,
                                      size: Size.t} -> t

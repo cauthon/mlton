@@ -154,7 +154,7 @@ datatype 'a t =
  | Simd_Real_hadd of SimdSize.t*RealSize.t (* codegen *)
  | Simd_Real_hsub of SimdSize.t*RealSize.t (* codegen *)
  | Simd_Real_addsub of SimdSize.t*RealSize.t (* codegen *)
- | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word (* codegen *)
+(* | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word (* codegen *)*)
 (* | Simd_Real_castToWord of SimdSize.t*Realsize.t*WordSize.t
  | Simd_Word_castToWord of SimdSize.t*WordSize.t*WordSize.t*)
  | String_toWord8Vector (* defunctorize *)

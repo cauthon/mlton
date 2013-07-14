@@ -44,7 +44,7 @@ struct
             | W64 => false
             | W128 => false
             | W256 => false
-
+        datatype z = datatype SimdSize.prim
         datatype z = datatype Prim.Name.t
      in
         case Prim.name p of
@@ -82,8 +82,23 @@ struct
          | Real_qequal _ => true
          | Real_rndToReal _ => true
          | Real_rndToWord (_, s2, {signed}) => signed orelse w32168 s2
-         | Real_round _ => false
+         | Real_round _ => false 
          | Real_sub _ => true
+         | Simd_Real_add  _ => true
+         | Simd_Real_sub  _ => true 
+         | Simd_Real_mul  _ => true 
+         | Simd_Real_div  _ => true 
+         | Simd_Real_min  _ => true 
+         | Simd_Real_max  _ => true 
+         | Simd_Real_sqrt  _ => true 
+         | Simd_Real_and  _ => true 
+         | Simd_Real_andn  _ => true 
+         | Simd_Real_or  _ => true 
+         | Simd_Real_xor  _ => true 
+         | Simd_Real_hadd  _ => true 
+         | Simd_Real_hsub  _ => true 
+         | Simd_Real_addsub _ => true 
+         (* | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word *)
          | Thread_returnToC => false
          | Word_add _ => true
          | Word_addCheck _ => true

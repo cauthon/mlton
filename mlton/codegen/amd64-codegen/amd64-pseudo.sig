@@ -237,6 +237,10 @@ signature AMD64_PSEUDO =
           | SSE_ANDP (* and; p. 21,23 *)
           | SSE_ORP (* or; p. 206,208 *)
           | SSE_XORP (* xor; p. 391,393 *)
+        datatype sse3_binap
+          = SSE_ADDSUBP (*add odd pairs, subtract even pairs*)
+          | SSE_HADDP (*horizontal add*)
+          | SSE_HSUBP (*horizontal subtract*)
         (*floating point sse move instructions*)
         datatype sse_movfp
           = SSE_MOVAP
@@ -258,7 +262,69 @@ signature AMD64_PSEUDO =
           | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
           | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
           | SSE_PAVG (*average of packed ints, b,w*)
+        datatype sse_imov
+          = SSE_MOVDQA (*move aligned double quadword*)
+          | SSE_MOVDQU (*move unaligned double quadword*)
+        (*SSE4.1*)
+          | SSE_PMOVSX (*packed move with sign extend*)
+          | SSE_PMOVZX (*packed move with zero extend*)
+        datatype sse_pmd (*multiply and divide for packed ints*)
+          = SSE_PCMULQDQ (*this is special, it has its own cpuid flag*)
+          | SSE_PMULHW (*multiply signed words, store high 16 bits of result*)
+          | SSE_PMULHUW (*same as above but unsigned*)
+          | SSE_PMULLW (*save low 16 bits of results instead*)
+          | SSE_PMADDWD (*multiply words, add adjecent dword results & store*)
+          (*sse4.1*)
+          | SSE_PMULDQ (*multiply 1st & 3rd doublewords, save quadword results*)
+          | SSE_PMULUDQ (*same as above, but unsigned*)
+          | SSE_PMULD (*just multiply dwords and store low bits of result*)
+        datatype ssse3_ibinap
+          = SSE_PHADD (*horozintal add of signed words or doublewords*)
+          | SSE_PHADDSW (*horozontal saturated add of signed words*)
+          | SSE_PHSUB (*horizontal sub words or doublewords*)
+          | SSE_PHSUBSW (*horizonal sub words w/saturation*)
+          | SSE_PMULHRSW (*word multiply, but scale results & store high bits*)
 
+        (* Packed SSE unary arithmetic instructions.*)
+        (* Packed SSE binary logical instructions *)
+        datatype sse_ibinlp
+          = SSE_PAND
+          | SSE_PANDN
+          | SSE_PXOR
+          | SSE_POR
+          | SSE_PSLL (*logical shift left, w,d,q,dq*)
+          | SSE_PSRL (*logical shift right w,d,q,dq*)
+          | SSE_PSRA (*arithmetic shift right, w/d*)
+(*TODO: AVX Instructions (TUCKER)
+ *because there are AVX 128 bit vex incoded int instructions and
+ *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
+ *AVX and AVX2 instructions, or maybe just do VEX128 & VEX256?*)
+(*lets just do avx 256 bit fp stuff 1st*)
+        datatype avx_fp_binap
+          = AVX_ADDP
+          | AVX_MULP
+          | AVX_DIVP
+          | AVX_SUBP
+          | AVX_ADDSUBP
+          | AVX_HADDP
+          | AVX_HSUBP
+          | AVX_MINP
+          | AVX_MAXP
+        datatype avx_fp_binlp
+          = AVX_ANDP
+          | AVX_ANDNP
+          | AVX_ORP
+          | AVX_XORP
+        datatype avx_fp_mov
+          = MOVAPS
+          | MOVAPD
+          | MOVUPS
+          | MOVUPD
+          | MOVDQA
+          | MOVDQU
+        datatype avx_fp_shuf
+          = SHUFP
+          | BLENDP
         type t
       end
 
