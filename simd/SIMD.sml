@@ -1,3 +1,6 @@
+functor Simd_RealX(S:SIMD_REAL_STRUCTS):SIMD_REAL =
+struct
+end
 functor SimdReal32_128(S:SSE and S3:SSE3 and S4:SSE4):SIMD_FLOAT =
   struct
   open S

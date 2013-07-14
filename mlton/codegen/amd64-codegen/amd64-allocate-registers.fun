@@ -7,7 +7,10 @@
  * See the file MLton-LICENSE for details.
  *)
 (*Does What it says on the tin, allocates registers*)
-(*TUCKER: TODO: Add ymm registers*)
+(*TUCKER: TODO: Add ymm registers
+ *This might not be necessary,but I could add some stuff
+ *to change the priority of allocations depending on how the
+ *xmm/ymm registers are allocated *)
 functor amd64AllocateRegisters(S: AMD64_ALLOCATE_REGISTERS_STRUCTS) : AMD64_ALLOCATE_REGISTERS =
 struct
 
@@ -631,6 +634,8 @@ struct
             val xmmhint
               = case assembly
                   of (Assembly.Instruction (Instruction.SSE_MOVS
+(*TODO: TUCKER: I need to change this to use a more generic move instruction
+ *or add in another val to use full xmm/ymm registers*)
                                             {src = Operand.MemLoc src', 
                                              dst = Operand.MemLoc dst',
                                              ...}))

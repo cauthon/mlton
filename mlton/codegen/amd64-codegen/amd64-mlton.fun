@@ -82,22 +82,22 @@ struct
          | Real_qequal _ => true
          | Real_rndToReal _ => true
          | Real_rndToWord (_, s2, {signed}) => signed orelse w32168 s2
-         | Real_round _ => false 
+         | Real_round _ => false
          | Real_sub _ => true
          | Simd_Real_add  _ => true
-         | Simd_Real_sub  _ => true 
-         | Simd_Real_mul  _ => true 
-         | Simd_Real_div  _ => true 
-         | Simd_Real_min  _ => true 
-         | Simd_Real_max  _ => true 
-         | Simd_Real_sqrt  _ => true 
-         | Simd_Real_and  _ => true 
-         | Simd_Real_andn  _ => true 
-         | Simd_Real_or  _ => true 
-         | Simd_Real_xor  _ => true 
-         | Simd_Real_hadd  _ => true 
-         | Simd_Real_hsub  _ => true 
-         | Simd_Real_addsub _ => true 
+         | Simd_Real_sub  _ => true
+         | Simd_Real_mul  _ => true
+         | Simd_Real_div  _ => true
+         | Simd_Real_min  _ => true
+         | Simd_Real_max  _ => true
+         | Simd_Real_sqrt  _ => true
+         | Simd_Real_and  _ => true
+         | Simd_Real_andn  _ => true
+         | Simd_Real_or  _ => true
+         | Simd_Real_xor  _ => true
+         | Simd_Real_hadd  _ => true
+         | Simd_Real_hsub  _ => true
+         | Simd_Real_addsub _ => true
          (* | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word *)
          | Thread_returnToC => false
          | Word_add _ => true
@@ -123,21 +123,12 @@ struct
          | Word_sub _ => true
          | Word_subCheck _ => true
          | Word_xorb _ => true
-(*TUCKER: TODO:
- *probably add a whole bunch of SIMD_operation primops
- *Maybe SSE_op & AVX_op?
- *ideas
- *SIMD_fp_{add,sub,mul,div,max,min,hadd,hsub,addsub,comp,sqrt,&,|,^,&!
- *SIMD_word8...
- *SIMD_word16...
- *SIMD_word32...
- *SIMD_word64...*)
          | _ => false
      end
 
   val implementsPrim: Machine.Type.t Prim.t -> bool =
-     Trace.trace 
-     ("amd64MLton.implementsPrim", Prim.layout, Bool.layout) 
+     Trace.trace
+     ("amd64MLton.implementsPrim", Prim.layout, Bool.layout)
      implementsPrim
 
   fun prim {prim : RepType.t Prim.t,
@@ -165,7 +156,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: mov, dstsize/srcsize",
                    fn () => srcsize = dstsize)
@@ -185,7 +176,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: movx, dstsize/srcsize",
                    fn () => Size.lt(srcsize,dstsize))
@@ -207,7 +198,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: xvom, dstsize/srcsize",
                    fn () => Size.lt(dstsize,srcsize))
@@ -229,14 +220,14 @@ struct
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
 
               (* Reverse src1/src2 when src1 and src2 are temporaries
-               * and the oper is commutative. 
+               * and the oper is commutative.
                *)
               val (src1,src2)
                 = if (oper = Instruction.ADD)
@@ -279,14 +270,14 @@ struct
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: pmd, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
 
               (* Reverse src1/src2 when src1 and src2 are temporaries
-               * and the oper is commutative. 
+               * and the oper is commutative.
                *)
               val (src1,src2)
                 = if (oper = Instruction.IMUL)
@@ -323,14 +314,14 @@ struct
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: imul2, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
 
               (* Reverse src1/src2 when src1 and src2 are temporaries
-               * and the oper is commutative. 
+               * and the oper is commutative.
                *)
               val (src1,src2)
                 = case (Operand.deMemloc src1, Operand.deMemloc src2)
@@ -361,7 +352,7 @@ struct
           = let
               val (src,srcsize) = getSrc1 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: unal, dstsize/srcsize",
                    fn () => srcsize = dstsize)
@@ -369,7 +360,7 @@ struct
               AppendList.fromList
               [Block.mkBlock'
                {entry = NONE,
-                statements 
+                statements
                 = [Assembly.instruction_mov
                    {dst = dst,
                     src = src,
@@ -386,11 +377,11 @@ struct
               val (dst,dstsize) = getDst1 ()
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: sral, dstsize/src1size",
                    fn () => src1size = dstsize)
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: sral, src2size",
                    fn () => src2size = Size.LONG)
@@ -416,7 +407,7 @@ struct
               val (dst,dstsize) = getDst1 ()
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: cmp, src1size/src2size",
                    fn () => src1size = src2size)
@@ -444,7 +435,7 @@ struct
                                transfer = NONE}]
                  | NONE => AppendList.fromList
                            [Block.mkBlock'
-                            {entry = NONE,      
+                            {entry = NONE,
                              statements
                              = [Assembly.instruction_cmp
                                 {src1 = src1,
@@ -469,7 +460,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: sse_movs, dstsize/srcsize",
                    fn () => srcsize = dstsize)
@@ -491,14 +482,14 @@ struct
               val (dst,dstsize) = getDst1 ()
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: cmp, src1size/src2size",
                    fn () => src1size = src2size)
             in
               AppendList.fromList
               [Block.mkBlock'
-               {entry = NONE,      
+               {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_ucomis
                    {src1 = src1,
@@ -516,7 +507,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: sse_cvtsfp2sfp, dstsize/srcsize",
                    fn () => srcsize <> dstsize)
@@ -537,7 +528,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: sse_movd, dstsize/srcsize",
                    fn () => srcsize <> dstsize)
@@ -558,7 +549,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: sse_movd, dstsize/srcsize",
                    fn () => srcsize <> dstsize)
@@ -578,7 +569,7 @@ struct
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: sse_movd, dstsize/srcsize",
                    fn () => srcsize <> dstsize)
@@ -600,14 +591,14 @@ struct
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
 
               (* Reverse src1/src2 when src1 and src2 are temporaries
-               * and the oper is commutative. 
+               * and the oper is commutative.
                *)
               val (src1,src2)
                 = if (oper = Instruction.SSE_ADDS)
@@ -642,20 +633,111 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-
-        fun sse_binap oper
+        fun sse_binlp oper
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
               val instr = SSE_MOVAP (*TUCKER: how to select right move instr*)
               (* Reverse src1/src2 when src1 and src2 are temporaries
-               * and the oper is commutative. 
+               * and the oper is commutative.
+               *)
+              val (src1,src2)
+                = if (oper = Instruction.SSE_ANDP)
+                     orelse
+                     (oper = Instruction.SSE_ANDNP)
+                     orelse
+                     (oper = Instruction.SSE_ORP)
+                     orelse
+                     (oper = Instruction.SSE_XORP)
+                    then case (Operand.deMemloc src1, Operand.deMemloc src2)
+                           of (SOME memloc_src1, SOME memloc_src2)
+                            => if amd64Liveness.track memloc_src1
+                                  andalso
+                                  amd64Liveness.track memloc_src2
+                                 then (src2,src1)
+                                 else (src1,src2)
+                            | _ => (src1,src2)
+                    else (src1,src2)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movfp
+                   {instr = instr,
+                    dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_sse_binlp
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
+                    size = dstsize}],
+                transfer = NONE}]
+            end
+        fun sse3_binap oper
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+              val _
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize)
+              val instr = SSE_MOVAP (*TUCKER: how to select right move instr*)
+              (* Reverse src1/src2 when src1 and src2 are temporaries
+               * and the oper is commutative.
+               *)
+              val (src1,src2)
+                = if (oper = Instruction.SSE_HADDP)
+                    then case (Operand.deMemloc src1, Operand.deMemloc src2)
+                           of (SOME memloc_src1, SOME memloc_src2)
+                            => if amd64Liveness.track memloc_src1
+                                  andalso
+                                  amd64Liveness.track memloc_src2
+                                 then (src2,src1)
+                                 else (src1,src2)
+                            | _ => (src1,src2)
+                    else (src1,src2)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movfp
+                   {instr = instr,
+                    dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_sse3_binap
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
+                    size = dstsize}],
+                transfer = NONE}]
+            end
+
+        fun sse_binap oper
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+              val _
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize)
+              (*TUCKER: how to select right move instr*)
+              val instr = Instruction.SSE_MOVAP 
+              (* Reverse src1/src2 when src1 and src2 are temporaries
+               * and the oper is commutative.
                *)
               val (src1,src2)
                 = if (oper = Instruction.SSE_ADDP)
@@ -691,6 +773,7 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
+
 (*TUCKER: what is this, multiplication? but multiplication was defined above*)
         fun sse_binas_mul oper
           = let
@@ -698,7 +781,7 @@ struct
                    (src2,src2size),
                    (src3,src3size)) = getSrc3 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
@@ -730,7 +813,7 @@ struct
           = let
               val (src,srcsize) = getSrc1 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: unal, dstsize/srcsize",
                    fn () => srcsize = dstsize)
@@ -738,7 +821,7 @@ struct
               AppendList.fromList
               [Block.mkBlock'
                {entry = NONE,
-                statements 
+                statements
                 = [Assembly.instruction_sse_unas
                    {oper = oper,
                     src = src,
@@ -750,7 +833,7 @@ struct
           = let
               val (src,srcsize) = getSrc1 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
 (*TUCKER: what is unal?*)
                   ("amd64MLton.prim: unal, dstsize/srcsize",
@@ -759,7 +842,7 @@ struct
               AppendList.fromList
               [Block.mkBlock'
                {entry = NONE,
-                statements 
+                statements
                 = [Assembly.instruction_sse_unap
                    {oper = oper,
                     src = src,
@@ -772,14 +855,14 @@ struct
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
               val (dst,dstsize) = getDst1 ()
-              val _ 
+              val _
                 = Assert.assert
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
               val instr = Instructon.SSE_MOVDQA
               (* Reverse src1/src2 when src1 and src2 are temporaries
-               * and the oper is commutative. 
+               * and the oper is commutative.
                *)
               val (src1,src2)
                 = if (oper = Instruction.SSE_PADD)
@@ -829,19 +912,19 @@ struct
           = if !Control.Native.commented > 0
               then let
                      val comment = primName
-                   in 
+                   in
                      (AppendList.single
                       (amd64.Block.mkBlock'
                        {entry = NONE,
-                        statements 
-                        = [amd64.Assembly.comment 
+                        statements
+                        = [amd64.Assembly.comment
                            ("begin prim: " ^ comment)],
                         transfer = NONE}),
                       AppendList.single
                       (amd64.Block.mkBlock'
                        {entry = NONE,
-                        statements 
-                        = [amd64.Assembly.comment 
+                        statements
+                        = [amd64.Assembly.comment
                            ("end prim: " ^ comment)],
                         transfer = NONE}))
                    end
@@ -867,20 +950,20 @@ struct
 
                    val (dst, dstsize) = getDst1 ()
                    val label = fn () => Label.fromString name
-                   
+
                    (* how to access an imported label's address *)
                    (* windows coff will add another leading _ to label *)
                    val coff = fn () => Label.fromString ("_imp__" ^ name)
                    val macho = fn () => Label.fromString (name ^ "@GOTPCREL")
                    val elf = fn () => Label.fromString (name ^ "@GOTPCREL")
-                   
+
                    val importLabel = fn () =>
                       case !Control.Target.os of
                          Cygwin => coff ()
                        | Darwin => macho ()
                        | MinGW => coff ()
                        | _ => elf ()
-                   
+
                    val direct = fn () =>
                       AppendList.fromList
                       [Block.mkBlock'
@@ -891,7 +974,7 @@ struct
                           src = Operand.memloc_label (label ()),
                           size = dstsize}],
                         transfer = NONE}]
-                   
+
                    val indirect = fn () =>
                       AppendList.fromList
                       [Block.mkBlock'
@@ -903,24 +986,24 @@ struct
                           size = dstsize}],
                         transfer = NONE}]
                 in
-                   case (symbolScope, 
-                         !Control.Target.os, 
+                   case (symbolScope,
+                         !Control.Target.os,
                          !Control.positionIndependent) of
                     (* As long as the symbol is private (this means it is not
-                     * exported to code outside this text segment), then 
-                     * RIP-relative addressing works on every OS/format. 
+                     * exported to code outside this text segment), then
+                     * RIP-relative addressing works on every OS/format.
                      *)
                       (Private, _, _) => direct ()
-                    (* When linking an executable, ELF and darwin-x86_64 use 
+                    (* When linking an executable, ELF and darwin-x86_64 use
                      * a special trick to "simplify" the code. All exported
                      * functions and symbols have pointers that correspond to
-                     * to the executable. Function pointers point to the 
+                     * to the executable. Function pointers point to the
                      * automatically created PLT entry in the executable.
                      * Variables are copied/relocated into the executable bss.
                      * This means that direct access is fine for executable
                      * and archive formats. (It also means direct access is
                      * NOT fine for a library, even if it defines the symbol)
-                     * 
+                     *
                      * On ELF&darwin, a public symbol must be accessed via
                      * the GOT. This is because the final value may not be
                      * in this text segment. If the executable uses it, then
@@ -951,7 +1034,7 @@ struct
                 let
                    val (dst,dstsize) = getDst1 ()
                    val (src,srcsize) = getSrc1 ()
-                   val _ 
+                   val _
                      = Assert.assert
                        ("amd64MLton.prim: Real_abs, dstsize/srcsize",
                         fn () => srcsize = dstsize)
@@ -961,7 +1044,7 @@ struct
                         WordX.one wordSize,
                         {signed = false})
 
-                   val (const,constsize) 
+                   val (const,constsize)
                      = case s of
                          R32 => (mkConst WordSize.word32, Size.LONG)
                        | R64 => (mkConst WordSize.word64, Size.QUAD)
@@ -969,7 +1052,7 @@ struct
                    AppendList.fromList
                    [Block.mkBlock'
                     {entry = NONE,
-                     statements 
+                     statements
                      = [Assembly.instruction_sse_movd
                         {dst = dst,
                          dstsize = dstsize,
@@ -994,14 +1077,14 @@ struct
                    val tmp =
                       fpeqTempContentsOperand dstsize
 
-                   val _ 
+                   val _
                       = Assert.assert
                       ("amd64MLton.prim: Real_equal, src1size/src2size",
                        fn () => src1size = src2size)
                 in
                    AppendList.fromList
                    [Block.mkBlock'
-                    {entry = NONE,      
+                    {entry = NONE,
                      statements
                      = [Assembly.instruction_sse_ucomis
                         {src1 = src1,
@@ -1030,14 +1113,14 @@ struct
                    val tmp =
                       fpeqTempContentsOperand dstsize
 
-                   val _ 
+                   val _
                       = Assert.assert
                       ("amd64MLton.prim: Real_equal, src1size/src2size",
                        fn () => src1size = src2size)
                 in
                    AppendList.fromList
                    [Block.mkBlock'
-                    {entry = NONE,      
+                    {entry = NONE,
                      statements
                      = [Assembly.instruction_sse_ucomis
                         {src1 = src2,
@@ -1066,14 +1149,14 @@ struct
                    val tmp =
                       fpeqTempContentsOperand dstsize
 
-                   val _ 
+                   val _
                       = Assert.assert
                       ("amd64MLton.prim: Real_equal, src1size/src2size",
                        fn () => src1size = src2size)
                 in
                    AppendList.fromList
                    [Block.mkBlock'
-                    {entry = NONE,      
+                    {entry = NONE,
                      statements
                      = [Assembly.instruction_sse_ucomis
                         {src1 = src2,
@@ -1101,7 +1184,7 @@ struct
                 let
                    val (dst,dstsize) = getDst1 ()
                    val (src,srcsize) = getSrc1 ()
-                   val _ 
+                   val _
                      = Assert.assert
                        ("amd64MLton.prim: Real_neg, dstsize/srcsize",
                         fn () => srcsize = dstsize)
@@ -1111,7 +1194,7 @@ struct
                         WordX.one wordSize,
                         {signed = false})
 
-                   val (const,constsize) 
+                   val (const,constsize)
                      = case s of
                          R32 => (mkConst WordSize.word32, Size.LONG)
                        | R64 => (mkConst WordSize.word64, Size.QUAD)
@@ -1119,7 +1202,7 @@ struct
                    AppendList.fromList
                    [Block.mkBlock'
                     {entry = NONE,
-                     statements 
+                     statements
                      = [Assembly.instruction_sse_movd
                         {dst = dst,
                          dstsize = dstsize,
@@ -1141,14 +1224,14 @@ struct
                    val tmp =
                       fpeqTempContentsOperand dstsize
 
-                   val _ 
+                   val _
                       = Assert.assert
                       ("amd64MLton.prim: Real_qequal, src1size/src2size",
                        fn () => src1size = src2size)
                 in
                    AppendList.fromList
                    [Block.mkBlock'
-                    {entry = NONE,      
+                    {entry = NONE,
                      statements
                      = [Assembly.instruction_sse_ucomis
                         {src1 = src1,
@@ -1188,7 +1271,7 @@ struct
                            AppendList.fromList
                            [Block.mkBlock'
                             {entry = NONE,
-                             statements 
+                             statements
                              = [Assembly.instruction_sse_cvtsfp2si
                                 {src = src,
                                  dst = dst,
@@ -1206,7 +1289,7 @@ struct
                            AppendList.fromList
                            [Block.mkBlock'
                             {entry = NONE,
-                             statements 
+                             statements
                              = [Assembly.instruction_sse_cvtsfp2si
                                 {src = src,
                                  dst = tmp,
@@ -1229,6 +1312,20 @@ struct
                       | _ => Error.bug "amd64MLton.prim: Real_rndToWord, W64, false"
                   end
              | Real_sub _ => sse_binas Instruction.SSE_SUBS
+             | Simd_Real_add => sse_binap Instruction.SSE_ADDP
+             | Simd_Real_sub => sse_binap Instruction.SSE_SUBP
+             | Simd_Real_mul => sse_binap Instruction.SSE_MULP
+             | Simd_Real_div => sse_binap Instruction.SSE_DIVP
+             | Simd_Real_min => sse_binap Instruction.SSE_MINP
+             | Simd_Real_max => sse_binap Instruction.SSE_MAXP
+             | Simd_Real_sqrt => sse_binap Instruction.SSE_SQRTP
+             | Simd_Real_and => sse_binap Instruction.SSE_ANDP
+             | Simd_Real_andn => sse_binap Instruction.SSE_ANDNP
+             | Simd_Real_or => sse_binap Instruction.SSE_ORP
+             | Simd_Real_xor => sse_binap Instruction.SSE_XORP
+             | Simd_Real_hadd => sse3_binap Instruction.SSE3_HADDP
+             | Simd_Real_hsub => sse3_binap Instruction.SSE3_HSUBP
+             | Simd_Real_addsub => sse3_binap Instruction.SSE3_ADDSUBP
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()
@@ -1250,7 +1347,7 @@ struct
                   pmd (if signed then Instruction.IDIV else Instruction.DIV)
              | Word_rem (_, {signed}) =>
                   pmd (if signed then Instruction.IMOD else Instruction.MOD)
-             | Word_rndToReal (s, _, {signed}) => 
+             | Word_rndToReal (s, _, {signed}) =>
                   let
                      fun default () =
                         let
@@ -1260,7 +1357,7 @@ struct
                            AppendList.fromList
                            [Block.mkBlock'
                             {entry = NONE,
-                             statements 
+                             statements
                              = [Assembly.instruction_sse_cvtsi2sfp
                                 {src = src,
                                  dst = dst,
@@ -1278,7 +1375,7 @@ struct
                            AppendList.fromList
                            [Block.mkBlock'
                             {entry = NONE,
-                             statements 
+                             statements
                              = [Assembly.instruction_movx
                                 {oper = if signed
                                            then Instruction.MOVSX
@@ -1335,12 +1432,12 @@ struct
         val CFunction.T {convention, target, ...} = func
         val comment_begin
           = if !Control.Native.commented > 0
-              then AppendList.single 
+              then AppendList.single
                    (amd64.Block.mkBlock'
                     {entry = NONE,
-                     statements = 
+                     statements =
                      [amd64.Assembly.comment
-                      (concat 
+                      (concat
                        ["begin ccall: ",
                         CFunction.Convention.toString convention,
                         " ",
@@ -1354,7 +1451,7 @@ struct
          (Block.mkBlock'
           {entry = NONE,
            statements = [],
-           transfer = SOME (Transfer.ccall 
+           transfer = SOME (Transfer.ccall
                             {args = Vector.toList args,
                              frameInfo = frameInfo,
                              func = func,
@@ -1364,7 +1461,7 @@ struct
   fun creturn {dsts: (amd64.Operand.t * amd64.Size.t) vector,
                frameInfo: amd64.FrameInfo.t option,
                func: RepType.t CFunction.t,
-               label: amd64.Label.t, 
+               label: amd64.Label.t,
                transInfo = {live, liveInfo, ...}: transInfo}
     = let
         val CFunction.T {convention, target, ...} = func
@@ -1372,7 +1469,7 @@ struct
           = let
               val _ = amd64Liveness.LiveInfo.setLiveOperands
                       (liveInfo, label, live label)
-            in 
+            in
               AppendList.single
               (amd64.Block.mkBlock'
                {entry = SOME (Entry.creturn {dsts = dsts,
@@ -1384,12 +1481,12 @@ struct
             end
         val comment_end
           = if !Control.Native.commented > 0
-              then AppendList.single 
+              then AppendList.single
                    (amd64.Block.mkBlock'
                     {entry = NONE,
-                     statements = 
+                     statements =
                      [amd64.Assembly.comment
-                      (concat 
+                      (concat
                        ["begin creturn: ",
                         CFunction.Convention.toString convention,
                         " ",
@@ -1423,7 +1520,7 @@ struct
         fun check (statements, condition)
           = AppendList.single
             (amd64.Block.mkBlock'
-             {entry = NONE,     
+             {entry = NONE,
               statements = statements,
               transfer = SOME (amd64.Transfer.iff
                                {condition = condition,
@@ -1437,7 +1534,7 @@ struct
                       ("amd64MLton.arith: binal, dstsize/src1size/src2size",
                        fn () => src1size = dstsize andalso src2size = dstsize)
               (* Reverse src1/src2 when src1 and src2 are
-               * temporaries and the oper is commutative. 
+               * temporaries and the oper is commutative.
                *)
               val (src1,src2)
                 = if (oper = amd64.Instruction.ADD)
@@ -1471,7 +1568,7 @@ struct
                       ("amd64MLton.arith: pmd, dstsize/src1size/src2size",
                        fn () => src1size = dstsize andalso src2size = dstsize)
               (* Reverse src1/src2 when src1 and src2 are
-               * temporaries and the oper is commutative. 
+               * temporaries and the oper is commutative.
                *)
               val (src1, src2)
                 = if oper = amd64.Instruction.MUL
@@ -1509,7 +1606,7 @@ struct
                       {dst = dst,
                        src = src1,
                        size = dstsize},
-                      Assembly.instruction_unal 
+                      Assembly.instruction_unal
                       {oper = oper,
                        dst = dst,
                        size = dstsize}],
@@ -1524,7 +1621,7 @@ struct
                       ("amd64MLton.arith: imul2, dstsize/src1size/src2size",
                        fn () => src1size = dstsize andalso src2size = dstsize)
               (* Reverse src1/src2 when src1 and src2 are
-               * temporaries and the oper is commutative. 
+               * temporaries and the oper is commutative.
                *)
               val (src1, src2)
                 = case (amd64.Operand.deMemloc src1,
@@ -1552,19 +1649,19 @@ struct
           = if !Control.Native.commented > 0
               then let
                      val comment = primName
-                   in 
+                   in
                      (AppendList.single
                       (amd64.Block.mkBlock'
                        {entry = NONE,
-                        statements 
-                        = [amd64.Assembly.comment 
+                        statements
+                        = [amd64.Assembly.comment
                            ("begin arith: " ^ comment)],
                         transfer = NONE}),
                       AppendList.single
                       (amd64.Block.mkBlock'
                        {entry = NONE,
-                        statements 
-                        = [amd64.Assembly.comment 
+                        statements
+                        = [amd64.Assembly.comment
                            ("end arith: " ^ comment)],
                         transfer = NONE}))
                    end
@@ -1590,7 +1687,7 @@ struct
                    else
                       pmd (amd64.Instruction.MUL, amd64.Instruction.C)
                 end
-           | Word_negCheck _ => 
+           | Word_negCheck _ =>
                unal (amd64.Instruction.NEG, amd64.Instruction.O)
            | Word_subCheck (_, sg) =>
                binal (amd64.Instruction.SUB, flag sg)

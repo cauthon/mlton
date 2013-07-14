@@ -3,6 +3,17 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
+signature SIMD_AVAIL =
+sig
+  val sse:bool
+  val sse2:bool
+  val sse3:bool
+  val ssse3:bool
+  val sse4.1:bool
+  val sse4.2:bool
+  val avx:bool
+  val avx2:bool
+end
 signature SIMD_REAL_X_STRUCTS =
    sig
       structure SimdSize: SIMD_SIZE

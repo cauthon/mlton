@@ -18,8 +18,8 @@ sig
   val SUBPD:v2df*v2df->v2df 
   val MULPD:v2df*v2df->v2df
   val DIVPD:v2df*v2df->v2df 
-  val SQRTPD:v2df->v2df
-  val RCPPD:v2df->v2df 
+(*val SQRTPD:v2df->v2df
+  val RCPPD:v2df->v2df *)
   val MAXPD:v2df*v2df->v2df 
   val MINPD:v2df*v2df->v2df 
 (*BITWISE*)

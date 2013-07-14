@@ -1,0 +1,14 @@
+(let ((dir "/home/tucker/gsoc/mlton"))
+(dolist (file '("mlton/ast/simd-size.fun"
+                "mlton/ast/simd-size.sig"
+                "mlton/atoms/prim.*"
+                "mlton/codegen/amd64-codegen/amd64-mlton.*"
+                "mlton/codegen/amd64-codegen/amd64.*"
+                "mlton/codegen/amd64-codegen/amd64-psuedo.sig"
+                "mlton/atoms/simd-x.*"
+                "mlton/atoms/word-x.*"
+                "mlton/atoms/real-x.*"))))
+
+
+
+

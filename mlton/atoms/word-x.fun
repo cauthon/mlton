@@ -52,7 +52,7 @@ fun layout w = Layout.str (concat ["0x", toString w])
 
 fun zero s = make (0, s)
 
-val hash = IntInf.hash o toIntInf
+val hash = IntInf.hash o toIntInft
 
 local
    val make: (IntInf.t * Word.t -> IntInf.t) -> t * t -> t =
