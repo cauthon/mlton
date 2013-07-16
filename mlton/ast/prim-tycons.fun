@@ -112,6 +112,12 @@ in
       let 
         open SimdSize                                          
       in
+        make ("simd", all, bits, equals, memoize, Sometimes)
+      end
+   val (simdReal, simdReals, _, _, _) =
+      let 
+        open SimdSize.SimdReal                                          
+      in
         make ("simdReal", all, bits, equals, memoize, Never)
       end
 end

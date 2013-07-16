@@ -20,6 +20,7 @@ in
 end
 type realSize = RealSize.t
 type simdSize = SimdSize.t
+type simdRealSize = SimdSize.SimdReal.t
 type tycon = Tycon.t
 type wordSize = WordSize.t
 
@@ -34,6 +35,8 @@ in
    val thread = nullary Tycon.thread
    val simd = SimdSize.memoize (fn s => nullary (Tycon.simd s))
    val word = WordSize.memoize (fn s => nullary (Tycon.word s))
+   val simdReal = SimdSize.SimdReal.memoize 
+                    (fn s => nullary (Tycon.simdReal s))
 end
 
 local

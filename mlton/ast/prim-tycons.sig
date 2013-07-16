@@ -78,6 +78,8 @@ signature PRIM_TYCONS =
       val reals: (tycon * RealSize.t) vector
       val simd: SimdSize.t -> tycon
       val simds: (tycon * SimdSize.t) vector
+      val simdReal: SimdSize.SimdReal.t -> tycon
+      val simdReals: (tycon * SimdSize.SimdReal.t) vector
       val reff: tycon
       val thread: tycon
       val tuple: tycon

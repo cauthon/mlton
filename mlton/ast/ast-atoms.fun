@@ -19,7 +19,7 @@ structure IntSize = IntSize ()
 structure Kind = TyconKind ()
 structure RealSize = RealSize ()
 structure WordSize = WordSize ()
-structure SimdSize = SimdSize ()
+structure SimdSize = SimdSize (structure RealSize=RealSize)
 structure Field = Record.Field
 
 structure Tycon =
@@ -215,7 +215,7 @@ structure Type =
 
       fun layout ty =
          case node ty of
-            Var v => Tyvar.lanyout v
+            Var v => Tyvar.layout v
           | Con (c, tys) =>
                if Longtycon.equals (c, Longtycon.arrow)
                   then if 2 = Vector.length tys
