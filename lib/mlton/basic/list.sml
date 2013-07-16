@@ -215,6 +215,9 @@ fun zip (l1, l2) = foldr2 (l1, l2, [], fn (x1, x2, l) => (x1, x2) :: l)
 
 fun unzip l = foldr (l, ([], []), fn ((x1, x2), (l1, l2)) =>
                     (x1 :: l1, x2 :: l2))
+fun zipConst (l, c) = let
+  val temp = fn x => (x,c)
+in map (l,temp) end
 
 fun concatRev l = fold (l, [], append)
 
@@ -287,13 +290,6 @@ fun pop r =
     | x :: l => (r := l; x)
 
 fun push (r, x) = r := x :: !r
-
-fun zipConst (l, c) = let
-  val l1 = ref l
-  val l2 = ref []
-  val _ = while (!l1 <> []) do
-                push (l2,((pop l1),c))
-in rev (!l2) end
 
 fun remFst (l, f, notFound) =
    let

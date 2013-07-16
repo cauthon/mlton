@@ -20,13 +20,17 @@ structure Atoms =
       structure Tycon = Tycon (structure CharSize = CharSize
                                structure IntSize = IntSize
                                structure RealSize = RealSize
-                               structure WordSize = WordSize)
+                               structure WordSize = WordSize
+                               structure SimdSize = SimdSize)
       structure Con = Con ()
       structure CType = CType (structure RealSize = RealSize
+                               structure SimdSize = SimdSize
                                structure WordSize = WordSize)
       structure WordX = WordX (structure WordSize = WordSize)
       structure RealX = RealX (structure RealSize = RealSize
                                structure WordX = WordX)
+(*      structure SimdRealX = SimdRealX (structure SimdSize = SimdSize
+                                       structure RealSize = RealSize)*)
       structure WordXVector = WordXVector (structure WordSize = WordSize
                                            structure WordX = WordX)
       structure Func =
@@ -48,7 +52,8 @@ structure Atoms =
                              structure Con = Con
                              structure Const = Const
                              structure RealSize = RealSize
-                             structure WordSize = WordSize)
+                             structure WordSize = WordSize
+                             structure SimdSize = SimdSize)
       structure Ffi = Ffi (structure CFunction = CFunction
                            structure CType = CType)
       structure Vars = UnorderedSet (Var)

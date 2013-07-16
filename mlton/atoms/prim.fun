@@ -1167,14 +1167,14 @@ in
        Word8Vector_toString,
        World_save]
       @ List.concat [List.concatMap (RealSize.all, reals),
-                     List.concatMap (WordSize.prims, words),
-                     List.concatMap (SimdSize.primReals, simdReals)]
+                     List.concatMap (WordSize.prims, words)
+                     (*List.concatMap (SimdSize.primReals, simdReals)*)]
       @ let
            val real = RealSize.all
            val word = WordSize.all
 (*TUCKER: TODO: write in casts here, reals ->  words, reals -> reals,
  * words->words*)
-           val simdReal = SimdSize.primReals
+(*           val simdReal = SimdSize.primReals*)
            fun coerces (name, sizes, sizes', ac) =
               List.fold
               (sizes, ac, fn (s, ac) =>
@@ -1247,7 +1247,7 @@ fun 'a checkApp (prim: 'a t,
                              intInf: 'a,
                              real: RealSize.t -> 'a,
                              reff: 'a -> 'a,
-                             simd: SimdSize.t -> 'a,
+                             simdReal: SimdSize.t*RealSize.t -> 'a,
                              thread: 'a,
                              unit: 'a,
                              vector: 'a -> 'a,
@@ -1286,8 +1286,15 @@ fun 'a checkApp (prim: 'a t,
                         end
       in
          val realUnary = make real
-         val simdUnary = make simd
+
          val wordUnary = make word
+      end
+      local
+         fun make f (s,r) = let val t = f (s,r)
+                        in noTargs (fn () => (oneArg t, t))
+                        end
+      in
+         val simdUnary = make simdReal
       end
       local
          fun make f s = let val t = f s
@@ -1295,9 +1302,18 @@ fun 'a checkApp (prim: 'a t,
                         end
       in
          val realBinary = make real
-         val simdBinary = make simd
+
          val wordBinary = make word
       end
+
+      local
+         fun make f (s,r) = let val t = f (s,r)
+                        in noTargs (fn () => (twoArgs (t, t), t))
+                        end
+      in
+         val simdBinary = make simdReal
+      end
+
       local
          fun make f s = let val t = f s
                         in noTargs (fn () => (twoArgs (t, t), bool))

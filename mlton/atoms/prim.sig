@@ -246,7 +246,7 @@ signature PRIM =
                                       intInf: 'a,
                                       real: RealSize.t -> 'a,
                                       reff: 'a -> 'a,
-                                      simd: SimdSize.t -> 'a,
+                                      simdReal: SimdSize.t*RealSize.t -> 'a,
                                       thread: 'a,
                                       unit: 'a,
                                       vector: 'a -> 'a,
