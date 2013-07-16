@@ -57,6 +57,7 @@ signature SSA_TREE2 =
              | Object of {args: t Prod.t,
                           con: ObjectCon.t}
              | Real of RealSize.t
+             | SimdReal of SimdSize.SimdReal.t
              | Thread
              | Weak of t
              | Word of WordSize.t
@@ -80,6 +81,7 @@ signature SSA_TREE2 =
             val plist: t -> PropertyList.t
             val real: RealSize.t -> t
             val reff1: t -> t
+            val simdReal: SimdSize.SimdReal.t -> t
             val thread: t
             val tuple: t Prod.t -> t
             val vector: t Prod.t -> t

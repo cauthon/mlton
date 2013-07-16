@@ -64,6 +64,7 @@ signature SSA_TREE =
              | IntInf
              | Real of RealSize.t
              | Ref of t
+             | SimdReal of SimdSize.SimdReal.t
              | Thread
              | Tuple of t vector
              | Vector of t
@@ -96,6 +97,7 @@ signature SSA_TREE =
             val plist: t -> PropertyList.t
             val real: RealSize.t -> t
             val reff: t -> t
+            val simdReal: SimdSize.SimdReal.t -> t
             val thread: t
             val tuple: t vector -> t
             val vector: t -> t

@@ -15,7 +15,7 @@ HOST_OS := $(shell "$(SRC)/bin/host-os")
 LIB := $(BUILD)/lib
 TARGET := self
 AOUT := mlton-compile
-PATH := $(BIN):$(shell echo $$PATH)
+PATH :=$(shell echo $$PATH):$(BIN)
 
 FLAGS := @MLton ram-slop 0.25 gc-summary $(RUNTIME_ARGS) --
 

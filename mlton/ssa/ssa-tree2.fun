@@ -121,6 +121,7 @@ structure Type =
         | Object of {args: t Prod.t,
                      con: ObjectCon.t}
         | Real of RealSize.t
+        | SimdReal of SimdSize.SimdReal.t
         | Thread
         | Weak of t
         | Word of WordSize.t
@@ -164,6 +165,7 @@ structure Type =
                   ObjectCon.equals (c1, c2)
                   andalso Prod.equals (a1, a2, equals)
              | (Real s1, Real s2) => RealSize.equals (s1, s2)
+             | (SimdReal s1, SimdReal s2) => SimdSize.SimdReal.equals (s1,s2)
              | (Thread, Thread) => true
              | (Weak t1, Weak t2) => equals (t1, t2)
              | (Word s1, Word s2) => WordSize.equals (s1, s2)
@@ -213,7 +215,8 @@ structure Type =
 
       val real: RealSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.real s), Real s)
-
+      val simdReal: SimdSize.SimdReal.t -> t =
+         fn s => lookup (Tycon.hash (Tycon.simdReal s), SimdReal s)
       val word: WordSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.word s), Word s)
 
@@ -301,6 +304,9 @@ structure Type =
                            | Vector => seq [args, str " vector"]
                        end
                | Real s => str (concat ["real", RealSize.toString s])
+               | SimdReal s => str (concat 
+                                    ["Simd", SimdSize.SimdReal.toStringSimd s,
+                                     "Real", SimdSize.SimdReal.toStringReal s])
                | Thread => str "thread"
                | Weak t => seq [layout t, str " weak"]
                | Word s => str (concat ["word", WordSize.toString s])))
@@ -336,6 +342,7 @@ structure Type =
                                intInf = intInf,
                                real = real,
                                reff = fn _ => raise BadPrimApp,
+                               simdReal = simdReal,
                                thread = thread,
                                unit = unit,
                                vector = vector1,
@@ -1994,6 +2001,7 @@ structure Program =
                         | IntInf => ()
                         | Object {args, ...} => Prod.foreach (args, countType)
                         | Real _ => ()
+                        | SimdReal _ => ()
                         | Thread => ()
                         | Weak t => countType t
                         | Word _ => ()

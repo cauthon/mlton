@@ -25,6 +25,7 @@ structure Type =
         | IntInf
         | Real of RealSize.t
         | Ref of t
+        | SimdReal of SimdSize.SimdReal.t
         | Thread
         | Tuple of t vector
         | Vector of t
@@ -71,6 +72,7 @@ structure Type =
              | (IntInf, IntInf) => true
              | (Real s1, Real s2) => RealSize.equals (s1, s2)
              | (Ref t1, Ref t2) => equals (t1, t2)
+             | (SimdReal s1, SimdReal s2) => SimdSize.SimdReal.equals (s1,s2)
              | (Thread, Thread) => true
              | (Tuple ts1, Tuple ts2) => Vector.equals (ts1, ts2, equals)
              | (Vector t1, Vector t2) => equals (t1, t2)
@@ -125,7 +127,8 @@ structure Type =
 
       val real: RealSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.real s), Real s)
-
+      val simdReal: SimdSize.SimdReal.t -> t =
+         fn s => lookup (Tycon.hash (Tycon.simdReal s), SimdReal s)
       val word: WordSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.word s), Word s)
 
@@ -177,6 +180,9 @@ structure Type =
                | IntInf => str "intInf"
                | Real s => str (concat ["real", RealSize.toString s])
                | Ref t => seq [layout t, str " ref"]
+               | SimdReal s => str (concat 
+                                    ["Simd", SimdSize.SimdReal.toStringSimd s,
+                                     "Real", SimdSize.SimdReal.toStringReal s])
                | Thread => str "thread"
                | Tuple ts =>
                     if Vector.isEmpty ts
@@ -206,6 +212,7 @@ structure Type =
                             intInf = intInf,
                             real = real,
                             reff = reff,
+                            simdReal = simdReal,
                             thread = thread,
                             unit = unit,
                             vector = vector,
@@ -1760,6 +1767,7 @@ structure Program =
                         | IntInf => ()
                         | Real _ => ()
                         | Ref t => countType t
+                        | SimdReal _ => ()
                         | Thread => ()
                         | Tuple ts => Vector.foreach (ts, countType)
                         | Vector t => countType t
