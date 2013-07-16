@@ -25,6 +25,7 @@ signature TYPE_OPS =
        *)
       type realSize
       type tycon
+      type simdSize
       type wordSize
       type t
 

@@ -16,8 +16,10 @@ local
 in
    structure RealSize = RealSize
    structure WordSize = WordSize
+   structure SimdSize = SimdSize
 end
 type realSize = RealSize.t
+type simdSize = SimdSize.t
 type tycon = Tycon.t
 type wordSize = WordSize.t
 
@@ -30,6 +32,7 @@ in
    val intInf = nullary Tycon.intInf
    val real = RealSize.memoize (fn s => nullary (Tycon.real s))
    val thread = nullary Tycon.thread
+   val simd = SimdSize.memoize (fn s => nullary (Tycon.simd s))
    val word = WordSize.memoize (fn s => nullary (Tycon.word s))
 end
 

@@ -16,25 +16,49 @@ fun compare (s, s') = Bits.compare (bits s, bits s')
 
 val {equals, ...} = Relation.compare compare
 
-datatype prim = V128 | V256
 
 fun fromBits (b: Bits.t): t =
    if Bits.>= (b, Bits.zero)
       then T b
    else Error.bug (concat ["WordSize.fromBits: strange word size: ", Bits.toString b])
 
+datatype prim = V128 | V256
+
 fun prim s =
     case Bits.toInt (bits s) of
         128 => V128
       | 256 => V256
       | _ => Error.bug "SimdSize.prim"
+
 val prims = List.map ([128,256], fromBits o Bits.fromInt)
 
 val all = prims
-(* Right now I'm too lazy to think up a fancy higher order function
- * to map/concatinate lists
- * TODO: I should fix this, because if either of the types change this will
-   fail*)
+
+(*memoize from word*)
+val allVector = Vector.fromList [SOME (T (Bits.fromInt 128)),
+                                 SOME (T (Bits.fromInt 256))]
+val memoize: (t -> 'a) -> t -> 'a =
+   fn f =>
+   let
+      val v = Vector.map (allVector, fn opt => Option.map (opt, f))
+   in
+      fn s => valOf (Vector.sub (v, Bits.toInt (bits s)))
+   end
+
+val simdReals = List.concat(List.map (all,fn x => (List.map(RealSize.all,(fn y => (x,y))))))
+(*(*memoize from real*)
+val memoize: (t -> 'a) -> t -> 'a =
+   fn f =>
+   let
+      val v128 = f V128
+      val v256 = f V256
+   in
+      fn V128 => v128
+       | V256 => v256
+   end*)
 (*val primReals = 
-    [((hd prims),R32),((hd prims),R64),((last prims),R32),((last prims),R64)]*)
+List.concat(List.map (fn x => List.map (fn y => (x,y)) RealSize.all) all);
+val primWords = 
+List.concat(List.map (fn x => List.map (fn y => (x,y)) WordSize.prims) all);
+*)
 end

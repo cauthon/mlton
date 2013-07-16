@@ -18,6 +18,7 @@ signature HASH_TYPE =
       sharing type realSize = RealSize.t
       sharing type tycon = Tycon.t
       sharing type wordSize = WordSize.t
+      sharing type simdSize = SimdSize.t
 
       structure Dest:
          sig

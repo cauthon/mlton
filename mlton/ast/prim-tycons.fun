@@ -108,6 +108,12 @@ in
       in
          make ("word", all, bits, equals, memoize, Sometimes)
       end
+   val (simd, simds, _, _, primSimds) =
+      let 
+        open SimdSize                                          
+      in
+        make ("simdReal", all, bits, equals, memoize, Never)
+      end
 end
 
 val prims =
@@ -128,7 +134,7 @@ val prims =
               kind = kind,
               name = name,
               tycon = tycon})
-   @ primChars @ primInts @ primReals @ primWords
+   @ primChars @ primInts @ primReals @ primWords @ primSimds
 
 val array = #2 array
 val arrow = #2 arrow

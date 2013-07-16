@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash#
 #Script to generate a platform dependent mlton script
 #Rather than deducing the platform and necessary options each time
 #mlton is called, do it once and generate a script with platform dependent
@@ -176,7 +176,7 @@ fi
 (cat <<"EOF"
 #!/bin/bash
 declare -a rargs
-case "$1" in
+ncase "$1" in
 @MLton)
         shift
         while [ "$#" -gt 0 -a "$1" != "--" ]; do

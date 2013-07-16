@@ -31,10 +31,10 @@ local
    prim-cons.fun
    real-size.sig
    real-size.fun
-   simd-size.sig   
-   simd-size.fun
    word-size.sig
    word-size.fun
+   simd-size.sig
+   simd-size.fun
    tycon-kind.sig
    tycon-kind.fun
    prim-tycons.sig

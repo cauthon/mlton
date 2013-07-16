@@ -1294,7 +1294,7 @@ fun 'a checkApp (prim: 'a t,
                         in noTargs (fn () => (oneArg t, t))
                         end
       in
-         val simdUnary = make simdReal
+         val simdRealUnary = make simdReal
       end
       local
          fun make f s = let val t = f s
@@ -1311,7 +1311,7 @@ fun 'a checkApp (prim: 'a t,
                         in noTargs (fn () => (twoArgs (t, t), t))
                         end
       in
-         val simdBinary = make simdReal
+         val simdRealBinary = make simdReal
       end
 
       local
@@ -1459,20 +1459,20 @@ fun 'a checkApp (prim: 'a t,
        | Ref_assign => oneTarg (fn t => (twoArgs (reff t, t), unit))
        | Ref_deref => oneTarg (fn t => (oneArg (reff t), t))
        | Ref_ref => oneTarg (fn t => (oneArg t, reff t))
-       | Simd_Real_add (r,s) => simdBinary (r,s)
-       | Simd_Real_sub (r,s) => simdBinary (r,s)
-       | Simd_Real_mul (r,s) => simdBinary (r,s)
-       | Simd_Real_div (r,s) => simdBinary (r,s)
-       | Simd_Real_max (r,s) => simdBinary (r,s)
-       | Simd_Real_min (r,s) => simdBinary (r,s)
-       | Simd_Real_sqrt (r,s) => simdUnary (r,s)
-       | Simd_Real_and (r,s) => simdBinary (r,s)
-       | Simd_Real_andn (r,s) => simdBinary (r,s)
-       | Simd_Real_or (r,s) => simdBinary (r,s)
-       | Simd_Real_xor (r,s) => simdBinary (r,s)
-       | Simd_Real_hadd (r,s) => simdBinary (r,s)
-       | Simd_Real_hsub (r,s) => simdBinary (r,s)
-       | Simd_Real_addsub (r,s) => simdBinary (r,s)
+       | Simd_Real_add (r,s) => simdRealBinary (r,s)
+       | Simd_Real_sub (r,s) => simdRealBinary (r,s)
+       | Simd_Real_mul (r,s) => simdRealBinary (r,s)
+       | Simd_Real_div (r,s) => simdRealBinary (r,s)
+       | Simd_Real_max (r,s) => simdRealBinary (r,s)
+       | Simd_Real_min (r,s) => simdRealBinary (r,s)
+       | Simd_Real_sqrt (r,s) => simdRealUnary (r,s)
+       | Simd_Real_and (r,s) => simdRealBinary (r,s)
+       | Simd_Real_andn (r,s) => simdRealBinary (r,s)
+       | Simd_Real_or (r,s) => simdRealBinary (r,s)
+       | Simd_Real_xor (r,s) => simdRealBinary (r,s)
+       | Simd_Real_hadd (r,s) => simdRealBinary (r,s)
+       | Simd_Real_hsub (r,s) => simdRealBinary (r,s)
+       | Simd_Real_addsub (r,s) => simdRealBinary (r,s)
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))
        | Thread_atomicState => noTargs (fn () => (noArgs, word32))
@@ -1545,7 +1545,7 @@ fun ('a, 'b) extractTargs (prim: 'b t,
                             typeOps = {deArray: 'a -> 'a,
                                        deArrow: 'a -> 'a * 'a,
                                        deRef: 'a -> 'a,
-                                       deVector: 'a -> 'a,
+                                       deVector: 'ah -> 'a,
                                        deWeak: 'a -> 'a}}) =
    let
       val one = Vector.new1

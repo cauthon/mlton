@@ -14,6 +14,7 @@ signature PRIM_TYCONS_SUBSTRUCTS =
       structure Kind: TYCON_KIND
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
+      structure SimdSize: SIMD_SIZE 
    end
 
 signature PRIM_TYCONS_STRUCTS =
@@ -75,6 +76,8 @@ signature PRIM_TYCONS =
                   tycon: tycon} list
       val real: RealSize.t -> tycon
       val reals: (tycon * RealSize.t) vector
+      val simd: SimdSize.t -> tycon
+      val simds: (tycon * SimdSize.t) vector
       val reff: tycon
       val thread: tycon
       val tuple: tycon

@@ -13,4 +13,5 @@ sig
   val prim: t -> prim
   val prims: t list
   val all: t list
+  val memoize: (t -> 'a) -> t -> 'a
 end

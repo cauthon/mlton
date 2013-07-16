@@ -221,6 +221,7 @@ fun checkPrimApp {args, prim, result, targs}: bool =
                               intInf = intInf,
                               real = real,
                               reff = reff,
+                              simdReal = simdReal,
                               thread = thread,
                               unit = unit,
                               vector = vector,
