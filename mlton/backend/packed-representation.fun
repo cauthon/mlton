@@ -28,6 +28,7 @@ in
    structure RealSize = RealSize
    structure Runtime = Runtime
    structure Scale = Scale
+   structure SimdSize = SimdSize
    structure Statement = Statement
    structure Switch = Switch
    structure Transfer = Transfer
@@ -839,8 +840,8 @@ structure ObjptrRep =
                                         (case Type.deReal (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
-                                               RealSize.equals (s, RealSize.R64))
-                                        orelse
+                                               RealSize.equals (s, RealSize.R64))))
+(*                                        orelse
                                         (case Type.deWord (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
@@ -848,7 +849,7 @@ structure ObjptrRep =
                                         orelse
                                         (Type.isObjptr (Component.ty c)
                                          andalso WordSize.equals (WordSize.objptr (),
-                                                                  WordSize.word128))))
+                                                                  WordSize.word128)))*)
                                       then Bytes.alignWord128 width
                                    else width
                               | Control.Align32 => 
@@ -857,8 +858,8 @@ structure ObjptrRep =
                                         (case Type.deReal (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
-                                               RealSize.equals (s, RealSize.R64))
-                                        orelse
+                                               RealSize.equals (s, RealSize.R64))))
+(*                                        orelse
                                         (case Type.deWord (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
@@ -866,7 +867,7 @@ structure ObjptrRep =
                                         orelse
                                         (Type.isObjptr (Component.ty c)
                                          andalso WordSize.equals (WordSize.objptr (),
-                                                                  WordSize.word256))))
+                                                                  WordSize.word256))))*)
                                       then Bytes.alignWord256 width
                                    else width
 
