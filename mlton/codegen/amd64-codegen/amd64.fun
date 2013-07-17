@@ -714,8 +714,8 @@ struct
              | Word16 => Two
              | Word32 => Four
              | Word64 => Eight
-             | Word128 => Sixteen
-             | Word256 => ThirtyTwo
+             | Simd128 => Sixteen
+             | Simd256 => ThirtyTwo
       end
 
       fun eq(s1, s2) = s1 = s2
@@ -726,8 +726,8 @@ struct
            | Four => WordX.fromIntInf (4, WordSize.word64)
            | Eight => WordX.fromIntInf (8, WordSize.word64)
 (*TUCKER: ? should these be as they are or WordSize.word64*)
-           | Sixteen => WordX.fromIntInf (16, WordSize.word128)
-           | ThirtyTwo => WordX.fromIntInf (32, WordSize.word256)
+           | Sixteen => WordX.fromIntInf (16, WordSize.word64)
+           | ThirtyTwo => WordX.fromIntInf (32, WordSize.word64)
       val toImmediate = Immediate.word o toWordX
     end
 
@@ -2125,7 +2125,7 @@ struct
          *)
         | SSE_IBinAP of {oper: sse_ibinap,
                          src: Operand.t,
-                         dst Operand.t,
+                         dst: Operand.t,
                          size: Size.t}
         (* Scalar SSE move instruction.
          *)
@@ -2361,8 +2361,8 @@ struct
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
-             | SSE3_BinAp {oper, src, dst, size}
-             => bin (sse3_binap_layout size,
+             | SSE3_BinAP {oper, src, dst, size}
+             => bin (sse3_binap_layout oper,
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)

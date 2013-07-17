@@ -127,7 +127,7 @@ signature AMD64 =
     structure XmmRegister :
       sig
         datatype reg
-v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7 
+          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7 
           | XMM8 | XMM9 | XMM10 | XMM11 | XMM12 | XMM13 | XMM14 | XMM15 
         val allReg : reg list
 
@@ -756,7 +756,7 @@ v          = XMM0 | XMM1 | XMM2 | XMM3 | XMM4 | XMM5 | XMM6 | XMM7
            *)
           | SSE_IBinAP of {oper: sse_ibinap,
                            src: Operand.t,
-                           dst Operand.t,
+                           dst: Operand.t,
                            size: Size.t}
           (* SSE shuffle/blend w/imm8 operand*)
           | SSE_ShufFp of {oper: sse_shuffp,
