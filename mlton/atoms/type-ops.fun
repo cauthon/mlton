@@ -24,7 +24,7 @@ type simdRealSize = SimdSize.SimdReal.t
 type tycon = Tycon.t
 type wordSize = WordSize.t
 
-local
+local 
    fun nullary tycon = con (tycon, Vector.new0 ())
 in
    val bool = nullary Tycon.bool

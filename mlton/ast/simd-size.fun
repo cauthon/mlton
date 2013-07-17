@@ -50,10 +50,26 @@ structure SimdReal =
          | (V256,RealSize.R64) => v256r64
       end
   end
+(*structure SimdWord
+  type t = t*WordSize.t
+  allWords = List.map WordSize.prims WordSize.prim
+  val all = List.concat(List.map 
+                          (all,fn x => (List.map
+                                          (allWords,(fn y => (x,y))))))
+  val bits = fn (s,_) => bits (s)
+  val bytes = fn (s,_) => bytes (s)
+  val equals = fn ((s,w),(s',w')) => equals (s,s') andalso
+                                     WordSize.equals (r,w')
+  fun toStringWord (_,w) = WordSize.toString r
+  val toStringSimd = fn (s,_) => toString s
+  local
+  val memoize = 
+   fn f =>
+  
 end
   
 (*in word-esq form*)
-(*
+
 struct
 open S
 datatype t = T of Bits.t
@@ -113,11 +129,5 @@ val memoize: (t -> 'a) -> t -> 'a =
    in
       fn V128 => v128
        | V256 => v256
-   end*)
-(*val primReals = 
-List.concat(List.map (fn x => List.map (fn y => (x,y)) RealSize.all) all);
-val primWords = 
-List.concat(List.map (fn x => List.map (fn y => (x,y)) WordSize.prims) all);
-*)
+   end*)*)
 end
-*)
