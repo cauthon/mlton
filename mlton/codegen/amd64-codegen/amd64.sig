@@ -759,6 +759,11 @@ signature AMD64 =
                            src: Operand.t,
                            dst: Operand.t,
                            size: Size.t}
+          (* Packed SSE floating point compare*)
+          | SSE_CmpFP of {src: Operand.t,
+                          dst: Operand.t,
+                          size: Size.t,
+                          imm: Operand.t}
           (* SSE shuffle/blend w/imm8 operand*)
 (*          | SSE_ShufFp of {oper: sse_shuffp,
                            src: Operand.t,
@@ -1176,6 +1181,10 @@ signature AMD64 =
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
+        val instruction_sse_cmpfp : {src: Operand.t,
+                                     dst: Operand.t,
+                                     imm: Operand.t,
+                                     size: Size.t} -> t
         val instruction_sse_imov : {instr: Instruction.sse_imov,
                                     src: Operand.t,
                                     dst: Operand.t,

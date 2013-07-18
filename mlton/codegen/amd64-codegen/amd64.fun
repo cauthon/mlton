@@ -1492,8 +1492,8 @@ struct
                    | Word16 => w16
                    | Word32 => w32
                    | Word64 => w64
-                   | word128 => v128
-                   | word256 => v256
+                   | Simd128 => v128
+                   | Simd256 => v256
                end
       end
     end
@@ -2133,6 +2133,11 @@ struct
         | SSE_MOVS of {src: Operand.t,
                        dst: Operand.t,
                        size: Size.t}
+        (* Packed SSE floating point compare*)
+        | SSE_CmpFP of {src: Operand.t,
+                        dst: Operand.t,
+                        size: Size.t,
+                        imm: Operand.t}
         (* Packed fp SSE move instruction.
          *)
         | SSE_MOVFP of {instr: sse_movfp,
@@ -2391,13 +2396,19 @@ struct
                        Size.layout size,
                        Operand.layout src,
                        Operand.layout dst)
+             | SSE_CmpFP {src, dst, size, imm}
+               => bin (Operand.layout src,
+                       Operand.layout dst,
+                       Operand.layout imm,
+                       Size.layout size)
              | SSE_MOVS {src, dst, size}
              => bin (str "movs", 
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
              | SSE_MOVFP {instr, src, dst, size}
-               => bin (sse_movfp_layout instr,
+               => bin (str "movfp",
+                       sse_movfp_layout instr,
                        Size.layout size,
                        Operand.layout src,
                        Operand.layout dst)
@@ -2622,6 +2633,8 @@ struct
            => {uses = [src], defs = [dst], kills = []}
            | SSE_IMOV {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
+           | SSE_CmpFP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_COMIS {src1, src2, ...}
            => {uses = [src1, src2], defs = [], kills = []}
            | SSE_UCOMIS {src1, src2, ...}
@@ -2874,6 +2887,8 @@ struct
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_MOVS {src, dst, ...}
            => {srcs = SOME [src], dsts = SOME [dst]}
+           | SSE_CmpFP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_COMIS {src1, src2, ...}
            => {srcs = SOME [src1, src2], dsts = NONE}
            | SSE_UCOMIS {src1, src2, ...}
@@ -3028,6 +3043,10 @@ struct
            => SSE_MOVS {src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         size = size}
+           | SSE_CmpFP {src, dst, size}
+           => SSE_CmpFP {src = replacer {use = true, def = false} src,
+                        dst = replacer {use = false, def = true} dst,
+                        size = size}
            | SSE_COMIS {src1, src2, size}
            => SSE_COMIS {src1 = replacer {use = true, def = false} src1,
                          src2 = replacer {use = true, def = false} src2,
@@ -3092,7 +3111,8 @@ struct
       val sse_ibinap = SSE_IBinAP
       val sse_movs = SSE_MOVS
       val sse_movfp = SSE_MOVFP
-      val sse_imov = SSE_IMOV     
+      val sse_imov = SSE_IMOV
+      val sse_cmpfp = SSE_CmpFP
       val sse_comis = SSE_COMIS
       val sse_ucomis = SSE_UCOMIS
       val sse_cvtsfp2sfp = SSE_CVTSFP2SFP
@@ -3822,6 +3842,7 @@ struct
       val instruction_sse_movs = Instruction o Instruction.sse_movs
       val instruction_sse_movfp = Instruction o Instruction.sse_movfp
       val instruction_sse_imov = Instruction o Instruction.sse_imov
+      val instruction_sse_cmpfp = Instruction o Instruction.sse_cmpfp
       val instruction_sse_comis = Instruction o Instruction.sse_comis
       val instruction_sse_ucomis = Instruction o Instruction.sse_ucomis
       val instruction_sse_cvtsfp2sfp = Instruction o Instruction.sse_cvtsfp2sfp

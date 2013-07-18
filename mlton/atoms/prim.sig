@@ -1,4 +1,5 @@
-(* Copyright (C) 1999-2008 Henry Cejtin, Matthew Fluet, Suresh
+(* Copyright (C) 2013 Tucker DiNapoli
+ * Copyright (C) 1999-2008 Henry Cejtin, Matthew Fluet, Suresh
  *    Jagannathan, and Stephen Weeks.
  * Copyright (C) 1997-2000 NEC Research Institute.
  *
@@ -148,6 +149,9 @@ signature PRIM =
              | Simd_Real_hadd of SimdSize.SimdReal.t (* codegen *)
              | Simd_Real_hsub of SimdSize.SimdReal.t (* codegen *)
              | Simd_Real_addsub of SimdSize.SimdReal.t (* codegen *)
+             | Simd_Real_cmpeq of SimdSize.SimdReal.t (* codegen *)
+             | Simd_Real_cmplt of SimdSize.SimdReal.t (* codegen *)
+             | Simd_Real_cmpgt of SimdSize.SimdReal.t (* codegen *)
 (*             | Simd_Real_cmp of SimdSize.t*Realsize.t*Word8.word (* codegen *)*)
              | String_toWord8Vector (* defunctorize *)
              | Thread_atomicBegin (* backend *)

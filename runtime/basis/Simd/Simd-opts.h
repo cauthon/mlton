@@ -1,3 +1,5 @@
+/*TUCKER: TODO: still need to write all avx macros and still need to
+ *write in a few more uses of the word macros*/
 /*all of these are unaligned, but its fairly simple to make them aligned*/
 
 /*macro to define unary simd real functions
@@ -35,9 +37,6 @@ binarySimdFloat
 #define both(opcode)                            \
   binarySimdFloat(opcode)                       \
   binarySimdDouble(opcode)
-/*I really miss lisp macros, I could just do a mapcar and define all of these
- *at once
- *Going from lisp macros to c macros is not fun*/
 both(add)
 both(sub)
 both(mul)
@@ -54,6 +53,17 @@ both(hsub)
 both(addsub)
 #endif
 #undef both
+#undef unarySimdReal
+#undef unarySimdFloat
+#undef unarySimdDouble
+#undef binarySimdReal
+#undef binarySimdFloat
+#undef binarySimdDouble
+#ifdef __AVX__
+/*avx macros*/
+#endif
+#ifdef __AVX2__
+#endif
 /*Defines unary simd integer operations
  *just one arguement of the for <base_opcode>_<suffix>
  *where suffix is of the form ep or s (ep=packed,i=scalar) +
@@ -71,9 +81,6 @@ __m128i x = _mm_loadu_si128(arg1);                       \
     __m128i x = _mm_loadu_si128(arg1);                                  \
     __m128i y = _mm_loadu_si128(arg2);                                  \
     _mm_storeu_si128(retval,_mm_##opcode(x,y));}       
-/*GRRR i want to do (defmacro (opcode &rest sizes)
-                      (dolist (i sizes)
-                        binarySimdWord(
 #define allBinary(opcode)                             \
   binarySimdWord(opcode##8)                           \
   binarySimdWord(opcode##16)                          \
@@ -82,9 +89,14 @@ __m128i x = _mm_loadu_si128(arg1);                       \
 #define allSigns(opcode)
 allBinary(opcode##i)                            \
 allBinary(opcode##u)
+
 allSigns(add_ep)
 allSigns(sub_ep)
 allBinary(min_ep)
 allBinary(max_ep)
+#undef allBinary
+#undef allSigns
+#undef binarySimdWord
+#undef unarySimdWord
 
 

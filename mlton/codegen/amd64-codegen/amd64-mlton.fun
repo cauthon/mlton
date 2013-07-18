@@ -98,7 +98,9 @@ struct
          | Simd_Real_hadd  _ => true
          | Simd_Real_hsub  _ => true
          | Simd_Real_addsub _ => true
-         (* | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word *)
+         | Simd_Real_cmpeq _ => true
+         | Simd_Real_cmplt _ => true
+         | Simd_Real_cmpgt _ => true
          | Thread_returnToC => false
          | Word_add _ => true
          | Word_addCheck _ => true
@@ -906,7 +908,28 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-
+        fun SSE_CmpFP imm = 
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+            in
+            AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movfp
+                     {instr = instr,
+                      dst = dst,
+                      src = src1,
+                      size = src1size},
+                   Assembly.instruction_sse_cmpfp
+                     {src = src2,
+                      dst = dst,
+                      imm = imm,
+                      size = dstsize}],
+                transfer = NONE}]
+            end
         val (comment_begin,
              comment_end)
           = if !Control.Native.commented > 0
@@ -1326,6 +1349,10 @@ struct
              | Simd_Real_hadd _ => sse3_binap Instruction.SSE_HADDP
              | Simd_Real_hsub _=> sse3_binap Instruction.SSE_HSUBP
              | Simd_Real_addsub _ => sse3_binap Instruction.SSE_ADDSUBP
+             | Simd_Real_cmpeq _ => sse_cmpfp 0w0
+             | Simd_Real_cmplt _ => sse_cmpfp 0w1
+             | Simd_Real_cmplt _ => sse_cmpfp 0w6 (*actually not less than or
+                                                   *equal, but same thing*)
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

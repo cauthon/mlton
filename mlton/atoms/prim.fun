@@ -156,6 +156,9 @@ datatype 'a t =
  | Simd_Real_hadd of SimdSize.SimdReal.t (* codegen *)
  | Simd_Real_hsub of SimdSize.SimdReal.t (* codegen *)
  | Simd_Real_addsub of SimdSize.SimdReal.t (* codegen *)
+ | Simd_Real_cmpeq of SimdSize.SimdReal.t (* codegen *)
+ | Simd_Real_cmplt of SimdSize.SimdReal.t (* codegen *)
+ | Simd_Real_cmpgt of SimdSize.SimdReal.t (* codegen *)
 (* | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word (* codegen *)*)
 (* | Simd_Real_castToWord of SimdSize.t*Realsize.t*WordSize.t
  | Simd_Word_castToWord of SimdSize.t*WordSize.t*WordSize.t*)
@@ -345,6 +348,9 @@ fun toString (n: 'a t): string =
        | Simd_Real_hadd s => simd_real (s,"hadd")
        | Simd_Real_hsub s => simd_real (s,"hsub")
        | Simd_Real_addsub s => simd_real (s,"addsub")
+       | Simd_Real_cmpeq s => simd_real (s,"cmpeq")
+       | Simd_Real_cmplt s => simd_real (s,"cmplt")
+       | Simd_Real_cmpgt s => simd_real (s,"cmpgt")
        | String_toWord8Vector => "String_toWord8Vector"
        | Thread_atomicBegin => "Thread_atomicBegin"
        | Thread_atomicEnd => "Thread_atomicEnd"
@@ -520,6 +526,12 @@ val equals: 'a t * 'a t -> bool =
          SimdSize.SimdReal.equals (s,s')
     | (Simd_Real_addsub s, Simd_Real_addsub s') => 
          SimdSize.SimdReal.equals (s,s')
+    | (Simd_Real_cmpeq s, Simd_Real_cmpeq s') => 
+         SimdSize.SimdReal.equals (s,s')
+    | (Simd_Real_cmplt s, Simd_Real_cmplt s') => 
+         SimdSize.SimdReal.equals (s,s')
+    | (Simd_Real_cmpgt s, Simd_Real_cmpgt s') => 
+         SimdSize.SimdReal.equals (s,s')
     | (String_toWord8Vector, String_toWord8Vector) => true
     | (Thread_atomicBegin, Thread_atomicBegin) => true
     | (Thread_atomicEnd, Thread_atomicEnd) => true
@@ -692,6 +704,9 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Real_hadd s => Simd_Real_hadd s
     | Simd_Real_hsub s => Simd_Real_hsub s
     | Simd_Real_addsub s => Simd_Real_addsub s
+    | Simd_Real_cmpeq s => Simd_Real_cmpeq s
+    | Simd_Real_cmplt s => Simd_Real_cmplt s
+    | Simd_Real_cmpgt s => Simd_Real_cmpgt s
     | String_toWord8Vector => String_toWord8Vector
     | Thread_atomicBegin => Thread_atomicBegin
     | Thread_atomicEnd => Thread_atomicEnd
@@ -960,6 +975,9 @@ val kind: 'a t -> Kind.t =
        | Simd_Real_hadd _ => DependsOnState
        | Simd_Real_hsub _ => DependsOnState
        | Simd_Real_addsub _ => DependsOnState
+       | Simd_Real_cmpeq s => Functional (*comparisons are bitwise*)
+       | Simd_Real_cmplt s => Functional
+       | Simd_Real_cmpgt s => Functional
        | String_toWord8Vector => Functional
        | Thread_atomicBegin => SideEffect
        | Thread_atomicEnd => SideEffect
@@ -1054,7 +1072,10 @@ local
        (Simd_Real_xor s),
        (Simd_Real_hadd s),
        (Simd_Real_hsub s),
-       (Simd_Real_addsub s)]
+       (Simd_Real_addsub s),
+       (Simd_Real_cmpeq s),
+       (Simd_Real_cmplt s),
+       (Simd_Real_cmpgt s)]
 
    fun wordSigns (s: WordSize.t, signed: bool) =
       let
@@ -1459,6 +1480,11 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
+  (* simd comparisons can't just return a bool as they need to
+   * compare multiple objects*)
+       | Simd_Real_cmpeq s => simdRealBinary s
+       | Simd_Real_cmplt s => simdRealBinary s
+       | Simd_Real_cmpgt s => simdRealBinary s
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))
        | Thread_atomicState => noTargs (fn () => (noArgs, word32))

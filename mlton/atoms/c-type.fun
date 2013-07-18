@@ -147,6 +147,11 @@ fun word' (b: Bits.t, {signed: bool}): t =
 fun word (s: WordSize.t, {signed: bool}): t =
    word' (WordSize.bits s, {signed = signed})
 (*TODO:fun simd, but not sure what it should do*)
+fun simd (S: SimdSize.t):t =
+   case Bits.toInt (SimdSize.bits s) of
+      128 => Simd128
+    | 256 => Simd256
+    | _ => Error.bug "CType.simd"
 
 val cint =
    Promise.lazy
