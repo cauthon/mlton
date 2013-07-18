@@ -1,2 +1,4 @@
 /build/
 /install/
+sources
+mlton.def-use
