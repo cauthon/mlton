@@ -195,3 +195,149 @@
   end
 #+END_SRC
 
+* current compiler errors <2013-07-17 Wed>
+
+	 defunctorize finished in 1.42 + 1.51 (52% GC)
+	 xmlSimplify starting
+	    typeCheck starting
+	    typeCheck finished in 0.83 + 0.41 (33% GC)
+	    xmlShrink starting
+	    xmlShrink finished in 0.79 + 0.61 (44% GC)
+	    xmlSimplifyTypes starting
+	    xmlSimplifyTypes finished in 0.28 + 0.00 (0% GC)
+	    typeCheck starting
+	    typeCheck finished in 0.69 + 0.34 (33% GC)
+	 xmlSimplify finished in 2.59 + 1.37 (35% GC)
+	 monomorphise starting
+	 monomorphise finished in 1.15 + 1.04 (47% GC)
+	 sxmlSimplify starting
+	    typeCheck starting
+	    typeCheck finished in 0.65 + 0.36 (36% GC)
+	    sxmlShrink1 starting
+	    sxmlShrink1 finished in 1.12 + 3.50 (76% GC)
+	    implementSuffix starting
+	    implementSuffix finished in 0.04 + 0.00 (0% GC)
+	    sxmlShrink2 starting
+	    sxmlShrink2 finished in 0.91 + 0.00 (0% GC)
+	    implementExceptions starting
+	    implementExceptions finished in 0.12 + 0.00 (0% GC)
+	    sxmlShrink3 starting
+	    sxmlShrink3 finished in 0.91 + 0.42 (32% GC)
+	    polyvariance starting
+	       duplicate1 starting
+	       duplicate1 finished in 1.51 + 1.50 (50% GC)
+	       duplicate2 starting
+	       duplicate2 finished in 1.45 + 1.47 (50% GC)
+	    polyvariance finished in 2.96 + 2.97 (50% GC)
+	    sxmlShrink4 starting
+	    sxmlShrink4 finished in 1.10 + 1.27 (54% GC)
+	    typeCheck starting
+	    typeCheck finished in 0.45 + 0.45 (50% GC)
+	 sxmlSimplify finished in 8.25 + 8.97 (52% GC)
+	 closureConvert starting
+	    flow analysis starting
+	    flow analysis finished in 0.99 + 0.00 (0% GC)
+	    free variables starting
+	    free variables finished in 0.22 + 0.00 (0% GC)
+	    globalize starting
+	    globalize finished in 0.18 + 0.00 (0% GC)
+	    convert starting
+	    convert finished in 2.46 + 2.58 (51% GC)
+	 closureConvert finished in 4.07 + 2.58 (39% GC)
+	 ssaSimplify starting
+	    typeCheck starting
+	    typeCheck finished in 1.32 + 0.00 (0% GC)
+	    removeUnused1 starting
+	    removeUnused1 finished in 2.32 + 1.16 (33% GC)
+	    introduceLoops1 starting
+	    introduceLoops1 finished in 0.03 + 0.00 (0% GC)
+	    loopInvariant1 starting
+	    loopInvariant1 finished in 0.68 + 0.47 (41% GC)
+	    inlineLeaf1 starting
+	    inlineLeaf1 finished in 0.96 + 0.59 (38% GC)
+	    inlineLeaf2 starting
+	    inlineLeaf2 finished in 0.77 + 0.57 (42% GC)
+	    contify1 starting
+	    contify1 finished in 0.66 + 0.00 (0% GC)
+	    localFlatten1 starting
+	    localFlatten1 finished in 0.65 + 0.49 (43% GC)
+	    constantPropagation starting
+	    constantPropagation finished in 2.04 + 2.08 (50% GC)
+	    useless starting
+	    useless finished in 2.48 + 2.34 (49% GC)
+	    removeUnused2 starting
+	    removeUnused2 finished in 1.08 + 0.74 (41% GC)
+	    simplifyTypes starting
+	    simplifyTypes finished in 0.61 + 2.29 (79% GC)
+	    polyEqual starting
+	    polyEqual finished in 0.08 + 0.00 (0% GC)
+	    polyHash starting
+	    polyHash finished in 0.06 + 0.00 (0% GC)
+	    introduceLoops2 starting
+	    introduceLoops2 finished in 0.01 + 0.00 (0% GC)
+	    loopInvariant2 starting
+	    loopInvariant2 finished in 0.34 + 0.18 (35% GC)
+	    contify2 starting
+	    contify2 finished in 0.36 + 0.00 (0% GC)
+	    inlineNonRecursive starting
+	    inlineNonRecursive finished in 0.76 + 0.46 (38% GC)
+	    localFlatten2 starting
+	    localFlatten2 finished in 0.56 + 0.21 (27% GC)
+	    removeUnused3 starting
+	    removeUnused3 finished in 1.15 + 0.36 (24% GC)
+	    contify3 starting
+	    contify3 finished in 0.48 + 0.41 (46% GC)
+	    introduceLoops3 starting
+	    introduceLoops3 finished in 0.00 + 0.00 (0% GC)
+	    loopInvariant3 starting
+	    loopInvariant3 finished in 0.56 + 0.17 (24% GC)
+	    localRef starting
+	    localRef finished in 1.12 + 0.86 (43% GC)
+	    flatten starting
+	    flatten finished in 0.86 + 0.74 (46% GC)
+	    localFlatten3 starting
+	    localFlatten3 finished in 0.56 + 0.21 (28% GC)
+	    combineConversions starting
+	    combineConversions finished in 0.57 + 0.26 (31% GC)
+	    commonArg starting
+	    commonArg finished in 0.80 + 1.10 (58% GC)
+	    commonSubexp starting
+	    commonSubexp finished in 0.79 + 0.00 (0% GC)
+	    commonBlock starting
+	    commonBlock finished in 0.39 + 0.37 (48% GC)
+	    redundantTests starting
+	    redundantTests finished in 0.95 + 0.00 (0% GC)
+	    redundant starting
+	    redundant finished in 0.63 + 0.00 (0% GC)
+	    knownCase starting
+	    knownCase finished in 2.13 + 0.77 (27% GC)
+	    removeUnused4 starting
+	    removeUnused4 finished in 1.04 + 0.46 (31% GC)
+	    orderFunctions1 starting
+	    orderFunctions1 finished in 0.12 + 0.00 (0% GC)
+	    typeCheck starting
+	    typeCheck finished in 0.63 + 0.00 (0% GC)
+	 ssaSimplify finished in 28.54 + 17.30 (38% GC)
+	 toSsa2 starting
+	 toSsa2 finished in 0.63 + 0.00 (0% GC)
+	 ssa2Simplify starting
+	    typeCheck starting
+	    typeCheck finished in 0.67 + 0.49 (42% GC)
+	    deepFlatten starting
+	    deepFlatten finished in 2.20 + 0.97 (31% GC)
+	    refFlatten starting
+	    refFlatten finished in 1.53 + 0.00 (0% GC)
+	    removeUnused5 starting
+	    removeUnused5 finished in 1.46 + 0.89 (38% GC)
+	    zone starting
+	    zone finished in 0.00 + 0.00 (0% GC)
+	    orderFunctions2 starting
+	    orderFunctions2 finished in 0.16 + 0.00 (0% GC)
+	    typeCheck starting
+	    typeCheck finished in 0.81 + 0.58 (42% GC)
+	 ssa2Simplify finished in 6.83 + 2.94 (30% GC)
+	 backend starting
+	    toRssa starting
+	    toRssa finished in 1.14 + 0.00 (0% GC)
+	    rssaSimplify starting
+	       rssaShrink1 starting

@@ -109,9 +109,9 @@ fun build (constants, out) =
                          WordSize.W8 => "%\"PRIu8\""
                        | WordSize.W16 => "%\"PRIu16\""
                        | WordSize.W32 => "%\"PRIu32\""
-                       | WordSize.W64 => "%\"PRIu64\""
-                       | WordSize.W128 => "%\"PRIu128\""
-                       | WordSize.W256 => "%\"PRIu256\"",
+                       | WordSize.W64 => "%\"PRIu64\"",
+(*                       | WordSize.W128 => "%\"PRIu128\""
+                       | WordSize.W256 => "%\"PRIu256\"",*)
                       value)
          in
             concat ["fprintf (stdout, \"", name, " = ", format, "\\n\", ",

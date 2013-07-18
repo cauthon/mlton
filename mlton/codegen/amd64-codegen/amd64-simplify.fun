@@ -2327,6 +2327,12 @@ struct
                                           => Assembly.instruction_sse_movs
                                              {src = Operand.memloc src,
                                               dst = Operand.memloc dst,
+                                              size = size}
+                                          | Size.VEC
+                                          => Assembly.instruction_sse_movfp
+                                             {instr = Instruction.SSE_MOVAP,
+                                              src = Operand.memloc src,
+                                              dst = Operand.memloc dst,
                                               size = size}))
 
                              val {statements = statements_asm_forces,
@@ -2405,6 +2411,12 @@ struct
                          | Size.FLT
                          => Assembly.instruction_sse_movs
                             {src = Operand.memloc src,
+                             dst = Operand.memloc dst,
+                             size = size}
+                         | Size.VEC
+                         => Assembly.instruction_sse_movfp
+                            {instr = Instruction.SSE_MOVAP,
+                             src = Operand.memloc src,
                              dst = Operand.memloc dst,
                              size = size}))
             val {statements = statements_forces,

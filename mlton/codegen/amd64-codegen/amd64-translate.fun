@@ -438,6 +438,11 @@ struct
                           | amd64.Size.FLT => amd64.Assembly.instruction_sse_movs
                                               {dst = dst,
                                                src = src,
+                                               size = srcsize}
+                          | amd64.Size.VEC => amd64.Assembly.instruction_sse_movfp
+                                              {instr = amd64.Instruction.SSE_MOVAP,
+                                                dst = dst,
+                                               src = src,
                                                size = srcsize}),
                       transfer = NONE}),
                     comment_end]

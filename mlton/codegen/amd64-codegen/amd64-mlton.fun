@@ -21,9 +21,11 @@ struct
      structure CFunction = CFunction
      structure RealSize = RealSize
      structure Prim = Prim
+     structure SimdSize = SimdSize
      structure WordSize = WordSize
      datatype z = datatype RealSize.t
      datatype z = datatype WordSize.prim
+     datatype z = datatype SimdSize.t
   end
 
   type transInfo = {addData : amd64.Assembly.t list -> unit,
@@ -36,15 +38,13 @@ struct
      let
         datatype z = datatype RealSize.t
         datatype z = datatype WordSize.prim
+        datatype z = datatype SimdSize.t
         fun w32168 s =
            case WordSize.prim s of
               W8 => true
             | W16 => true
             | W32 => true
             | W64 => false
-            | W128 => false
-            | W256 => false
-        datatype z = datatype SimdSize.prim
         datatype z = datatype Prim.Name.t
      in
         case Prim.name p of
@@ -559,13 +559,13 @@ struct
                {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_movfp
-                   {intstr = intsr,
+                   {instr = instr,
                     dst = dst,
                     src = src,
                     size = srcsize}],
                 transfer = NONE}]
             end
-        fun sse_imov intsr
+        fun sse_imov instr
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
@@ -579,7 +579,7 @@ struct
                {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_imov
-                   {intsr = instr,
+                   {instr = instr,
                     dst = dst,
                     src = src,
                     size = srcsize}],
@@ -643,8 +643,8 @@ struct
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
-              val instr = SSE_MOVAP (*TUCKER: how to select right move instr*)
-              (* Reverse src1/src2 when src1 and src2 are temporaries
+              val instr = Instruction.SSE_MOVAP (*TUCKER: how to select right move instr*)
+              (* Reverse src1/src2 whepn src1 and src2 are temporaries
                * and the oper is commutative.
                *)
               val (src1,src2)
@@ -691,7 +691,7 @@ struct
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
-              val instr = SSE_MOVAP (*TUCKER: how to select right move instr*)
+              val instr = Instruction.SSE_MOVAP (*TUCKER: how to select right move instr*)
               (* Reverse src1/src2 when src1 and src2 are temporaries
                * and the oper is commutative.
                *)
@@ -860,7 +860,7 @@ struct
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
-              val instr = Instructon.SSE_MOVDQA
+              val instr = Instruction.SSE_MOVDQA
               (* Reverse src1/src2 when src1 and src2 are temporaries
                * and the oper is commutative.
                *)
@@ -1312,20 +1312,20 @@ struct
                       | _ => Error.bug "amd64MLton.prim: Real_rndToWord, W64, false"
                   end
              | Real_sub _ => sse_binas Instruction.SSE_SUBS
-             | Simd_Real_add => sse_binap Instruction.SSE_ADDP
-             | Simd_Real_sub => sse_binap Instruction.SSE_SUBP
-             | Simd_Real_mul => sse_binap Instruction.SSE_MULP
-             | Simd_Real_div => sse_binap Instruction.SSE_DIVP
-             | Simd_Real_min => sse_binap Instruction.SSE_MINP
-             | Simd_Real_max => sse_binap Instruction.SSE_MAXP
-             | Simd_Real_sqrt => sse_binap Instruction.SSE_SQRTP
-             | Simd_Real_and => sse_binap Instruction.SSE_ANDP
-             | Simd_Real_andn => sse_binap Instruction.SSE_ANDNP
-             | Simd_Real_or => sse_binap Instruction.SSE_ORP
-             | Simd_Real_xor => sse_binap Instruction.SSE_XORP
-             | Simd_Real_hadd => sse3_binap Instruction.SSE3_HADDP
-             | Simd_Real_hsub => sse3_binap Instruction.SSE3_HSUBP
-             | Simd_Real_addsub => sse3_binap Instruction.SSE3_ADDSUBP
+             | Simd_Real_add _ => sse_binap Instruction.SSE_ADDP
+             | Simd_Real_sub _ => sse_binap Instruction.SSE_SUBP
+             | Simd_Real_mul _ => sse_binap Instruction.SSE_MULP
+             | Simd_Real_div _ => sse_binap Instruction.SSE_DIVP
+             | Simd_Real_min _ => sse_binap Instruction.SSE_MINP
+             | Simd_Real_max _ => sse_binap Instruction.SSE_MAXP
+             | Simd_Real_sqrt _ => sse_unap Instruction.SSE_SQRTP
+             | Simd_Real_and _ => sse_binlp Instruction.SSE_ANDP
+             | Simd_Real_andn _ => sse_binlp Instruction.SSE_ANDNP
+             | Simd_Real_or _ => sse_binlp Instruction.SSE_ORP
+             | Simd_Real_xor _ => sse_binlp Instruction.SSE_XORP
+             | Simd_Real_hadd _ => sse3_binap Instruction.SSE_HADDP
+             | Simd_Real_hsub _=> sse3_binap Instruction.SSE_HSUBP
+             | Simd_Real_addsub _ => sse3_binap Instruction.SSE_ADDSUBP
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

@@ -10109,12 +10109,26 @@ struct
                               force = [],
                               registerAllocation 
                               = registerAllocation}
+                          fun doitVEC () =
+                             RA.allocateXmmOperand 
+                             {operand = src,
+                              options = {xmmregister = true,
+                                         address = false},
+                              info = info,
+                              size = srcsize,
+                              move = true,
+                              supports = [dst],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
                        in
                           case src of
                              Operand.MemLoc memloc =>
                                 (case Size.class (MemLoc.size memloc) of
                                     Size.INT => doitINT ()
-                                  | Size.FLT => doitFLT ())
+                                  | Size.FLT => doitFLT ()
+                                  | Size.VEC => doitVEC ())
                            | Operand.Immediate _ => doitINT ()
                            | _ => Error.bug "amd64AllocateRegisters.Instruction.allocateRegisters: SSE_MOVD, src"
                        end
@@ -10151,12 +10165,26 @@ struct
                               force = [],
                               registerAllocation 
                               = registerAllocation}
+                          fun doitVEC () =
+                             RA.allocateXmmOperand 
+                             {operand = dst,
+                              options = {xmmregister = true,
+                                         address = false},
+                              info = info,
+                              size = dstsize,
+                              move = false,
+                              supports = [src,final_src],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
                        in
                           case dst of
                              Operand.MemLoc memloc =>
                                 (case Size.class (MemLoc.size memloc) of
                                     Size.INT => doitINT ()
-                                  | Size.FLT => doitFLT ())
+                                  | Size.FLT => doitFLT ()
+                                  | Size.VEC => doitVEC ())
                            | _ => Error.bug "amd64AllocateRegisters.Instruction.allocateRegisters: SSE_MOVD, dst"
                        end
 

@@ -223,7 +223,7 @@ signature AMD64_PSEUDO =
           | SSE_MULP
           | SSE_DIVP
           | SSE_MAXP
-          | SEE_MINP
+          | SSE_MINP
         (* Scalar SSE unary arithmetic instructions. *)
         datatype sse_unas
           = SSE_SQRTS (* square root; p. 360,362 *)
@@ -300,7 +300,7 @@ signature AMD64_PSEUDO =
  *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
  *AVX and AVX2 instructions, or maybe just do VEX128 & VEX256?*)
 (*lets just do avx 256 bit fp stuff 1st*)
-        datatype avx_fp_binap
+(*        datatype avx_fp_binap
           = AVX_ADDP
           | AVX_MULP
           | AVX_DIVP
@@ -324,7 +324,7 @@ signature AMD64_PSEUDO =
           | MOVDQU
         datatype avx_fp_shuf
           = SHUFP
-          | BLENDP
+          | BLENDP*)
         type t
       end
 
@@ -433,7 +433,19 @@ signature AMD64_PSEUDO =
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
+        val instruction_sse_unap : {oper: Instruction.sse_unap,
+                                    src: Operand.t,
+                                    dst: Operand.t,
+                                    size: Size.t} -> t
         val instruction_sse_binlp : {oper: Instruction.sse_binlp,
+                                     src: Operand.t,
+                                     dst: Operand.t,
+                                     size: Size.t} -> t
+        val instruction_sse_binap : {oper: Instruction.sse_binap,
+                                     src: Operand.t,
+                                     dst: Operand.t,
+                                     size: Size.t} -> t
+        val instruction_sse3_binap : {oper: Instruction.sse3_binap,
                                      src: Operand.t,
                                      dst: Operand.t,
                                      size: Size.t} -> t
@@ -442,6 +454,14 @@ signature AMD64_PSEUDO =
                                      dst: Operand.t,
                                      size: Size.t} -> t
         val instruction_sse_movs : {src: Operand.t,
+                                    dst: Operand.t,
+                                    size: Size.t} -> t
+        val instruction_sse_movfp : {instr: Instruction.sse_movfp,
+                                    src: Operand.t,
+                                    dst: Operand.t,
+                                    size: Size.t} -> t
+        val instruction_sse_imov : {instr: Instruction.sse_imov,
+                                    src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
         val instruction_sse_comis : {src1: Operand.t,

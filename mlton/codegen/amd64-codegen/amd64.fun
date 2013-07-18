@@ -1,6 +1,7 @@
 
 
-(* Copyright (C) 2012 Matthew Fluet.
+(* Copyright (C) 2013 Tucker DiNapoli.
+ * Copyright (C) 2012 Matthew Fluet.
  * Copyright (C) 1999-2008 Henry Cejtin, Matthew Fluet, Suresh
  *    Jagannathan, and Stephen Weeks.
  * Copyright (C) 1997-2000 NEC Research Institute.
@@ -117,8 +118,8 @@ struct
              | Word16 => Vector.new1 WORD
              | Word32 => Vector.new1 LONG
              | Word64 => Vector.new1 QUAD
-             | Word128 => Vector.new1 VXMM
-             | Word256 => Vector.new1 VYMM
+             | Simd128 => Vector.new1 VXMM
+             | Simd256 => Vector.new1 VYMM
       end
 
       val class
@@ -1692,7 +1693,7 @@ struct
           | SSE_MULP
           | SSE_DIVP
           | SSE_MAXP
-          | SEE_MINP
+          | SSE_MINP
       val sse_binap_layout
         = let
             open Layout
@@ -1702,7 +1703,7 @@ struct
              | SSE_MULP => str "mulp"
              | SSE_DIVP => str "divp"
              | SSE_MAXP => str "maxp"
-             | SEE_MINP => str "minp"
+             | SSE_MINP => str "minp"
           end
       (* Scalar SSE unary arithmetic instructions. *)
       datatype sse_unas
@@ -1731,7 +1732,7 @@ struct
         | SSE_XORP (* xor; p. 391,393 *)
       val sse_binlp_layout
         = let
-             open Layout
+            open Layout
           in
              fn SSE_ANDNP => str "andnp"
               | SSE_ANDP => str "andp"
@@ -1780,7 +1781,7 @@ struct
                 | SSE_MOVHP => str "movhp"
 (*                | SSE_MOVS => str "movs"*)
             end
-      (*Now integer sse intsructions*)
+      (*Now integer sse instructions*)
         (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
         (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
       datatype sse_ibinap
@@ -1807,7 +1808,7 @@ struct
                 | SSE_PSUBUS => str "psubus"
                 | SSE_PMAXS => str "pmaxs"
                 | SSE_PMAXU => str "pmaxu"
-                | SEE_PMINS => str "pmins"
+                | SSE_PMINS => str "pmins"
                 | SSE_PMINU => str "pminu"
                 | SSE_PAVG => str "pavg"
             end
@@ -1891,7 +1892,7 @@ struct
        *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
        *AVX and AVX2 instructions, or maybe just do VEX128 & VEX256?*)
       (*lets just do avx 256 bit fp stuff 1st*)
-      datatype avx_fp_binap
+(*      datatype avx_fp_binap
         = AVX_ADDP
         | AVX_MULP
         | AVX_DIVP
@@ -1957,7 +1958,7 @@ struct
             in
                fn AVX_SHUFP => str "shufp"
                 | AVX_BLENDP => str "blendp"
-            end
+            end*)
       (* amd64 Instructions.
        * src operands are not changed by the instruction.
        * dst operands are changed by the instruction.
@@ -2132,6 +2133,18 @@ struct
         | SSE_MOVS of {src: Operand.t,
                        dst: Operand.t,
                        size: Size.t}
+        (* Packed fp SSE move instruction.
+         *)
+        | SSE_MOVFP of {instr: sse_movfp,
+                        src: Operand.t,
+                        dst: Operand.t,
+                        size: Size.t}
+        (* Packed int SSE move instruction.
+         *)
+        | SSE_IMOV of {instr: sse_imov,
+                       src: Operand.t,
+                       dst: Operand.t,
+                       size: Size.t}
         (* Scalar SSE compare instruction.
          *)
         | SSE_COMIS of {src1: Operand.t,
@@ -2158,12 +2171,19 @@ struct
                             srcsize: Size.t,
                             dst: Operand.t,
                             dstsize: Size.t}
+        (*BLENDVP xmm,xmm/m128 <XMM0>, same as BLENDP but Selection is
+         * implicit via most significant bit in each element of XMM0*)
+        | SSE_BLENDVP  of {src: Operand.t,
+                           dst: Operand.t,
+                           size: Size.t}
         (* Scalar SSE move data instruction.
          *)
         | SSE_MOVD of {src: Operand.t,
                        srcsize: Size.t,
                        dst: Operand.t,
                        dstsize: Size.t}
+
+
 
       val layout
         = let
@@ -2376,6 +2396,11 @@ struct
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
+             | SSE_MOVFP {instr, src, dst, size}
+               => bin (sse_movfp_layout instr,
+                       Size.layout size,
+                       Operand.layout src,
+                       Operand.layout dst)
              | SSE_COMIS {src1, src2, size}
              => bin (str "comis",
                      Size.layout size,
@@ -2592,6 +2617,10 @@ struct
            | SSE_IBinAP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_MOVS {src, dst, ...}
+           => {uses = [src], defs = [dst], kills = []}
+           | SSE_MOVFP {src, dst, ...}
+           => {uses = [src], defs = [dst], kills = []}
+           | SSE_IMOV {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
            | SSE_COMIS {src1, src2, ...}
            => {uses = [src1, src2], defs = [], kills = []}
@@ -3062,6 +3091,8 @@ struct
       val sse3_binap = SSE3_BinAP
       val sse_ibinap = SSE_IBinAP
       val sse_movs = SSE_MOVS
+      val sse_movfp = SSE_MOVFP
+      val sse_imov = SSE_IMOV     
       val sse_comis = SSE_COMIS
       val sse_ucomis = SSE_UCOMIS
       val sse_cvtsfp2sfp = SSE_CVTSFP2SFP
@@ -3789,6 +3820,8 @@ struct
       val instruction_sse3_binap = Instruction o Instruction.sse3_binap
       val instruction_sse_ibinap = Instruction o Instruction.sse_ibinap
       val instruction_sse_movs = Instruction o Instruction.sse_movs
+      val instruction_sse_movfp = Instruction o Instruction.sse_movfp
+      val instruction_sse_imov = Instruction o Instruction.sse_imov
       val instruction_sse_comis = Instruction o Instruction.sse_comis
       val instruction_sse_ucomis = Instruction o Instruction.sse_ucomis
       val instruction_sse_cvtsfp2sfp = Instruction o Instruction.sse_cvtsfp2sfp

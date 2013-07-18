@@ -25,6 +25,7 @@ structure Type =
         | Label of Label.t
         | Objptr of ObjptrTycon.t vector
         | Real of RealSize.t
+        | SimdReal of SimdSize.SimdReal.t
         | Seq of t vector
         | Word of WordSize.t
 
@@ -52,6 +53,9 @@ structure Type =
                        tuple (Vector.toListMap (opts, ObjptrTycon.layout))]
              | Real s => str (concat ["Real", RealSize.toString s])
              | Seq ts => List.layout layout (Vector.toList ts)
+             | SimdReal s => str (concat 
+                                    ["Simd", SimdSize.SimdReal.toStringSimd s,
+                                     "Real", SimdSize.SimdReal.toStringReal s])
              | Word s => str (concat ["Word", WordSize.toString s])
          end
 
@@ -69,6 +73,7 @@ structure Type =
                 Vector.equals (opts, opts', ObjptrTycon.equals)
            | (Real s, Real s') => RealSize.equals (s, s')
            | (Seq ts, Seq ts') => Vector.equals (ts, ts', equals)
+           | (SimdReal s, SimdReal s') => SimdSize.SimdReal.equals (s, s')
            | (Word s, Word s') => WordSize.equals (s, s')
            | _ => false)
 
@@ -96,11 +101,10 @@ structure Type =
 
       val real: RealSize.t -> t =
          fn s => T {node = Real s, width = RealSize.bits s}
- 
+      val simdReal: SimdSize.SimdReal.t -> t =
+       fn s => T {node = SimdReal s, width = SimdSize.SimdReal.bits s}
       val word: WordSize.t -> t = 
          fn s => T {node = Word s, width = WordSize.bits s}
-
-
       val bool: t = word WordSize.bool
 
       val csize: unit -> t = word o WordSize.csize
@@ -315,6 +319,8 @@ structure Type =
                    | 16 => Word16
                    | 32 => Word32
                    | 64 => Word64
+                   | 128 => Simd128
+                   | 256 => Simd256
                    | _ => Error.bug (concat ["RepType.Type.CType.fromBits: ",
                                              Bits.toString b])
             end
@@ -560,6 +566,7 @@ fun checkPrimApp {args, prim, result} =
          (case node t 
              of Seq _ => Bits.equals (width t, WordSize.bits s) 
            | _ => false)
+      val simdReal = fn s => fn t => equals (t, simdReal s)
       val word = fn s => fn t => equals (t, word s)
 
       val cint = word (WordSize.cint ())
@@ -574,18 +581,21 @@ fun checkPrimApp {args, prim, result} =
          fun make f s = let val t = f s in done ([t], SOME t) end
       in
          val realUnary = make real
+         val simdRealUnary = make simdReal
          val wordUnary = make wordOrBitsOrSeq
       end
       local
          fun make f s = let val t = f s in done ([t, t], SOME t) end
       in
          val realBinary = make real
+         val simdRealBinary = make simdReal
          val wordBinary = make wordOrBitsOrSeq
       end
       local
          fun make f s = let val t = f s in done ([t, t], SOME bool) end
       in
          val realCompare = make real
+         val simdRealCompare = make simdReal
          val wordCompare = make wordOrBitsOrSeq
          val objptrCompare = make (fn _ => objptr) ()
       end
@@ -633,6 +643,20 @@ fun checkPrimApp {args, prim, result} =
        | Real_rndToWord (s, s', _) => done ([real s], SOME (word s'))
        | Real_round s => realUnary s
        | Real_sub s => realBinary s
+       | Simd_Real_add s => simdRealBinary s
+       | Simd_Real_sub s => simdRealBinary s
+       | Simd_Real_mul s => simdRealBinary s
+       | Simd_Real_div s => simdRealBinary s
+       | Simd_Real_max s => simdRealBinary s
+       | Simd_Real_min s => simdRealBinary s
+       | Simd_Real_sqrt s => simdRealUnary s
+       | Simd_Real_and s => simdRealBinary s
+       | Simd_Real_andn s => simdRealBinary s
+       | Simd_Real_or s => simdRealBinary s
+       | Simd_Real_xor s => simdRealBinary s
+       | Simd_Real_hadd s => simdRealBinary s
+       | Simd_Real_hsub s => simdRealBinary s
+       | Simd_Real_addsub s => simdRealBinary s
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s
        | Word_addCheck (s, _) => wordBinary s

@@ -239,6 +239,7 @@ struct
            fun make name size = Label.fromString (concat [prefix, name, size])
            val r = make "Real"
            val w = make "Word"
+           val v = make "Simd"
            datatype z = datatype CType.t
         in
            CType.memo
@@ -257,8 +258,8 @@ struct
              | Word32 => w "32"
              | Word64 => w "64"
 (*TUCKER: not sure if I actually need to insert this*)
-             | Word128 => w "128"
-             | Word256 => w "256")
+             | Simd128 => v "128"
+             | Simd256 => v "256")
         end
   in
      val local_base = make "local"

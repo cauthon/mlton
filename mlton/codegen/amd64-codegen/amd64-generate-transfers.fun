@@ -601,6 +601,12 @@ struct
                                                       (amd64.Assembly.instruction_sse_movs
                                                        {dst = dst,
                                                         src = Operand.memloc src,
+                                                        size = dstsize})::stmts
+                                               | Size.VEC =>
+                                                      (amd64.Assembly.instruction_sse_movfp
+                                                       {instr = amd64.Instruction.SSE_MOVAP,
+                                                        dst = dst,
+                                                        src = Operand.memloc src,
                                                         size = dstsize})::stmts)
                                             end
                                in

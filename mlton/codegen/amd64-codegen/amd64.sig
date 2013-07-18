@@ -1,4 +1,5 @@
-(* Copyright (C) 2009 Matthew Fluet.
+(* Copyright (C) 2013 Tucker DiNapoli.
+ * Copyright (C) 2009 Matthew Fluet.
  * Copyright (C) 1999-2007 Henry Cejtin, Matthew Fluet, Suresh
  *    Jagannathan, and Stephen Weeks.
  * Copyright (C) 1997-2000 NEC Research Institute.
@@ -6,7 +7,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-(*TUCKER: can I add my name to the copyright block?*)
+
 signature AMD64_STRUCTS =
   sig
     structure CFunction: C_FUNCTION
@@ -391,7 +392,7 @@ signature AMD64 =
 
         val cReturnTemps: RepType.t -> {src: t, dst: MemLoc.t} list
       end
-
+              
     structure Instruction :
       sig
 (*pages from 2006 amd instruction set list*)
@@ -474,7 +475,7 @@ signature AMD64 =
           | SSE_MULP
           | SSE_DIVP
           | SSE_MAXP
-          | SEE_MINP
+          | SSE_MINP
         (* Scalar SSE unary arithmetic instructions. *)
         datatype sse_unas
           = SSE_SQRTS (* square root; p. 360,362 *)
@@ -500,8 +501,8 @@ signature AMD64 =
           | SSE_MOVUP
           | SSE_MOVLP
           | SSE_MOVHP
-(*there are also instructions to duplicate elements and move*)
 (*          | SSE_MOVS*)
+(*there are also instructions to duplicate elements and move*)
         datatype sse_shuffp (*shuffle floating point*)
           = SSE_SHUFP (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
                        *selected by imm8*)
@@ -560,7 +561,7 @@ signature AMD64 =
  *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
  *AVX and AVX2 instructions, or maybe just do VEX128 & VEX256?*)
 (*lets just do avx 256 bit fp stuff 1st*)
-        datatype avx_fp_binap
+(*        datatype avx_fp_binap
           = AVX_ADDP
           | AVX_MULP
           | AVX_DIVP
@@ -584,7 +585,7 @@ signature AMD64 =
           | MOVDQU
         datatype avx_fp_shuf
           = SHUFP
-          | BLENDP
+          | BLENDP*)
 
         (* amd64 Instructions.
          * src operands are not changed by the instruction.
@@ -759,10 +760,10 @@ signature AMD64 =
                            dst: Operand.t,
                            size: Size.t}
           (* SSE shuffle/blend w/imm8 operand*)
-          | SSE_ShufFp of {oper: sse_shuffp,
+(*          | SSE_ShufFp of {oper: sse_shuffp,
                            src: Operand.t,
                            dst: Operand.t,
-                           imm: Operand.t}
+                           imm: Operand.t}*)
           (* Scalar SSE move instruction.
            *)
           | SSE_MOVS of {src: Operand.t,
@@ -806,7 +807,7 @@ signature AMD64 =
                               srcsize: Size.t,
                               dst: Operand.t,
                               dstsize: Size.t}
-(* Available cvt instructions...*)
+          (* Available cvt instructions...*)
           (*BLENDVP xmm,xmm/m128 <XMM0>, same as BLENDP but Selection is
            * implicit via most significant bit in each element of XMM0*)
           | SSE_BLENDVP  of {src: Operand.t,
@@ -1147,7 +1148,15 @@ signature AMD64 =
                                      src: Operand.t,
                                      dst: Operand.t,
                                      size: Size.t} -> t
+        val instruction_sse_binap : {oper: Instruction.sse_binap,
+                                     src: Operand.t,
+                                     dst: Operand.t,
+                                     size: Size.t} -> t
         val instruction_sse_unas : {oper: Instruction.sse_unas,
+                                    src: Operand.t,
+                                    dst: Operand.t,
+                                    size: Size.t} -> t
+        val instruction_sse_unap : {oper: Instruction.sse_unap,
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
@@ -1167,7 +1176,7 @@ signature AMD64 =
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
-        val instruction_sse_imov : {intsr: Instruction.sse_imov,
+        val instruction_sse_imov : {instr: Instruction.sse_imov,
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t

@@ -15,6 +15,7 @@ open S
 open Machine
 
 datatype z = datatype RealSize.t
+datatype z = datatype SimdSize.t
 datatype z = datatype WordSize.prim
 
 local
