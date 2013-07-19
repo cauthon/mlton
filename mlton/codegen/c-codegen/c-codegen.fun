@@ -79,7 +79,6 @@ structure WordX =
              | W16 => simple "16"
              | W32 => concat ["0x", toString w]
              | W64 => concat ["0x", toString w, "llu"]
-(*TUCKER: Figure out what this is and fix it*)
          end
    end
 
@@ -180,6 +179,23 @@ fun implementsPrim (p: 'a Prim.t): bool =
        | Real_rndToWord _ => true
        | Real_round _ => true
        | Real_sub _ => true
+       | Simd_Real_add  _ => true
+       | Simd_Real_sub  _ => true
+       | Simd_Real_mul  _ => true
+       | Simd_Real_div  _ => true
+       | Simd_Real_min  _ => true
+       | Simd_Real_max  _ => true
+       | Simd_Real_sqrt  _ => true
+       | Simd_Real_and  _ => true
+       | Simd_Real_andn  _ => true
+       | Simd_Real_or  _ => true
+       | Simd_Real_xor  _ => true
+       | Simd_Real_hadd  _ => true
+       | Simd_Real_hsub  _ => true
+       | Simd_Real_addsub _ => true
+       | Simd_Real_cmpeq _ => true
+       | Simd_Real_cmplt _ => true
+       | Simd_Real_cmpgt _ => true
        | Word_add _ => true
        | Word_addCheck _ => true
        | Word_andb _ => true
@@ -210,7 +226,7 @@ fun creturn (t: Type.t): string =
    concat ["CReturn", CType.name (Type.toCType t)]
 
 fun outputIncludes (includes, print) =
-   (print "#define _ISOC99_SOURCE\n"
+    (print "#define _ISOC99_SOURCE\n"
     ; List.foreach (includes, fn i => (print "#include <";
                                        print i;
                                        print ">\n"))

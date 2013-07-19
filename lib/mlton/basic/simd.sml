@@ -4,6 +4,8 @@ struct
   val real_size = 32
 (*I suppose this should be a conditonal for sse, but all 64 bit
  *computers have sse*)
+  val fromArray = _prim "Simd128_Real32_load"
+  val fromList = fn x => fromArray(Array.fromList x)
   val add = _prim "Simd128_Real32_add"
 (*...*)
   val andnb = _prim "Simd128_Real32_andn"

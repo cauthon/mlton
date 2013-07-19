@@ -1,4 +1,3 @@
-
 #define binary(size, name, op)                                          \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   Real##size##_t Real##size##_##name (Real##size##_t r1, Real##size##_t r2) { \

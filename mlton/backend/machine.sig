@@ -70,6 +70,7 @@ signature MACHINE =
       sharing Scale = Type.Scale
 
       structure Operand:
+(*add simd here*)
          sig
             datatype t =
                ArrayOffset of {base: t,

@@ -116,8 +116,12 @@ struct
              | Word16 => Vector.new1 WORD
              | Word32 => Vector.new1 LONG
              | Word64 => Vector.new1 QUAD
-             | Simd128 => Vector.new1 VXMM
-             | Simd256 => Vector.new1 VYMM
+             | Simd128_Real32 => Vector.new1 VXMM
+             | Simd128_Real64 => Vector.new1 VXMM
+             | Simd128_WordX => Vector.new1 VXMM
+             | Simd256_Real32 => Vector.new1 VYMM
+             | Simd256_Real64 => Vector.new1 VYMM
+             | Simd256_WordX => Vector.new1 VYMM
       end
 
       val class
