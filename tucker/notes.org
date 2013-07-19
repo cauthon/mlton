@@ -59,6 +59,13 @@
   fix hash-type.fun
   -Also might want to look at type-opts,atoms and ast-atoms.sig/fun 
 
+* google hangout <2013-07-19 Fri>
+  -probably easiest to use 6 distint c-types
+  -Its ok to use the distinct types
+  -pass simd types not pointers
+  -look at machine il for adding simd types for c-codegen
+  -"registers" in machine il are just c-types
+  -MLTON_CODEGEN_STATIC_INLINE is literally static inline
 * Low level details
 ** Immediate opperands
 *** Compairson

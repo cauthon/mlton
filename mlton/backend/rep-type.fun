@@ -312,7 +312,7 @@ structure Type =
          structure C =
             struct
                open CType
-
+(*TUCKER: TODO: FIX THIS*)
                fun fromBits (b: Bits.t): t =
                   case Bits.toInt b of
                      8 => Word8

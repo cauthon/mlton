@@ -6,6 +6,8 @@ sig
   val real_size:Int32.int
   type t (* high level type *)
 (*math*)
+  val fromArray:'a array -> t
+  val fromList:'a list -> t
   val add:t*t->t(*vex 256 && 128*)
   val sub:t*t->t(*vex 256 && 128*)
   val mul:t*t->t(*vex 256 && 128*)

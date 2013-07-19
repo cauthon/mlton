@@ -2,29 +2,53 @@ functor SimdSize (S: SIMD_SIZE_STRUCTS): SIMD_SIZE =
 (* For now I really should make SimdSize of the form of real and not word*)
 struct
 open S
-datatype t = V128 | V256
-val all = [V128, V256]
+datatype t = V128R32 | V128R64 | V128WX
+           | V256R32 | V256R64 | V256WX
+val all = [V128R32, V128R64, V128WX, V256R32, V256R64, V256WX]
 val prims = all
 val equals = op =
 val bytes = 
- fn V128 => Bytes.fromInt 16
-  | V256 => Bytes.fromInt 32
+ fn V128R32 => Bytes.fromInt 16
+  | V128R64 => Bytes.fromInt 16
+  | V128WX => Bytes.fromInt 16
+  | V256R32 => Bytes.fromInt 32
+  | V256R64 => Bytes.fromInt 32
+  | V256WX => Bytes.fromInt 32
 val bits = Bytes.toBits o bytes
 val toString =
- fn V128 => "128"
-  | V256 => "256"
+ fn V128R32 => "128"
+  | V128R64 => "128"
+  | V128WX => "128"
+  | V256R32 => "256"
+  | V256R64 => "256"
+  | V256WX => "256"
+val toStringReal =
+ fn V128R32 => "32"
+  | V128R64 => "64"
+  | V128WX => Error.bug "simd-size.toStringReal"
+  | V256R32 => "32"
+  | V256R64 => "64"
+  | V256WX => Error.bug "simd-size.toStringReal"
 val memoize: (t -> 'a) -> t -> 'a =
    fn f =>
    let
-      val v128 = f V128
-      val v256 = f V256
+     val v128r32 => f V128R32
+     val v128r64 => f V128R64
+     val v128wx =>  f V128WX
+     val v256r32 => f V256R32
+     val v256r64 => f V256R64
+     val v256wx =>  f V256WX
    in
-      fn V128 => v128
-       | V256 => v256
+     fn  V128R32 => v128r32
+   | V128R64 => v128r64
+   | V128WX => v128wx
+   | V256R32 => v256r32
+   | V256R64 => v256r64
+   | V256WX => v256wx 
    end
 (*we need to be able to construct  simdReal and simdReals vals in prim-tycons
  *to do this we need vals all,bits,equals and memoize for simdReals*)
-structure SimdReal =
+(*structure SimdReal =
   struct
   type t = t*RealSize.t
   val all = List.concat(List.map 
@@ -104,30 +128,48 @@ fun prim s =
 val prims = List.map ([128,256], fromBits o Bits.fromInt)
 
 val all = prims
-
-(*memoize from word*)
-(*memoize seems to be of the form
-fn f:(t -> 'a) => let val x0 = f (first all)...val xn = f (last all)
-in fn s:t => n:'a; where if s=(first all) n =x0...s=(last all), n=xn*)
-val memoize: (t -> 'a) -> t -> 'a =
-   fn f =>
-   let
-     val v128 = f (T (Bits.fromInt 128))
-     val v256 = f (T (Bits.fromInt 256))
-   in
-     fn (T (Bits.fromInt 128)) => v128
-      | (T (Bits.fromInt 256)) => v256
-   end
-
-(*val memoize:(t -> 'a) -> t -> a =*)
-(*(*memoize from real*)
-val memoize: (t -> 'a) -> t -> 'a =
-   fn f =>
-   let
-      val v128 = f V128
-      val v256 = f V256
-   in
-      fn V128 => v128
-       | V256 => v256
-   end*)*)
+*)*)
 end
+functor SimdReal (S: SIMD_REAL_STRUCTS): SIMD_REAL =
+(* For now I really should make SimdSize of the form of real and not word*)
+struct
+open S
+datatype t = V128R32 | V128R64
+           | V256R32 | V256R64
+val all = [V128R32, V128R64, V256R32, V256R64]
+val equals = op =
+val bytes = 
+ fn V128R32 => Bytes.fromInt 16
+  | V128R64 => Bytes.fromInt 16
+  | V256R32 => Bytes.fromInt 32
+  | V256R64 => Bytes.fromInt 32
+val realBytes =
+ fn V128R32 => Bytes.fromInt 4
+  | V128R64 => Bytes.fromInt 8
+  | V256R32 => Bytes.fromInt 4
+  | V256R64 => Bytes.fromInt 8
+val bits = Bytes.toBits o bytes
+val realBits = Bytes.toBits o realBytes
+val toStringSimd =
+ fn V128R32 => "128"
+  | V128R64 => "128"
+  | V256R32 => "256"
+  | V256R64 => "256"
+val toStringReal =
+ fn V128R32 => "32"
+  | V128R64 => "64"
+  | V256R32 => "32"
+  | V256R64 => "64"
+val memoize: (t -> 'a) -> t -> 'a =
+   fn f =>
+   let
+     val v128r32 => f V128R32
+     val v128r64 => f V128R64
+     val v256r32 => f V256R32
+     val v256r64 => f V256R64
+   in
+     fn  V128R32 => v128r32
+   | V128R64 => v128r64
+   | V256R32 => v256r32
+   | V256R64 => v256r64
+   end
