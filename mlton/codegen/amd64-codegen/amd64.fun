@@ -1,5 +1,3 @@
-
-
 (* Copyright (C) 2013 Tucker DiNapoli.
  * Copyright (C) 2012 Matthew Fluet.
  * Copyright (C) 1999-2008 Henry Cejtin, Matthew Fluet, Suresh
@@ -2407,7 +2405,7 @@ struct
                      Operand.layout src,
                      Operand.layout dst)
              | SSE_MOVFP {instr, src, dst, size}
-               => bin (str "movfp",
+               => bin ((*str "movfp",*)
                        sse_movfp_layout instr,
                        Size.layout size,
                        Operand.layout src,
@@ -3043,9 +3041,10 @@ struct
            => SSE_MOVS {src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         size = size}
-           | SSE_CmpFP {src, dst, size}
+           | SSE_CmpFP {src, dst, imm,  size}
            => SSE_CmpFP {src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
+                        imm = replacer {use = true, def = false} imm,
                         size = size}
            | SSE_COMIS {src1, src2, size}
            => SSE_COMIS {src1 = replacer {use = true, def = false} src1,
