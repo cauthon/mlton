@@ -5,9 +5,12 @@ sig
   val vec_size:Int32.int (*size of the simd vector, multiple of 128*)
   val real_size:Int32.int
   type t (* high level type *)
+  type e (* element type*)
 (*math*)
-  val fromArray:'a array -> t
-  val fromList:'a list -> t
+  val fromArray:e array -> t
+(*I wish I new how to get an array from an array*)
+  val fromArraySlice:e slice -> t
+  val fromList:e list -> t
   val add:t*t->t(*vex 256 && 128*)
   val sub:t*t->t(*vex 256 && 128*)
   val mul:t*t->t(*vex 256 && 128*)
@@ -48,11 +51,13 @@ sig
   datatype Cmp(*type of comparison predicates*)
   val vcmp:t*t*Cmp->t(*vex 256 && 128*)
 (*unpack/shuffle/blend,etc*)
-(*if we can have any size vector not sure how best to do shuffle*)
-  val vshuf:t*t*word->t(*vex 256 && 128*)
-(*not sure what should go in the public sig, but blend seems useful even
- *for higher level programming*)
-  val vblend:t*t*t->t(*vex 256 && 128*)
+(*if we can have any size vector not sure how best to do shuffle
+ *but we need it so figure it out*)
+  val shuffle:t*t*word8.word->t(*vex 256 && 128*)
+  val blend:t*t*t->t(*vex 256 && 128*)
+  val toScalar:t -> e
+  val extract:t*word8.word -> e
+  val toArray:t -> e array
 (*whole bunch of mov & pack/unpack etc instructions, don't need those in the
  *public sig, though part of me wants to put them there since I hate private
  *stuff that doesn't need to be private*)

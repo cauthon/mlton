@@ -25,6 +25,8 @@ structure Simd128Word64 : SIMD_REAL =
 struct
   val vec_size = 128
   val real_size = 64
+  type e = Real64.real
+  type t = V128R64
   val add = _prim "Simd128_Real64_add"
 (*...*)
   val andnb = _prim "Simd128_Real64_andn"
@@ -38,6 +40,8 @@ struct
   val addsub = Software SSE3.addsub
 (*endif*)
 (*non primitives*)
+  val fromArray = _prim "Simd128_Real64_fromArray"
+  fun fromList ls = fromArray (Array.fromList(ls))
 (*val not = andn 0xffffffffffffffffffffffffffffffff s*)
 end
 (*structure Simd256Word32 : SIMD_REAL =
