@@ -1,5 +1,6 @@
 #include <x86intrin.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 //(*fun simdSum (v:'a vector) =
 //    (*??? pick correct simd type*)
@@ -51,6 +52,37 @@ float simdSum(float* v,int len){
   _mm_store_ss(&result,z);
   return result;
 }
+float m128Fold(float* v,int len,__m128(*fp)(__m128,__m128),float(*fs)(float,float)){
+  /* x1|x2|x3|x4 copy & shuffle 00 01 =1 10 11 = b
+     x4|x3|x2|x1 fp
+     y1|y2|y2|y1 copy and shuffle 01 01 01 01
+     y2|y2|y1|y1 fp
+     z | now extract ans*/
+  int i;
+  float result = v[0],temp;
+  __m128 x=_mm_load_ps(v),y;
+  //slightly less efficent than other ways, but easiest to write
+  switch(len % 4) {
+    //    case 7: result += v[len-7];
+    //    case 6: result += v[len-6];
+    //    case 5: result += v[len-5];
+    //    case 4: result += v[len-4];
+    case 3: result =(*fs)(result,v[len-3]);
+    case 2: result =(*fs)(result,v[len-2]);
+    case 1: result =(*fs)(result,v[len-1]);
+  }
+  __m128 z = _mm_load_ss(&result);
+  for(i=4;i<len;i+=4){
+    x=(*fp)(x,_mm_load_ps(v+i));
+  }
+  y=x;
+  x=_mm_shuffle_ps(x,y,0x1b);
+  x=(*fp)(x,y);
+  y=_mm_shuffle_ps(x,y,0x55);
+  x=(*fp)(x,y);
+  _mm_store_ss(&temp,x);
+  return (*fs)(temp,result);
+}
 float Sum(float* v,int len){
   float result;
   int i;
@@ -59,11 +91,18 @@ float Sum(float* v,int len){
   }
   return result;
 }
+float max(float a,float b){
+  return (a>b?a:b);
+}
+__m128 max_ps(__m128 a,__m128 b){
+  return _mm_max_ps(a,b);
+}
+//double simdFold(double* v,int len,__m256d(*fp)(__mm256d,__m256d));
 int main(){
   float x[1000000];
   int i;
   clock_t start,simd,end;
-  struct timespec t1,t2,t3;
+  /*  struct timespec t1,t2,t3;
   for (i=0;i<1000000;i++){
     x[i]=i;
   }
@@ -76,6 +115,15 @@ int main(){
   end=clock();
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t3);
   printf("Clock Cycles for Simd: %ld\nClock Cycles for Sum : %ld\n",
-         (t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec));
+  (t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec));*/
+  __m128 (*fp)(__m128,__m128);
+  float (*fs)(float,float);
+  srand((unsigned int)time(NULL));
+  fp = max_ps;
+  fs = max;
+  for (i=0;i<10005;i++){
+    x[i]=i;//(rand() % 100000);
+  }
+  printf("Max of x: %f\n",m128Fold(x,10000,fp,fs));
   return;
 }
