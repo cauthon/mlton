@@ -66,6 +66,9 @@
   -look at machine il for adding simd types for c-codegen
   -"registers" in machine il are just c-types
   -MLTON_CODEGEN_STATIC_INLINE is literally static inline
+* google hangout <2013-07-23 Tue>
+  -Ask about layout, how to deal with opcode suffixes etc
+  -Ask about a way to make sml Arrays behave like c pointers 
 * Low level details
 ** Immediate opperands
 *** Compairson

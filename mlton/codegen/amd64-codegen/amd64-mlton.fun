@@ -98,9 +98,14 @@ struct
          | Simd_Real_hadd  _ => true
          | Simd_Real_hsub  _ => true
          | Simd_Real_addsub _ => true
+         | Simd_Real_cmp _ => true
          | Simd_Real_cmpeq _ => true
          | Simd_Real_cmplt _ => true
          | Simd_Real_cmpgt _ => true
+         | Simd_Real_fromArray _ => true
+         | Simd_Real_toArray _ => true
+         | Simd_Real_fromScalar _ => true
+         | Simd_Real_toScalar _ => true
          | Thread_returnToC => false
          | Word_add _ => true
          | Word_addCheck _ => true
@@ -475,6 +480,12 @@ struct
                    {dst = dst,
                     src = src,
                     size = srcsize}],
+                (* or
+                = [Assembly.instruction_sse_movfp
+                   {instr = SSE_MOVS,
+                      dst = dst,
+                      src = src
+                     size = srcsize}]*)
                 transfer = NONE}]
             end
 
@@ -553,7 +564,7 @@ struct
               val (src,srcsize) = getSrc1 ()
               val _
                 = Assert.assert
-                  ("amd64MLton.prim: sse_movd, dstsize/srcsize",
+                  ("amd64MLton.prim: sse_movfp, dstsize/srcsize",
                    fn () => srcsize <> dstsize)
             in
               AppendList.fromList
@@ -573,7 +584,7 @@ struct
               val (src,srcsize) = getSrc1 ()
               val _
                 = Assert.assert
-                  ("amd64MLton.prim: sse_movd, dstsize/srcsize",
+                  ("amd64MLton.prim: sse_imov, dstsize/srcsize",
                    fn () => srcsize <> dstsize)
             in
               AppendList.fromList
@@ -635,7 +646,7 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun sse_binlp oper
+        fun sse_binlp (oper,mov)
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
@@ -645,7 +656,6 @@ struct
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
-              val instr = Instruction.SSE_MOVAP (*TUCKER: how to select right move instr*)
               (* Reverse src1/src2 whepn src1 and src2 are temporaries
                * and the oper is commutative.
                *)
@@ -672,7 +682,7 @@ struct
                {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_movfp
-                   {instr = instr,
+                   {instr = mov,
                     dst = dst,
                     src = src1,
                     size = src1size},
@@ -683,7 +693,7 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun sse3_binap oper
+        fun sse3_binap (oper,mov)
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
@@ -693,12 +703,13 @@ struct
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
-              val instr = Instruction.SSE_MOVAP (*TUCKER: how to select right move instr*)
               (* Reverse src1/src2 when src1 and src2 are temporaries
                * and the oper is commutative.
                *)
               val (src1,src2)
-                = if (oper = Instruction.SSE_HADDP)
+                = if (oper = Instruction.SSE_HADDPS)
+                     orelse
+                     (oper = Instruction.SSE_HADDPD)
                     then case (Operand.deMemloc src1, Operand.deMemloc src2)
                            of (SOME memloc_src1, SOME memloc_src2)
                             => if amd64Liveness.track memloc_src1
@@ -714,7 +725,7 @@ struct
                {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_movfp
-                   {instr = instr,
+                   {instr = mov,
                     dst = dst,
                     src = src1,
                     size = src1size},
@@ -726,7 +737,7 @@ struct
                 transfer = NONE}]
             end
 
-        fun sse_binap oper
+        fun sse_binap (oper,mov)
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
@@ -742,13 +753,21 @@ struct
                * and the oper is commutative.
                *)
               val (src1,src2)
-                = if (oper = Instruction.SSE_ADDP)
+                = if (oper = Instruction.SSE_ADDPS)
                      orelse
-                     (oper = Instruction.SSE_MULP)
+                     (oper = Instruction.SSE_MULPS)
                      orelse
-                     (oper = Instruction.SSE_MAXP)
+                     (oper = Instruction.SSE_MAXPS)
                      orelse
-                     (oper = Instruction.SSE_MINP)
+                     (oper = Instruction.SSE_MINPS)
+                     orelse
+                     (oper = Instruction.SSE_ADDPD)
+                     orelse
+                     (oper = Instruction.SSE_MULPD)
+                     orelse
+                     (oper = Instruction.SSE_MAXPD)
+                     orelse
+                     (oper = Instruction.SSE_MINPD)
                     then case (Operand.deMemloc src1, Operand.deMemloc src2)
                            of (SOME memloc_src1, SOME memloc_src2)
                             => if amd64Liveness.track memloc_src1
@@ -764,7 +783,7 @@ struct
                {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_movfp
-                   {instr = instr,
+                   {instr = mov,
                     dst = dst,
                     src = src1,
                     size = src1size},
@@ -776,7 +795,6 @@ struct
                 transfer = NONE}]
             end
 
-(*TUCKER: what is this, multiplication? but multiplication was defined above*)
         fun sse_binas_mul oper
           = let
               val ((src1,src1size),
@@ -908,7 +926,7 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun SSE_CmpFP imm = 
+        fun SSE_CMPFP (oper,mov,imm) = 
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
@@ -919,17 +937,19 @@ struct
                {entry = NONE,
                 statements
                 = [Assembly.instruction_sse_movfp
-                     {instr = instr,
+                     {instr = mov,
                       dst = dst,
                       src = src1,
                       size = src1size},
                    Assembly.instruction_sse_cmpfp
-                     {src = src2,
+                     {oper = oper,
+                      src = src2,
                       dst = dst,
                       imm = imm,
                       size = dstsize}],
                 transfer = NONE}]
             end
+
         val (comment_begin,
              comment_end)
           = if !Control.Native.commented > 0
@@ -1335,24 +1355,122 @@ struct
                       | _ => Error.bug "amd64MLton.prim: Real_rndToWord, W64, false"
                   end
              | Real_sub _ => sse_binas Instruction.SSE_SUBS
-             | Simd_Real_add _ => sse_binap Instruction.SSE_ADDP
-             | Simd_Real_sub _ => sse_binap Instruction.SSE_SUBP
-             | Simd_Real_mul _ => sse_binap Instruction.SSE_MULP
-             | Simd_Real_div _ => sse_binap Instruction.SSE_DIVP
-             | Simd_Real_min _ => sse_binap Instruction.SSE_MINP
-             | Simd_Real_max _ => sse_binap Instruction.SSE_MAXP
-             | Simd_Real_sqrt _ => sse_unap Instruction.SSE_SQRTP
-             | Simd_Real_and _ => sse_binlp Instruction.SSE_ANDP
-             | Simd_Real_andn _ => sse_binlp Instruction.SSE_ANDNP
-             | Simd_Real_or _ => sse_binlp Instruction.SSE_ORP
-             | Simd_Real_xor _ => sse_binlp Instruction.SSE_XORP
-             | Simd_Real_hadd _ => sse3_binap Instruction.SSE_HADDP
-             | Simd_Real_hsub _=> sse3_binap Instruction.SSE_HSUBP
-             | Simd_Real_addsub _ => sse3_binap Instruction.SSE_ADDSUBP
-             | Simd_Real_cmpeq _ => sse_cmpfp 0w0
-             | Simd_Real_cmplt _ => sse_cmpfp 0w1
-             | Simd_Real_cmplt _ => sse_cmpfp 0w6 (*actually not less than or
+             | Simd_Real_add s => 
+               (case s of 
+                   V128R32 => 
+                   sse_binap (Instruction.SSE_ADDPS,Instruction.SSE_MOVUPS)
+                 | V128R64 => 
+                   sse_binap(Instruction.SSE_ADDPD,Instruction.SSE_MOVUPD))
+(*avx ex.        | V256R32 =>
+                   avx_binap(Instruction.AVX_ADDPS,Instruction.AVX_MOVUPS)
+                 | V256R64 =>
+                   avx_binap(Instruction.AVX_ADDPD,Instruction.AVX_MOVUPD*)
+             | Simd_Real_sub s => 
+               (case s of 
+                   V128R32 => 
+                   sse_binap (Instruction.SSE_SUBPS,Instruction.SSE_MOVUPS)
+                 | V128R64 => 
+                   sse_binap (Instruction.SSE_SUBPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_mul s => 
+               (case s of
+                   V128R32 => 
+                   sse_binap (Instruction.SSE_MULPS,Instruction.SSE_MOVUPS)
+                 | V128R64 => 
+                   sse_binap (Instruction.SSE_MULPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_div s => 
+               (case s of
+                   V128R32 => 
+                   sse_binap (Instruction.SSE_DIVPS,Instruction.SSE_MOVUPS)
+                 | V128R64 => 
+                   sse_binap (Instruction.SSE_DIVPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_min s => 
+               (case s of
+                   V128R32 => 
+                   sse_binap (Instruction.SSE_MINPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse_binap (Instruction.SSE_MINPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_max s => 
+               (case s of
+                   V128R32 =>
+                   sse_binap (Instruction.SSE_MAXPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse_binap (Instruction.SSE_MAXPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_sqrt s =>
+               (case s of
+                   V128R32 =>
+                   sse_unap (Instruction.SSE_SQRTPS)
+                 | V128R64 =>
+                   sse_unap (Instruction.SSE_SQRTPD))
+             | Simd_Real_and s =>
+               (case s of
+                   V128R32 =>
+                   sse_binlp (Instruction.SSE_ANDPS,Instruction.SSE_MOVUPS)
+                 | V128R64 => 
+                   sse_binlp (Instruction.SSE_ANDPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_andn s =>
+               (case s of
+                   V128R32 =>
+                   sse_binlp (Instruction.SSE_ANDNPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse_binlp (Instruction.SSE_ANDNPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_or s => 
+               (case s of
+                   V128R32 =>
+                   sse_binlp (Instruction.SSE_ORPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse_binlp (Instruction.SSE_ORPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_xor s =>
+               (case s of
+                   V128R32 =>
+                   sse_binlp (Instruction.SSE_XORPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse_binlp (Instruction.SSE_XORPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_hadd s => 
+               (case s of
+                   V128R32 =>
+                   sse3_binap (Instruction.SSE_HADDPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse3_binap (Instruction.SSE_HADDPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_hsub s=> 
+               (case s of
+                   V128R32 =>
+                   sse3_binap (Instruction.SSE_HSUBPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse3_binap (Instruction.SSE_HSUBPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_addsub s => 
+               (case s of
+                   V128R32 =>
+                   sse3_binap (Instruction.SSE_ADDSUBPS,Instruction.SSE_MOVUPS)
+                 | V128R64 =>
+                   sse3_binap (Instruction.SSE_ADDSUBPD,Instruction.SSE_MOVUPD))
+             | Simd_Real_cmp (s,i) =>
+               (case s of
+                   V128R32 =>
+                   sse_cmpfp (Instruction.SSE_CMPPS,Instruction.SSE_MOVUPS,i)
+                 | V128R64 =>
+                   sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD,i))
+             | Simd_Real_cmpeq s => sse_cmpfp 0w0
+             | Simd_Real_cmplt s => sse_cmpfp 0w1
+             | Simd_Real_cmpgt s => sse_cmpfp 0w6 (*actually not less than or
                                                    *equal, but same thing*)
+(*if I add Simd_Real_cmp then do something like this
+ | Simd_Real_cmp (_,imm) => sse_cmpfp imm *)
+             | Simd_Real_toArray s => 
+               case s of 
+                   V128R32 => sse_movfp Instruction.SSE_MOVUPS
+                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD
+             | Simd_Real_fromArray s =>
+               case s of
+                   V128R32 => sse_movfp Instruction.SSE_MOVUPS
+                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD
+             | Simd_Real_toScalar s => 
+               case s of
+                   V128R32 => sse_movfp Instruction.SSE_MOVSS
+                 | V128R64 => sse_movfp Instruction.SSE_MOVPD
+             | Simd_Real_fromScalar s => 
+               case s of
+                   V128R32 => sse_movfp Instruction.SSE_MOVSS
+                 | V128R64 => sse_movfp Instruction.SSE_MOVSD
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

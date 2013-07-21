@@ -159,7 +159,10 @@ datatype 'a t =
  | Simd_Real_cmpeq of SimdReal.t (* codegen *)
  | Simd_Real_cmplt of SimdReal.t (* codegen *)
  | Simd_Real_cmpgt of SimdReal.t (* codegen *)
- | Simd_Real_from_Array of SimdReal.t 
+ | Simd_Real_fromArray of SimdReal.t
+ | Simd_Real_toArray of SimdReal.t
+ | Simd_Real_fromScalar of SimdReal.t
+ | Simd_Real_toScalar of SimdReal.t
 (* | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word (* codegen *)*)
 (* | Simd_Real_castToWord of SimdSize.t*Realsize.t*WordSize.t
  | Simd_Word_castToWord of SimdSize.t*WordSize.t*WordSize.t*)
@@ -352,7 +355,10 @@ fun toString (n: 'a t): string =
        | Simd_Real_cmpeq s => simd_real (s,"cmpeq")
        | Simd_Real_cmplt s => simd_real (s,"cmplt")
        | Simd_Real_cmpgt s => simd_real (s,"cmpgt")
-       | Simd_Real_from_array s => simd_real (s,"load")
+       | Simd_Real_fromScalar s => simd_real (s,"loads")
+       | Simd_Real_toScalar s => simd_real (s, "stores")
+       | Simd_Real_fromArray s => simd_real (s,"load")
+       | Simd_Real_toArray => simd_real (s,"store")
        | String_toWord8Vector => "String_toWord8Vector"
        | Thread_atomicBegin => "Thread_atomicBegin"
        | Thread_atomicEnd => "Thread_atomicEnd"
@@ -517,7 +523,13 @@ val equals: 'a t * 'a t -> bool =
     | (Simd_Real_cmpeq s, Simd_Real_cmpeq s') => SimdReal.equals (s,s')
     | (Simd_Real_cmplt s, Simd_Real_cmplt s') => SimdReal.equals (s,s')
     | (Simd_Real_cmpgt s, Simd_Real_cmpgt s') => SimdReal.equals (s,s')
-    | (Simd_Real_from_Array s, Simd_Real_from_Array s') =>
+    | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
+      SimdReal.equals (s,s')
+    | (Simd_Real_toArray s, Simd_Real_toArray s') =>
+      SimdReal.equals (s,s')
+    | (Simd_Real_fromScalar s, Simd_Real_fromScalar s') =>
+      SimdReal.equals (s,s')
+    | (Simd_Real_toScalar s, Simd_Real_toScalar s') =>
       SimdReal.equals (s,s')
     | (String_toWord8Vector, String_toWord8Vector) => true
     | (Thread_atomicBegin, Thread_atomicBegin) => true
@@ -694,7 +706,10 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Real_cmpeq s => Simd_Real_cmpeq s
     | Simd_Real_cmplt s => Simd_Real_cmplt s
     | Simd_Real_cmpgt s => Simd_Real_cmpgt s
-    | Simd_Real_from_Array s => Simd_Real_from_Array s
+    | Simd_Real_fromArray s => Simd_Real_fromArray s
+    | Simd_Real_toArray s => Simd_Real_toArray s
+    | Simd_Real_fromScalar s => Simd_Real_fromScalar s
+    | Simd_Real_toScalar s => Simd_Real_toScalar s
     | String_toWord8Vector => String_toWord8Vector
     | Thread_atomicBegin => Thread_atomicBegin
     | Thread_atomicEnd => Thread_atomicEnd
@@ -973,7 +988,11 @@ val kind: 'a t -> Kind.t =
        | Simd_Real_cmpeq s => Functional (*comparisons are bitwise*)
        | Simd_Real_cmplt s => Functional
        | Simd_Real_cmpgt s => Functional
-       | Simd_Real_from_Array => SideEffect
+(*should these be SideEffect or Moveable*)
+       | Simd_Real_fromScalar s => SideEffect
+       | Simd_Real_toScalar s => SideEffect
+       | Simd_Real_fromArray s => SideEffect
+       | Simd_Real_toArray => SideEffect
        | String_toWord8Vector => Functional
        | Thread_atomicBegin => SideEffect
        | Thread_atomicEnd => SideEffect
@@ -1072,7 +1091,10 @@ local
        (Simd_Real_cmpeq s),
        (Simd_Real_cmplt s),
        (Simd_Real_cmpgt s),
-       (Simd_Real_from_Array s)]
+       (Simd_Real_fromArray s),
+       (Simd_Real_toArray s),
+       (Simd_Real_fromScalar s),
+       (Simd_Real_toScalar s)]
 
    fun wordSigns (s: WordSize.t, signed: bool) =
       let
@@ -1482,6 +1504,15 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_cmpeq s => simdRealBinary s
        | Simd_Real_cmplt s => simdRealBinary s
        | Simd_Real_cmpgt s => simdRealBinary s
+(*Need to ask about these, not sure if I need a type arg or not*)
+       | Simd_Real_toArray s =>
+         noTargs (fn () => (oneArg (simdReal s), array t))
+       | Simd_Real_fromArray s =>
+         noTargs (fn () => (oneArg (array t), simdReal s))
+       | Simd_Real_toScalar s =>
+         noTargs (fn () => (oneArg (simdReal s), real r))
+       | Simd_Real_fromScalar s =>
+         noTargs (fn () => (oneArg (real r), simdReal s))
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))
        | Thread_atomicState => noTargs (fn () => (noArgs, word32))

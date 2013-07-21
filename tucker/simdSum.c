@@ -8,8 +8,8 @@
 float simdSum(float* v,int len){
   /* x1|x2|x3|x4 copy & shuffle 00 01 =1 10 11 = b
      x4|x3|x2|x1 add
-     y1|y2|y2|y1 copy and shuffle xx xx xx 01 
-     y2|...      add
+     y1|y2|y2|y1 copy and shuffle 01 01 01 01
+     y2|y2|y1|y1 add
      z | now extract ans*/
   int i;
   float result = 0;

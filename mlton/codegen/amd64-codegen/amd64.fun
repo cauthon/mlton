@@ -59,13 +59,16 @@ struct
      end
 
   structure Size =
+(*TUCKER: This is where the instruction suffix comes from*)
     struct
       datatype class = INT | FLT | VEC
 
       datatype t 
         = BYTE | WORD | LONG | QUAD
-        | SNGL | DBLE | VXMM | VYMM
-
+        | SNGL | DBLE | XMM  | YMM 
+      (*| XMMS | XMMD
+        | YMMS | YMMD | XMMW | YMMW*)
+(*TUCKER: more specifically it comes from here*)
       val layout
         = let
             open Layout
@@ -76,8 +79,14 @@ struct
              | QUAD => str "q"
              | SNGL => str "s"
              | DBLE => str "d"
-             | VXMM => str "x"
-             | VYMM => str "y"
+             | XMM => str ""
+             | YMM => str ""
+(*             | XMMS => str "s"
+             | XMMD => str "d"
+             | YMMS => str "s"
+             | YMMD => str "d"
+             | XMMW => str ""
+             | YMMW => str ""*)
           end
       val toString = Layout.toString o layout
 
@@ -86,8 +95,11 @@ struct
            | 2 => WORD
            | 4 => LONG
            | 8 => QUAD
-           | 16 => VXMM
-           | 32 => VYMM
+(*This is troublesome, how do we do this,
+because 16 => XMMS or XMMD or XMMW and
+        32 => YMMS of YMMD or YMMW*)
+           | 16 => XMM
+           | 32 => YMM
            | _ => Error.bug "amd64.Size.fromBytes"
       val toBytes : t -> int
         = fn BYTE => 1
@@ -96,8 +108,14 @@ struct
            | QUAD => 8
            | SNGL => 4
            | DBLE => 8
-           | VXMM => 16
-           | VYMM => 32
+           | XMM => 16
+           | YMM => 32
+(*           | XMMS => 16
+           | XMMD => 16
+           | XMMW => 16
+           | YMMS => 32
+           | YMMD => 32
+           | YMMW => 32*)
 (*TUCKER: Not sure how to deal with new types in the rest of this structure*)
       local
          datatype z = datatype CType.t
@@ -116,12 +134,19 @@ struct
              | Word16 => Vector.new1 WORD
              | Word32 => Vector.new1 LONG
              | Word64 => Vector.new1 QUAD
-             | Simd128_Real32 => Vector.new1 VXMM
-             | Simd128_Real64 => Vector.new1 VXMM
-             | Simd128_WordX => Vector.new1 VXMM
-             | Simd256_Real32 => Vector.new1 VYMM
-             | Simd256_Real64 => Vector.new1 VYMM
-             | Simd256_WordX => Vector.new1 VYMM
+             | Simd128_Real32 => Vector.new1 XMM
+             | Simd128_Real64 => Vector.new1 XMM
+             | Simd128_WordX => Vector.new1 XMM
+             | Simd256_Real32 => Vector.new1 YMM
+             | Simd256_Real64 => Vector.new1 YMM
+             | Simd256_WordX => Vector.new1 YMM
+(*However This should fix the type issue noted above*)
+(*             | Simd128_Real32 => Vector.new1 XMMS
+             | Simd128_Real64 => Vector.new1 XMMD
+             | Simd128_WordX => Vector.new1 XMMW
+             | Simd256_Real32 => Vector.new1 YMMS
+             | Simd256_Real64 => Vector.new1 YMMD
+             | Simd256_WordX => Vector.new1 YMMW*)
       end
 
       val class
@@ -131,8 +156,14 @@ struct
            | QUAD => INT
            | SNGL => FLT
            | DBLE => FLT
-           | VXMM => VEC
-           | VYMM => VEC
+           | XMM => VEC
+           | YMM => VEC
+(*           | XMMS => VEC
+           | XMMD => VEC
+           | XMMW => VEC
+           | YMMS => VEC
+           | YMMD => VEC
+           | YMMW => VEC*)
 
       val eq = fn (s1, s2) => s1 = s2
       val lt = fn (s1, s2) => (toBytes s1) < (toBytes s2)
@@ -372,7 +403,7 @@ struct
                     XMM8, XMM9, XMM10, XMM11, XMM12, XMM13, XMM14, XMM15]
 
       datatype part
-        = Y | X | D | S
+        = X | Y | D | S (*| XS | XD | XW | YS | YD | YW*)
 
       datatype t = T of {reg: reg, part: part}
 
@@ -380,8 +411,13 @@ struct
         = case part
             of D => Size.DBLE
              | S => Size.SNGL
-             | X => Size.VXMM
-             | Y => Size.VYMM
+(*             | XS => Size.XMMS
+             | XD => Size.XMMD
+             | XW => Size.XMMW
+             | YS => Size.YMMS
+             | YD => Size.YMMD
+             | YW => Size.YMMW*)
+
 
       fun layout (T {reg, part})
         = let
@@ -393,7 +429,13 @@ struct
                         S => "%xmm"
                       | D => "%xmm"
                       | X => "%xmm"
-                      | L => "%ymm"
+                      | Y => "%ymm"
+(*                      | XS => "%xmm"
+                      | XD => "%xmm"
+                      | XW => "%xmm"
+                      | YS => "%ymm"
+                      | YD => "%ymm"
+                      | YW => "%ymm"*)
                in
                   str (String.concat [base, num])
                end
@@ -421,75 +463,74 @@ struct
       fun eq(T r1, T r2) = r1 = r2
 (*(let ((start (point)))
   (dotimes (i 16)
-         (dolist (j '(?S ?D ?X ?Y))
-                 (insert (format "val xmm%d%c = T {reg = XMM%d, part = %c}\n"
+         (dolist (j '("X" "Y" "S" "D")); "XS" "XD" "XW" "YS" "YD" "YW"))
+                 (insert (format "val xmm%d%s = T {reg = XMM%d, part = %s}\n"
                                  i j i j))))
   (indent-region start (point)))*)
+      val xmm0X = T {reg = XMM0, part = X}
+      val xmm0Y = T {reg = XMM0, part = Y}
       val xmm0S = T {reg = XMM0, part = S}
       val xmm0D = T {reg = XMM0, part = D}
-      val xmm0X = T {reg = XMM0, part = X}
-      val ymm0 = T {reg = XMM0, part = Y}
+      val xmm1X = T {reg = XMM1, part = X}
+      val xmm1Y = T {reg = XMM1, part = Y}
       val xmm1S = T {reg = XMM1, part = S}
       val xmm1D = T {reg = XMM1, part = D}
-      val xmm1X = T {reg = XMM1, part = X}
-      val ymm1 = T {reg = XMM1, part = Y}
+      val xmm2X = T {reg = XMM2, part = X}
+      val xmm2Y = T {reg = XMM2, part = Y}
       val xmm2S = T {reg = XMM2, part = S}
       val xmm2D = T {reg = XMM2, part = D}
-      val xmm2X = T {reg = XMM2, part = X}
-      val ymm2 = T {reg = XMM2, part = Y}
+      val xmm3X = T {reg = XMM3, part = X}
+      val xmm3Y = T {reg = XMM3, part = Y}
       val xmm3S = T {reg = XMM3, part = S}
       val xmm3D = T {reg = XMM3, part = D}
-      val xmm3X = T {reg = XMM3, part = X}
-      val ymm3 = T {reg = XMM3, part = Y}
+      val xmm4X = T {reg = XMM4, part = X}
+      val xmm4Y = T {reg = XMM4, part = Y}
       val xmm4S = T {reg = XMM4, part = S}
       val xmm4D = T {reg = XMM4, part = D}
-      val xmm4X = T {reg = XMM4, part = X}
-      val ymm4 = T {reg = XMM4, part = Y}
+      val xmm5X = T {reg = XMM5, part = X}
+      val xmm5Y = T {reg = XMM5, part = Y}
       val xmm5S = T {reg = XMM5, part = S}
       val xmm5D = T {reg = XMM5, part = D}
-      val xmm5X = T {reg = XMM5, part = X}
-      val ymm5 = T {reg = XMM5, part = Y}
+      val xmm6X = T {reg = XMM6, part = X}
+      val xmm6Y = T {reg = XMM6, part = Y}
       val xmm6S = T {reg = XMM6, part = S}
       val xmm6D = T {reg = XMM6, part = D}
-      val xmm6X = T {reg = XMM6, part = X}
-      val ymm6 = T {reg = XMM6, part = Y}
+      val xmm7X = T {reg = XMM7, part = X}
+      val xmm7Y = T {reg = XMM7, part = Y}
       val xmm7S = T {reg = XMM7, part = S}
       val xmm7D = T {reg = XMM7, part = D}
-      val xmm7X = T {reg = XMM7, part = X}
-      val ymm7 = T {reg = XMM7, part = Y}
+      val xmm8X = T {reg = XMM8, part = X}
+      val xmm8Y = T {reg = XMM8, part = Y}
       val xmm8S = T {reg = XMM8, part = S}
       val xmm8D = T {reg = XMM8, part = D}
-      val xmm8X = T {reg = XMM8, part = X}
-      val ymm8 = T {reg = XMM8, part = Y}
+      val xmm9X = T {reg = XMM9, part = X}
+      val xmm9Y = T {reg = XMM9, part = Y}
       val xmm9S = T {reg = XMM9, part = S}
       val xmm9D = T {reg = XMM9, part = D}
-      val xmm9X = T {reg = XMM9, part = X}
-      val ymm9 = T {reg = XMM9, part = Y}
+      val xmm10X = T {reg = XMM10, part = X}
+      val xmm10Y = T {reg = XMM10, part = Y}
       val xmm10S = T {reg = XMM10, part = S}
       val xmm10D = T {reg = XMM10, part = D}
-      val xmm10X = T {reg = XMM10, part = X}
-      val ymm10 = T {reg = XMM10, part = Y}
+      val xmm11X = T {reg = XMM11, part = X}
+      val xmm11Y = T {reg = XMM11, part = Y}
       val xmm11S = T {reg = XMM11, part = S}
       val xmm11D = T {reg = XMM11, part = D}
-      val xmm11X = T {reg = XMM11, part = X}
-      val ymm11 = T {reg = XMM11, part = Y}
+      val xmm12X = T {reg = XMM12, part = X}
+      val xmm12Y = T {reg = XMM12, part = Y}
       val xmm12S = T {reg = XMM12, part = S}
       val xmm12D = T {reg = XMM12, part = D}
-      val xmm12X = T {reg = XMM12, part = X}
-      val ymm12 = T {reg = XMM12, part = Y}
+      val xmm13X = T {reg = XMM13, part = X}
+      val xmm13Y = T {reg = XMM13, part = Y}
       val xmm13S = T {reg = XMM13, part = S}
       val xmm13D = T {reg = XMM13, part = D}
-      val xmm13X = T {reg = XMM13, part = X}
-      val ymm13 = T {reg = XMM13, part = Y}
+      val xmm14X = T {reg = XMM14, part = X}
+      val xmm14Y = T {reg = XMM14, part = Y}
       val xmm14S = T {reg = XMM14, part = S}
       val xmm14D = T {reg = XMM14, part = D}
-      val xmm14X = T {reg = XMM14, part = X}
-      val ymm14 = T {reg = XMM14, part = Y}
+      val xmm15X = T {reg = XMM15, part = X}
+      val xmm15Y = T {reg = XMM15, part = Y}
       val xmm15S = T {reg = XMM15, part = S}
       val xmm15D = T {reg = XMM15, part = D}
-      val xmm15X = T {reg = XMM15, part = X}
-      val ymm15 = T {reg = XMM15, part = Y}
-
       local
          fun make part =
             List.rev
@@ -514,15 +555,25 @@ struct
          val doubleRegisters = make D
          val xmmRegisters = make X
          val ymmRegisters = make Y
+(*         val sseSingleRegisters = make XS
+         val sseDoubleRegisters = make XD
+         val sseIntegerRegisters = make XW
+         val avxSingleRegisters = make YS
+         val avxDoubleRegisters = make YD
+         val avxIntegerRegisters = make YW*)
       end
 
       val all = List.concat [singleRegisters, doubleRegisters,
-                             xmmRegisters, ymmRegisters]
+                             xmmRegisters, ymmRegisters
+(*                             sseSingleRegisters, sseDoubleRegisters,
+                             sseWordRegisters, avxSingleRegisters,
+                             avxDoubleRegisters, avxWordRegisters*)]
 
       fun valid r = List.contains(all, r, eq)
-
+(*Because I am not `that` crazy I gave up on the 6 size types here*)
       val contains 
         = fn (Y, S) => true | (Y, D) => true | (Y, X) => true | (Y, Y) => true
+
            | (X, S) => true | (X, D) => true | (X, X) => true
            | (D, S) => true | (D, D) => true 
            | (S, S) => true
@@ -534,26 +585,30 @@ struct
                                contains(part2,part1))
 
       fun coincident' reg
-        = List.keepAllMap([Y, X, D, S],
+        = List.keepAllMap([X, Y, D, S],
                           fn part 
                            => let
                                 val register' = T {reg = reg, part = part}
                               in 
                                 if valid register' andalso 
-                                   coincide(T {reg = reg, part = D}, register')
+                                   coincide(T {reg = reg, part = X}, register')
                                   then SOME register'
                                   else NONE
                               end)
 
       fun coincident (T {reg, ...}) = coincident' reg
-      (* quell unused warning *)
+      (* quell unused warning, is it still unused? *)
       val _ = coincident
 
       val registers
         = fn Size.SNGL => singleRegisters
            | Size.DBLE => doubleRegisters
-           | Size.VXMM => xmmRegisters
-           | Size.VYMM => ymmRegisters
+           | Size.XMM => xmmRegisters
+           | Size.YMM => ymmRegisters
+(*           | Size.XMMS => sseSingleRegisters
+           | Size.XMMD => sseDoubleRegisters
+           | Size.YMMS => avxSingleRegisters
+           | Size.YMMD => avxDoubleRegisters*)
            | _ => Error.bug "amd64.XmmRegister.registers"
 
       val callerSaveRegisters = all
@@ -717,8 +772,12 @@ struct
              | Word16 => Two
              | Word32 => Four
              | Word64 => Eight
-             | Simd128 => Sixteen
-             | Simd256 => ThirtyTwo
+             | Simd128Real32 => Sixteen
+             | Simd128Real64 => Sixteen
+             | Simd128WordX => Sixteen
+             | Simd256Real32 => ThirtyTwo
+             | Simd256Real64 => ThirtyTwo
+             | Simd256WordX => ThirtyTwo
       end
 
       fun eq(s1, s2) = s1 = s2
@@ -1478,8 +1537,12 @@ struct
                   val x64 = x (XmmRegister.xmm0D, DBLE)
                   fun v (x, s) =
                       [{src = xmmregister x, dst = cReturnTempContent (0,s)}]
-                  val v128 = v (XmmRegister.xmm0X, VXMM)
-                  val v256 = v (XmmRegister.ymm0, VYMM)
+                  val v128r32 = v (XmmRegister.xmm0X, XMM)
+                  val v128r64 = v (XmmRegister.xmm0X, XMM)
+                  val v128wx = v (XmmRegister.xmm0X, XMM)
+                  val v256r32 = v (XmmRegister.ymm0, YMM)
+                  val v256r64 = v (XmmRegister.ymm0, YMM)
+                  val v256wx = v (XmmRegister.ymm0, YMM)
                in
                   case RepType.toCType ty of
                      CPointer => w64
@@ -1494,8 +1557,12 @@ struct
                    | Word16 => w16
                    | Word32 => w32
                    | Word64 => w64
-                   | Simd128 => v128
-                   | Simd256 => v256
+                   | Simd128Real32 => v128r32
+                   | Simd128Real64 => v128r64
+                   | Simd128WordX => v128wx
+                   | Simd256Real32 => v256r32
+                   | Simd256Real64 => v256r64
+                   | Simd256WordX => v256wx
                end
       end
     end
@@ -1689,23 +1756,37 @@ struct
              | SSE_MINS => str "mins"
           end
       (* Packed SSE binary aritchmetic instructions *)
+       (* Two Ways of doing things, operation + size = opcode, with 6 sizes
+        * or operation = opcode, but with duplicates of each opcode*)
       datatype sse_binap
-          = SSE_ADDP
-          | SSE_SUBP
-          | SSE_MULP
-          | SSE_DIVP
-          | SSE_MAXP
-          | SSE_MINP
+          = SSE_ADDPS
+          | SSE_SUBPS
+          | SSE_MULPS
+          | SSE_DIVPS
+          | SSE_MAXPS
+          | SSE_MINPS
+          | SSE_ADDPD
+          | SSE_SUBPD
+          | SSE_MULPD
+          | SSE_DIVPD
+          | SSE_MAXPD
+          | SSE_MINPD
       val sse_binap_layout
         = let
             open Layout
           in
-            fn SSE_ADDP => str "addp"
-             | SSE_SUBP => str "subp"
-             | SSE_MULP => str "mulp"
-             | SSE_DIVP => str "divp"
-             | SSE_MAXP => str "maxp"
-             | SSE_MINP => str "minp"
+            fn SSE_ADDPS => str "addps"
+             | SSE_SUBPS => str "subps"
+             | SSE_MULPS => str "mulps"
+             | SSE_DIVPS => str "divps"
+             | SSE_MAXPS => str "maxps"
+             | SSE_MINPS => str "minps"
+             | SSE_ADDPD => str "addpd"
+             | SSE_SUBPD => str "subpd"
+             | SSE_MULPD => str "mulpd"
+             | SSE_DIVPD => str "divpd"
+             | SSE_MAXPD => str "maxpd"
+             | SSE_MINPD => str "minpd"
           end
       (* Scalar SSE unary arithmetic instructions. *)
       datatype sse_unas
@@ -1718,15 +1799,23 @@ struct
           end
       (* Packed ...*)
       datatype sse_unap
-        = SSE_SQRTP
+        = SSE_SQRTPS
+        | SSE_SQRTPD
+        | SSE_RCPPS
+        | SSE_RSQRTPS
+
       val sse_unap_layout
         = let
             open Layout
           in
-            fn SSE_SQRTP => str "sqrtp"
+            fn SSE_SQRTPS => str "sqrtps"
+             | SSE_SQRTPD => str "sqrtpd"
+             | SSE_RCPPS => str "rcpps"
+             | SSE_RSQRTPS => str "rcppd"
           end
       (* Packed SSE binary logical instructions 
-       * work for both scalar and packed data*)
+       * work for both scalar and packed data
+       * Though maybe not anymore ...*)
       datatype sse_binlp
         = SSE_ANDNP (* and-not; p. 17,19 *)
         | SSE_ANDP (* and; p. 21,23 *)
@@ -1743,47 +1832,78 @@ struct
           end
       (*sse3 binary artihmatic opperations (hadd/sub & addsub*)
       datatype sse3_binap
-        = SSE_ADDSUBP (*add odd pairs, subtract even pairs*)
-        | SSE_HADDP (*horizontal add*)
-        | SSE_HSUBP (*horizontal subtract*)
+        = SSE_ADDSUBPS (*add odd pairs, subtract even pairs*)
+        | SSE_HADDPS (*horizontal add*)
+        | SSE_HSUBPS (*horizontal subtract*)
+        | SSE_ADDSUBPD (*add odd pairs, subtract even pairs*)
+        | SSE_HADDPD (*horizontal add*)
+        | SSE_HSUBPD (*horizontal subtract*)
+
       val sse3_binap_layout
           = let
               open Layout
             in
-              fn SSE_ADDSUBP => str "addsubp"
-               | SSE_HADDP => str "haddp"
-               | SSE_HUSBP => str "hsubp"
+              fn SSE_ADDSUBPS => str "addsubps"
+               | SSE_HADDPS => str "haddps"
+               | SSE_HUSBPS => str "hsubps"
+               | SSE_ADDSUBPD => str "addsubpd"
+               | SSE_HADDPD => str "haddpd"
+               | SSE_HUSBPD => str "hsubpd"
             end
       datatype sse_shuffp (*shuffle floating point*)
-        = SSE_SHUFP (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
+        = SSE_SHUFPS (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
                      *selected by imm8*)
-        | SSE_BLENDP (*BLEND xmm,xmm/m128,imm8 -> xmm, elements of dst are
+        | SSE_MOVHLPS
+        | SSE_MOVLHPS
+        | SSE_BLENDPS (*BLEND xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                      *chosen from src or dst based on imm8*)
+        | SSE_SHUFPD 
+        | SSE_MOVHLPD
+        | SSE_MOVLHPD
+        | SSE_BLENDPD (*BLEND xmm,xmm/m128,imm8 -> xmm, elements of dst are
                       *chosen from src or dst based on imm8*)
       val sse_shuffp_layout
           = let
               open Layout
             in
-              fn SSE_SHUFP => str "shufp"
-               | SSE_BLENDP => str "blendp"
+              fn SSE_SHUFPS => str "shufps"
+               | SSE_BLENDPS => str "blendps"
+               | SSE_MOVHLPS => str "movhlps"
+               | SSE_MOVLHPS => str "movlhps"
+               | SSE_SHUFPD => str "shufpdd"
+               | SSE_BLENDPD => str "blendpd"
+               | SSE_MOVHLPD => str "movhlpd"
+               | SSE_MOVLHPD => str "movlhpd"
             end
       (*floating point sse move instructions*)
       datatype sse_movfp
-        =   SSE_MOVAP (*Move aligned fp data*)
-          | SSE_MOVUP (*Move unaligned fp data*)
-          | SSE_MOVLP (*Move low fp value(s)*)
-          | SSE_MOVHP (*Move high fp value (s)*)
-(*          | SSE_MOVS  (*Move scalar fp value*)*)
+        =   SSE_MOVAPS (*Move aligned fp data*)
+          | SSE_MOVUPS (*Move unaligned fp data*)
+          | SSE_MOVLPS (*Move low fp value(s)*)
+          | SSE_MOVHPS (*Move high fp value (s)*)
+          | SSE_MOVSS  (*Move scalar fp value*)
+          | SSE_MOVAPD (*Move aligned fp data*)
+          | SSE_MOVUPD (*Move unaligned fp data*)
+          | SSE_MOVLPD (*Move low fp value(s)*)
+          | SSE_MOVHPD (*Move high fp value (s)*)
+          | SSE_MOVSD  (*Move scalar fp value*)
       val sse_movfp_layout
           = let
                open Layout
             in
-               fn SSE_MOVAP => str "movap"
-                | SSE_MOVUP => str "movup"
-                | SSE_MOVLP => str "movlp"
-                | SSE_MOVHP => str "movhp"
-(*                | SSE_MOVS => str "movs"*)
+               fn SSE_MOVAPS => str "movaps"
+                | SSE_MOVUPS => str "movups"
+                | SSE_MOVLPS => str "movlps"
+                | SSE_MOVHPS => str "movhps"
+                | SSE_MOVSS => str "movss"
+                | SSE_MOVAPD => str "movapd"
+                | SSE_MOVUPD => str "movupd"
+                | SSE_MOVLPD => str "movlpd"
+                | SSE_MOVHPD => str "movhpd"
+                | SSE_MOVSD => str "movsd"
             end
       (*Now integer sse instructions*)
+(*TODO: Deal with layout issues somehow *)
         (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
         (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
       datatype sse_ibinap
@@ -1890,48 +2010,84 @@ struct
                 | SSE_PSRL => str "psrl"
                 | SSE_PSRA => str "psra"
             end
+      datatype sse_cmpfp
+        = SSE_CMPPS
+        | SSE_CMPPD
+      val sse_cmpfp_layout
+          = let
+               open Layout
+            in
+               fn SSE_CMPPS => str "cmpps"
+                | SSE_CMPPD => str "cmppd"
+            end
       (*because there are AVX 128 bit vex incoded int instructions and
        *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
        *AVX and AVX2 instructions, or maybe just do VEX128 & VEX256?*)
       (*lets just do avx 256 bit fp stuff 1st*)
 (*      datatype avx_fp_binap
-        = AVX_ADDP
-        | AVX_MULP
-        | AVX_DIVP
-        | AVX_SUBP
-        | AVX_ADDSUBP
-        | AVX_HADDP
-        | AVX_HSUBP
-        | AVX_MINP
-        | AVX_MAXP
+        = AVX_ADDPS
+        | AVX_MULPS
+        | AVX_DIVPS
+        | AVX_SUBPS
+        | AVX_ADDSUBPS
+        | AVX_HADDPS
+        | AVX_HSUBPS
+        | AVX_MINPS
+        | AVX_MAXPS
+        | AVX_ADDPD
+        | AVX_MULPD
+        | AVX_DIVPD
+        | AVX_SUBPD
+        | AVX_ADDSUBPD
+        | AVX_HADDPD
+        | AVX_HSUBPD
+        | AVX_MINPD
+        | AVX_MAXPD
       val avx_fp_binap_layout
           = let
                open Layout
             in
-               fn AVX_ADDP => str "addp"
-                | AVX_MULP => str "mulp"
-                | AVX_DIVP => str "divp"
-                | AVX_SUBP => str "subp"
-                | AVX_ADDSUBP => str "addsubp"
-                | AVX_HADDP => str "haddp"
-                | AVX_HSUBP => str "hsubp"
-                | AVX_MINP => str "minp"
-                | AVX_MAXP => str "maxp"
+               fn AVX_ADDPS => str "vaddps"
+                | AVX_MULPS => str "vmulps"
+                | AVX_DIVPS => str "vdivps"
+                | AVX_SUBPS => str "vsubps"
+                | AVX_ADDSUBPS => str "vaddsubps"
+                | AVX_HADDPS => str "vhaddps"
+                | AVX_HSUBPS => str "vhsubps"
+                | AVX_MINPS => str "vminps"
+                | AVX_MAXPS => str "vmaxps"
+                | AVX_ADDPD => str "vaddpd"
+                | AVX_MULPD => str "vmulpd"
+                | AVX_DIVPD => str "vdivpd"
+                | AVX_SUBPD => str "vsubpd"
+                | AVX_ADDSUBPD => str "vaddsubpd"
+                | AVX_HADDPD => str "vhaddpd"
+                | AVX_HSUBPD => str "vhsubpd"
+                | AVX_MINPD => str "vminpd"
+                | AVX_MAXPD => str "vmaxpd"
             end
       datatype avx_fp_binlp
-        = AVX_ANDP
-        | AVX_ANDNP
-        | AVX_ORP
-        | AVX_XORP
+        = AVX_ANDPS
+        | AVX_ANDNPS
+        | AVX_ORPS
+        | AVX_XORPS
+        | AVX_ANDPD
+        | AVX_ANDNPD
+        | AVX_ORPD
+        | AVX_XORPD
 
       val avx_fp_binlp_layout
           = let
                open Layout
             in
-               fn AVX_ANDP => str "andp"
-                | AVX_ANDNP => str "andnp"
-                | AVX_ORP => str "orp"
-                | AVX_XORP => str "xorp"
+               fn AVX_ANDPS => str "vandps"
+                | AVX_ANDNP => str "vandnps"
+                | AVX_ORPS => str "vorps"
+                | AVX_XORPS => str "vxorps"
+                | AVX_ANDPS => str "vandpd"
+                | AVX_ANDNPS => str "vandnpd"
+                | AVX_ORPS => str "vorpd"
+                | AVX_XORPS => str "vxorpd"
             end
       datatype avx_fp_mov
         = MOVAPS
@@ -1944,22 +2100,26 @@ struct
           = let
                open Layout
             in
-               fn AVX_MOVAPS => str "movaps"
-                | AVX_MOVAPD => str "movapd"
-                | AVX_MOVUPS => str "movups"
-                | AVX_MOVUPD => str "movupd"
-                | AVX_MOVDQA => str "movdqa"
-                | AVX_MOVDQU => str "movdqu"
+               fn AVX_MOVAPS => str "vmovaps"
+                | AVX_MOVAPD => str "vmovapd"
+                | AVX_MOVUPS => str "vmovups"
+                | AVX_MOVUPD => str "vmovupd"
+                | AVX_MOVDQA => str "vmovdqa"
+                | AVX_MOVDQU => str "vmovdqu"
             end
       datatype avx_fp_shuf
-        = SHUFP
-        | BLENDP
+        = SHUFPS
+        | BLENDPS
+        | SHUFPD
+        | BLENDPD
       val avx_fp_shuf_layout
           = let
                open Layout
             in
-               fn AVX_SHUFP => str "shufp"
-                | AVX_BLENDP => str "blendp"
+               fn AVX_SHUFPS => str "vshufps"
+                | AVX_BLENDPS => str "vblendps"
+                | AVX_SHUFPD => str "vshufpd"
+                | AVX_BLENDPD => str "vblendpd"
             end*)
       (* amd64 Instructions.
        * src operands are not changed by the instruction.
@@ -2131,12 +2291,14 @@ struct
                          dst: Operand.t,
                          size: Size.t}
         (* Scalar SSE move instruction.
+         * TODO: Translate all SSE_MOVS into SSE_MOVFP {instr: MOVS,...}
          *)
         | SSE_MOVS of {src: Operand.t,
                        dst: Operand.t,
                        size: Size.t}
         (* Packed SSE floating point compare*)
-        | SSE_CmpFP of {src: Operand.t,
+        | SSE_CMPFP of {oper: sse_cmpfp,
+                        src: Operand.t,
                         dst: Operand.t,
                         size: Size.t,
                         imm: Operand.t}
@@ -2195,6 +2357,16 @@ struct
       val layout
         = let
             open Layout
+            fun tert (oper, size, oper1, oper2, oper3)
+              = seq [oper,
+                     size,
+                     str " ",
+                     oper1,
+                     str " ",
+                     oper2,
+                     str " ",
+                     oper3,
+                     str ";"]
             fun bin (oper, size, oper1, oper2)
               = seq [oper,
                      size,
@@ -2398,19 +2570,19 @@ struct
                        Size.layout size,
                        Operand.layout src,
                        Operand.layout dst)
-             | SSE_CmpFP {src, dst, size, imm}
-               => bin (Operand.layout src,
-                       Operand.layout dst,
-                       Operand.layout imm,
-                       Size.layout size)
+             | SSE_CMPFP {oper,src, dst, size, imm}
+               => tert (sse_cmpfp_layout oper,
+                        Size.layout size,
+                        Operand.layout src,
+                        Operand.layout dst,
+                        Operand.layout imm,)
              | SSE_MOVS {src, dst, size}
              => bin (str "movs", 
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
              | SSE_MOVFP {instr, src, dst, size}
-               => bin ((*str "movfp",*)
-                       sse_movfp_layout instr,
+               => bin (sse_movfp_layout instr,
                        Size.layout size,
                        Operand.layout src,
                        Operand.layout dst)
@@ -2635,7 +2807,7 @@ struct
            => {uses = [src], defs = [dst], kills = []}
            | SSE_IMOV {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
-           | SSE_CmpFP {src, dst, ...}
+           | SSE_CMPFP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_COMIS {src1, src2, ...}
            => {uses = [src1, src2], defs = [], kills = []}
@@ -2889,7 +3061,7 @@ struct
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_MOVS {src, dst, ...}
            => {srcs = SOME [src], dsts = SOME [dst]}
-           | SSE_CmpFP {src, dst, ...}
+           | SSE_CMPFP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_COMIS {src1, src2, ...}
            => {srcs = SOME [src1, src2], dsts = NONE}
@@ -3045,8 +3217,9 @@ struct
            => SSE_MOVS {src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         size = size}
-           | SSE_CmpFP {src, dst, imm,  size}
-           => SSE_CmpFP {src = replacer {use = true, def = false} src,
+           | SSE_CMPFP {oper, src, dst, imm,  size}
+           => SSE_CmpFP {oper = oper,
+                         src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         imm = replacer {use = true, def = false} imm,
                         size = size}
@@ -3115,7 +3288,7 @@ struct
       val sse_movs = SSE_MOVS
       val sse_movfp = SSE_MOVFP
       val sse_imov = SSE_IMOV
-      val sse_cmpfp = SSE_CmpFP
+      val sse_cmpfp = SSE_CMPFP
       val sse_comis = SSE_COMIS
       val sse_ucomis = SSE_UCOMIS
       val sse_cvtsfp2sfp = SSE_CVTSFP2SFP

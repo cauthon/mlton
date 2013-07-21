@@ -152,7 +152,11 @@ signature PRIM =
              | Simd_Real_cmpeq of SimdReal.t (* codegen *)
              | Simd_Real_cmplt of SimdReal.t (* codegen *)
              | Simd_Real_cmpgt of SimdReal.t (* codegen *)
-             | Simd_Real_from_Array of SimdReal.t
+             | Simd_Real_cmp of SimdReal.t*Word8.word
+             | Simd_Real_fromArray of SimdReal.t
+             | Simd_Real_toArray of SimdReal.t
+             | Simd_Real_fromScalar of SimdReal.t
+             | Simd_Real_toScalar of SimdReal.t
 (*             | Simd_Real_cmp of SimdSize.t*Realsize.t*Word8.word (* codegen *)*)
              | String_toWord8Vector (* defunctorize *)
              | Thread_atomicBegin (* backend *)

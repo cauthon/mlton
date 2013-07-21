@@ -6,11 +6,18 @@ sig
   val real_size:Int32.int
   type t (* high level type *)
   type e (* element type*)
-(*math*)
+(*load/store*)
   val fromArray:e array -> t
 (*I wish I new how to get an array from an array*)
   val fromArraySlice:e slice -> t
   val fromList:e list -> t
+  val fromScalar:e -> t
+  val toScalar:t -> e(*e = lowest element in t*)
+(* because of toScalar we can get any element of a simd vector,
+ * albeit not super efficently.
+ * basically given a simd vector and an index i we can shuffle the
+ * vector so that i is the lowest element then get the scalar value*)
+(*math*)
   val add:t*t->t(*vex 256 && 128*)
   val sub:t*t->t(*vex 256 && 128*)
   val mul:t*t->t(*vex 256 && 128*)
