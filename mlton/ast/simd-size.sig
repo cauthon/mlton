@@ -36,7 +36,9 @@ sig
   datatype t = V128R32 | V128R64
              | V256R32 | V256R64
   val bits: t -> Bits.t
+  val realBits: t -> Bits.t
   val bypes: t -> Bytes.t
+  val realBytes: t -> Bytes.t
   val memoize: (t -> 'a) -> t -> 'a
   val all: t list
   val equals: t*t -> bool
@@ -51,7 +53,9 @@ sig
   datatype t = V128W8 | V128W16 | V128W32 | V128W64
              | V256W8 | V256W16 | V256W32 | V256W64
   val bits: t -> Bits.t
-  val bypes: t -> Bytes.t
+  val wordBits: t -> Bits.t
+  val bytes: t -> Bytes.t
+  val wordBytes: t -> Bytes.t
   val memoize: (t -> 'a) -> t -> 'a
   val all: t list
   val equals: t*t -> bool

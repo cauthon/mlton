@@ -1453,8 +1453,6 @@ struct
              | Simd_Real_cmplt s => sse_cmpfp 0w1
              | Simd_Real_cmpgt s => sse_cmpfp 0w6 (*actually not less than or
                                                    *equal, but same thing*)
-(*if I add Simd_Real_cmp then do something like this
- | Simd_Real_cmp (_,imm) => sse_cmpfp imm *)
              | Simd_Real_toArray s => 
                case s of 
                    V128R32 => sse_movfp Instruction.SSE_MOVUPS

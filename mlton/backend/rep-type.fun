@@ -25,7 +25,7 @@ structure Type =
         | Label of Label.t
         | Objptr of ObjptrTycon.t vector
         | Real of RealSize.t
-        | SimdReal of SimdSize.SimdReal.t
+        | SimdReal of SimdReal.t
         | Seq of t vector
         | Word of WordSize.t
 
@@ -319,8 +319,6 @@ structure Type =
                    | 16 => Word16
                    | 32 => Word32
                    | 64 => Word64
-                   | 128 => Simd128
-                   | 256 => Simd256
                    | _ => Error.bug (concat ["RepType.Type.CType.fromBits: ",
                                              Bits.toString b])
             end
@@ -338,6 +336,12 @@ structure Type =
                      (case s of
                          RealSize.R32 => C.Real32
                        | RealSize.R64 => C.Real64)
+                | SimdReal s =>
+                     (case s of 
+                          SimdReal.V128R32 => C.Simd128Real32
+                        | SimdReal.V128R64 => C.Simd128Real64
+                        | SimdReal.V256R32 => C.Simd256Real32
+                        | SimdReal.V256R64 => C.Simd256Real64)
                 | _ => C.fromBits (width t)
                          
          val name = C.name o toCType
@@ -595,11 +599,11 @@ fun checkPrimApp {args, prim, result} =
          fun make f s = let val t = f s in done ([t, t], SOME bool) end
       in
          val realCompare = make real
-         val simdRealCompare = make simdReal
          val wordCompare = make wordOrBitsOrSeq
          val objptrCompare = make (fn _ => objptr) ()
       end
       fun realTernary s = done ([real s, real s, real s], SOME (real s))
+      fun simdRealTernary s = done([simdReal s, simdReal s, word s
       fun wordShift s = done ([wordOrBitsOrSeq s, shiftArg], SOME (wordOrBitsOrSeq s))
    in
       case Prim.name prim of
@@ -657,6 +661,7 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
+                             | Simd_Real_fromScalar (
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s
        | Word_addCheck (s, _) => wordBinary s

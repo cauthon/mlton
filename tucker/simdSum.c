@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 //(*fun simdSum (v:'a vector) =
 //    (*??? pick correct simd type*)
 //    (*let simd struct=Simd, element = e, elements/simd = n*)*)
@@ -83,6 +84,77 @@ float m128Fold(float* v,int len,__m128(*fp)(__m128,__m128),float(*fs)(float,floa
   _mm_store_ss(&temp,x);
   return (*fs)(temp,result);
 }
+void m128App(float* v,int len,__m128(*fp)(__m128),float(*fs)(float)){
+  int i;
+  for(i=0;i<len;i+=4){
+    _mm_store_ps((v+i),(*fp)(_mm_load_ps(v+i)));
+  }
+  switch(len % 4) {
+    case 3: v[len-3]=(*fs)(v[len-3]);
+    case 2: v[len-2]=(*fs)(v[len-2]);
+    case 1: v[len-1]=(*fs)(v[len-1]);
+  }
+}
+void app(float* v,int len,float(*fs)(float)){
+  int i;
+  for (i=0;i<len;i++){
+    v[i]=(*fs)(v[i]);
+  }
+}
+int find(float*v,int len, float val){
+  int i=0;
+  while(i<len){
+    if (v[i] == val){
+      return i;
+    }
+    i++;
+  }
+  return -1;
+}
+//won't work for zero, but could be fixed fairly simply
+int simdFind(float* v,int len, float val){
+  register __m128 search=_mm_set1_ps(val);
+  __m128 x,y;
+  int i=0;
+  //Note, you can't just try to load from an arbitrary array index
+  //it needs to be 16 byte aligned, duh
+  x=_mm_load_ps(v);
+  y=_mm_cmpeq_ps(x,search);
+  while (!(_mm_movemask_ps(y)) && (i < len)){
+    i+=4;
+    x=_mm_load_ps(v+i);
+    y=_mm_cmpeq_ps(x,search);
+  }
+  //yes there must be a better way than 2 of the same switch statement
+  //but well, I'm tired and the only other way I can think of uses goto, and
+  //restults in an infinite loop
+  switch(_mm_movemask_ps(y)){
+    case 0x1: return i;
+    case 0x2: return i+1;
+    case 0x4: return i+2;
+    case 0x8: return i+3;
+    default: 
+      i+=4;
+        switch(len % 4){
+          case 3: x=_mm_set_ps(0.0,0.0,0.0,v[len-1]);
+            y=_mm_cmpeq_ps(x,search);
+            break;
+          case 2: x=_mm_set_ps(0.0,0.0,v[len-1],v[len-2]);
+            y=_mm_cmpeq_ps(x,search);
+            break;
+          case 1: x=_mm_set_ps(0.0,v[len-1],v[len-2],v[len-3]);
+            y=_mm_cmpeq_ps(x,search);
+            break;
+        }
+  }
+  switch(_mm_movemask_ps(y)){
+    case 0x1: return i;
+    case 0x2: return i+1;
+    case 0x4: return i+2;
+    case 0x8: return i+3;
+    default: return -1;
+  }
+}
 float Sum(float* v,int len){
   float result;
   int i;
@@ -97,33 +169,66 @@ float max(float a,float b){
 __m128 max_ps(__m128 a,__m128 b){
   return _mm_max_ps(a,b);
 }
+float times2(float a){
+  return 1/sqrtf(a);
+}
+__m128 m128_two= {2.5,2.5,2.5,2.5};
+__m128 times2_m128(__m128 a){
+  return _mm_rsqrt_ps(a);
+}
 //double simdFold(double* v,int len,__m256d(*fp)(__mm256d,__m256d));
 int main(){
   float x[1000000];
   int i;
-  clock_t start,simd,end;
-  /*  struct timespec t1,t2,t3;
+  struct timespec t1,t2,t3;
   for (i=0;i<1000000;i++){
     x[i]=i;
   }
-  start=clock();
+  __m128 (*fp)(__m128);
+  float (*fs)(float);
+  /*
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1);
   printf("The sum using simdSum is: %f\n",simdSum(x,1000000));
-  simd=clock();
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2);
   printf("The sum using Sum is:     %f\n",Sum(x,1000000));
-  end=clock();
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t3);
   printf("Clock Cycles for Simd: %ld\nClock Cycles for Sum : %ld\n",
   (t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec));*/
-  __m128 (*fp)(__m128,__m128);
+  /* __m128 (*fp)(__m128,__m128);
   float (*fs)(float,float);
-  srand((unsigned int)time(NULL));
   fp = max_ps;
   fs = max;
   for (i=0;i<10005;i++){
     x[i]=i;//(rand() % 100000);
   }
-  printf("Max of x: %f\n",m128Fold(x,10000,fp,fs));
-  return;
+  printf("Max of x: %f\n",m128Fold(x,10000,fp,fs));*/
+  /* srandom((unsigned int)time(NULL));
+  int index = ((random() % 1200000)-100000);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1);
+  printf("value %d found at index %d using simdFind\n"
+         ,index,simdFind(x,1000000,index));
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2);
+  printf("value %d found at index %d using find\n"
+         ,index,find(x,1000000,index));
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t3);
+  printf("Clock Cycles for Simd: %ld\nClock Cycles for find : %ld\n",
+  (t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec));
+  return;*/
+#define cmp_time(a,b,c)                         \
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1);  \
+  a                                             \
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2);  \
+  b                                             \
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t3);  \
+  printf(c,t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec)))
+  
+  fp = times2_m128;
+  fs = times2;
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1);
+  m128App(x,1000000,fp,fs);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2);
+  app(x,1000000,fs);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t3);
+  printf("Clock Cycles for Simd: %ld\nClock Cycles for map:  %ld\n",
+  (t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec));
 }

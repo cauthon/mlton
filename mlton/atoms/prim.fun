@@ -159,11 +159,11 @@ datatype 'a t =
  | Simd_Real_cmpeq of SimdReal.t (* codegen *)
  | Simd_Real_cmplt of SimdReal.t (* codegen *)
  | Simd_Real_cmpgt of SimdReal.t (* codegen *)
+| Simd_Real_cmp of SimdReal.t * Word8.word
  | Simd_Real_fromArray of SimdReal.t
  | Simd_Real_toArray of SimdReal.t
  | Simd_Real_fromScalar of SimdReal.t
  | Simd_Real_toScalar of SimdReal.t
-(* | Simd_Real_cmp of SimdSize.t*RealSize.t*Word8.word (* codegen *)*)
 (* | Simd_Real_castToWord of SimdSize.t*Realsize.t*WordSize.t
  | Simd_Word_castToWord of SimdSize.t*WordSize.t*WordSize.t*)
  | String_toWord8Vector (* defunctorize *)
@@ -985,14 +985,15 @@ val kind: 'a t -> Kind.t =
        | Simd_Real_hadd _ => DependsOnState
        | Simd_Real_hsub _ => DependsOnState
        | Simd_Real_addsub _ => DependsOnState
-       | Simd_Real_cmpeq s => Functional (*comparisons are bitwise*)
-       | Simd_Real_cmplt s => Functional
-       | Simd_Real_cmpgt s => Functional
+       | Simd_Real_cmpeq _ => Functional (*comparisons are bitwise*)
+       | Simd_Real_cmplt _ => Functional
+       | Simd_Real_cmpgt _ => Functional
+       | Simd_Real_cmp _ => Functional
 (*should these be SideEffect or Moveable*)
-       | Simd_Real_fromScalar s => SideEffect
-       | Simd_Real_toScalar s => SideEffect
-       | Simd_Real_fromArray s => SideEffect
-       | Simd_Real_toArray => SideEffect
+       | Simd_Real_fromScalar _ => SideEffect
+       | Simd_Real_toScalar _ => SideEffect
+       | Simd_Real_fromArray _ => SideEffect
+       | Simd_Real_toArray _ => SideEffect
        | String_toWord8Vector => Functional
        | Thread_atomicBegin => SideEffect
        | Thread_atomicEnd => SideEffect
