@@ -12,7 +12,8 @@ signature TYCON_STRUCTS =
       structure IntSize: INT_SIZE
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
-      structure SimdSize: SIMD_SIZE
+      structure SimdRealSize: SIMD_REAL_SIZE
+(*    structure SimdWordSize: SIMD_WORD*)
    end
 
 signature TYCON =

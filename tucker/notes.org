@@ -68,7 +68,9 @@
   -MLTON_CODEGEN_STATIC_INLINE is literally static inline
 * google hangout <2013-07-23 Tue>
   -Ask about layout, how to deal with opcode suffixes etc
-  -Ask about a way to make sml Arrays behave like c pointers 
+  -Ask about a way to make sml Arrays behave like c pointers
+  -REALLY need to ask above, I kinda really need pointer arathmatic
+     or something similar
 * Low level details
 ** Immediate opperands
 *** Compairson

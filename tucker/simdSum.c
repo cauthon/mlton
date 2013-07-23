@@ -111,11 +111,11 @@ int find(float*v,int len, float val){
   }
   return -1;
 }
-//won't work for zero, but could be fixed fairly simply
+
 int simdFind(float* v,int len, float val){
   register __m128 search=_mm_set1_ps(val);
   __m128 x,y;
-  int i=0;
+  int i=0,overflow=len % 4;
   //Note, you can't just try to load from an arbitrary array index
   //it needs to be 16 byte aligned, duh
   x=_mm_load_ps(v);
@@ -125,34 +125,46 @@ int simdFind(float* v,int len, float val){
     x=_mm_load_ps(v+i);
     y=_mm_cmpeq_ps(x,search);
   }
-  //yes there must be a better way than 2 of the same switch statement
-  //but well, I'm tired and the only other way I can think of uses goto, and
-  //restults in an infinite loop
-  switch(_mm_movemask_ps(y)){
-    case 0x1: return i;
-    case 0x2: return i+1;
-    case 0x4: return i+2;
-    case 0x8: return i+3;
+  //This seems like it might actually be a reasonable use of goto, but
+  //I could be wrong, I feel like I've almost been conditoned to think
+  //goto is just evil, but its not, it just needs to be used reasonably
+  //as a note, before I added goto I had two redudant switch statements
+  //which likely compiled to the same thing but was ugly
+
+ AT_END: switch(_mm_movemask_ps(y)){
+    case 0x1: return i;//0001
+    case 0x2: return i+1;//0010
+    case 0x3: return i;//0011
+    case 0x4: return i+2;//0100
+    case 0x5: return i;//0101
+    case 0x6: return i+1;//0110
+    case 0x7: return i;//0111
+    case 0x8: return i+3;//1000
+    case 0x9: return i;//1001
+    case 0xa: return i+1;//1010
+    case 0xb: return i://1011
+    case 0xc: return i+2;//1100
+    case 0xd: return i;//1101
+    case 0xe: return i+1;//1110
+    case 0xf: return i;//1111
     default: 
       i+=4;
-        switch(len % 4){
-          case 3: x=_mm_set_ps(0.0,0.0,0.0,v[len-1]);
-            y=_mm_cmpeq_ps(x,search);
-            break;
-          case 2: x=_mm_set_ps(0.0,0.0,v[len-1],v[len-2]);
-            y=_mm_cmpeq_ps(x,search);
-            break;
-          case 1: x=_mm_set_ps(0.0,v[len-1],v[len-2],v[len-3]);
-            y=_mm_cmpeq_ps(x,search);
-            break;
-        }
-  }
-  switch(_mm_movemask_ps(y)){
-    case 0x1: return i;
-    case 0x2: return i+1;
-    case 0x4: return i+2;
-    case 0x8: return i+3;
-    default: return -1;
+      //are these backwards?
+      switch(overflow){
+        case 3: x=_mm_set_ps(NAN,NAN,NAN,v[len-1]);
+          y=_mm_cmpeq_ps(x,search);
+          overflow=0;
+          goto AT_END;
+        case 2: x=_mm_set_ps(NAN,NAN,v[len-1],v[len-2]);
+          y=_mm_cmpeq_ps(x,search);
+          overflow=0;
+          goto AT_END;
+        case 1: x=_mm_set_ps(NAN,v[len-1],v[len-2],v[len-3]);
+          y=_mm_cmpeq_ps(x,search);
+          overflow=0;
+          goto AT_END;
+        default: return -1;
+      }
   }
 }
 float Sum(float* v,int len){

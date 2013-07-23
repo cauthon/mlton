@@ -21,10 +21,22 @@ Simd128_Real32_t Simd128_Real32_##opcode                \
 (Real32_t r1, Real32_t r2, Real32_t r3, Real32_t r4){   \
   return  _mm_##opcode (r1,r2,r3,r4);                   \
 }
+SimdSetFloat4(set_ps)
+SimdSetFloat4(setr_ps)
+MLTON_CODEGEN_STATIC_INLINE                       
+Simd128_Real32_t Simd128_Real_set1_ps (Real32_t r1) {
+  return  _mm_set1_ps(r1);
+}
 #define SimdSetDouble4(opcode){
 Simd128_Real64_t Simd128_Real64_##opcode                \
 (Real64_t r1, Real64_t r2, Real64_t r3, Real64_t r4){   \
   return  _mm_##opcode (r1,r2,r3,r4);                   \
+}
+SimdSetDouble4(set_ps)
+SimdSetDouble4(setr_ps)
+MLTON_CODEGEN_STATIC_INLINE                       
+Simd128_Real64_t Simd128_Real_set1_ps (Real64_t r1) {
+  return  _mm_set1_ps(r1);
 }
   /*macro to define unary simd real functions
  *being as there reall is only one its called like this

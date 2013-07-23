@@ -28,10 +28,10 @@ sig
   val memoize: (t -> 'a) -> t -> 'a
   structure SimdReal: SIMD_TYPED
 end
-signature SIMD_REAL_STRUCTS =
+signature SIMD_REAL_SIZE_STRUCTS =
   sig
   end
-signature SIMD_REAL =
+signature SIMD_REAL_SIZE =
 sig
   datatype t = V128R32 | V128R64
              | V256R32 | V256R64
@@ -61,4 +61,8 @@ sig
   val equals: t*t -> bool
   val toStringWord: t -> string
   val toStringSimd: t -> string
+  datatype cmp = cmpeq | cmplt | cmple | cmpunord
+               | cmpneq | cmpnlt | cmpnle | cmpord
+  val cmp: cmp -> Word8.word
 end
+

@@ -9,7 +9,6 @@
 (* Has a special case to make sure that true is represented as 1
  * and false is represented as 0.
  *)
-(*TUCKER: What exactly is this file*)
 functor PackedRepresentation (S: REPRESENTATION_STRUCTS): REPRESENTATION =
 struct
 
@@ -28,7 +27,7 @@ in
    structure RealSize = RealSize
    structure Runtime = Runtime
    structure Scale = Scale
-   structure SimdSize = SimdSize
+   structure SimdRealSize = SimdRealSize
    structure Statement = Statement
    structure Switch = Switch
    structure Transfer = Transfer

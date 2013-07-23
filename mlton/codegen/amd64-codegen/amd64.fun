@@ -1801,8 +1801,8 @@ because 16 => XMMS or XMMD or XMMW and
       datatype sse_unap
         = SSE_SQRTPS
         | SSE_SQRTPD
-        | SSE_RCPPS
-        | SSE_RSQRTPS
+(*        | SSE_RCPPS
+        | SSE_RSQRTPS*)
 
       val sse_unap_layout
         = let

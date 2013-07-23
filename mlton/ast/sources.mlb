@@ -33,8 +33,10 @@ local
    real-size.fun
    word-size.sig
    word-size.fun
-   simd-size.sig
-   simd-size.fun
+   simd-real-size.sig
+   simd-real-size.fun
+   simd-word-size.sig      
+   simd-word-size.fun         
    tycon-kind.sig
    tycon-kind.fun
    prim-tycons.sig

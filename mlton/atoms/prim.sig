@@ -15,7 +15,8 @@ signature PRIM_STRUCTS =
       structure Const: CONST
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
-      structure SimdSize: SIMD_SIZE
+      structure SimdRealSize: SIMD_REAL_SIZE
+(*    structure SimdWordSize: SIMD_WORD_SIZE *)
       sharing RealSize = Const.RealX.RealSize
       sharing WordSize = Const.WordX.WordSize
    end
@@ -40,13 +41,13 @@ signature PRIM =
              | CPointer_getCPointer (* ssa to rssa *)
              | CPointer_getObjptr (* ssa to rssa *)
              | CPointer_getReal of RealSize.t (* ssa to rssa *)
-(*             | CPointer_getSimd of SimdSize.t*)
+             | CPointer_getSimdReal of SimdRealSize.t
              | CPointer_getWord of WordSize.t (* ssa to rssa *)
              | CPointer_lt (* codegen *)
              | CPointer_setCPointer (* ssa to rssa *)
              | CPointer_setObjptr (* ssa to rssa *)
              | CPointer_setReal of RealSize.t (* ssa to rssa *)
-(*             | CPointer_setSimd of SimdSize.t*)
+             | CPointer_setSimdReal of SimdRealSize.t
              | CPointer_setWord of WordSize.t (* ssa to rssa *)
              | CPointer_sub (* codegen *)
              | CPointer_toWord (* codegen *)
@@ -135,29 +136,28 @@ signature PRIM =
              | Ref_assign (* ssa to ssa2 *)
              | Ref_deref (* ssa to ssa2 *)
              | Ref_ref (* ssa to ssa2 *)
-             | Simd_Real_add of SimdReal.t (* codegen *)
-             | Simd_Real_sub of SimdReal.t (* codegen *)
-             | Simd_Real_mul of SimdReal.t (* codegen *)
-             | Simd_Real_div of SimdReal.t (* codegen *)
-             | Simd_Real_min of SimdReal.t (* codegen *)
-             | Simd_Real_max of SimdReal.t (* codegen *)
-             | Simd_Real_sqrt of SimdReal.t (* codegen *)
-             | Simd_Real_and of SimdReal.t (* codegen *)
-             | Simd_Real_andn of SimdReal.t (* codegen *)
-             | Simd_Real_or of SimdReal.t (* codegen *)
-             | Simd_Real_xor of SimdReal.t (* codegen *)
-             | Simd_Real_hadd of SimdReal.t (* codegen *)
-             | Simd_Real_hsub of SimdReal.t (* codegen *)
-             | Simd_Real_addsub of SimdReal.t (* codegen *)
-             | Simd_Real_cmpeq of SimdReal.t (* codegen *)
-             | Simd_Real_cmplt of SimdReal.t (* codegen *)
-             | Simd_Real_cmpgt of SimdReal.t (* codegen *)
-             | Simd_Real_cmp of SimdReal.t*Word8.word
-             | Simd_Real_fromArray of SimdReal.t
-             | Simd_Real_toArray of SimdReal.t
-             | Simd_Real_fromScalar of SimdReal.t
-             | Simd_Real_toScalar of SimdReal.t
-(*             | Simd_Real_cmp of SimdSize.t*Realsize.t*Word8.word (* codegen *)*)
+             | Simd_Real_add of SimdRealSize.t (* codegen *)
+             | Simd_Real_sub of SimdRealSize.t (* codegen *)
+             | Simd_Real_mul of SimdRealSize.t (* codegen *)
+             | Simd_Real_div of SimdRealSize.t (* codegen *)
+             | Simd_Real_min of SimdRealSize.t (* codegen *)
+             | Simd_Real_max of SimdRealSize.t (* codegen *)
+             | Simd_Real_sqrt of SimdRealSize.t (* codegen *)
+             | Simd_Real_and of SimdRealSize.t (* codegen *)
+             | Simd_Real_andn of SimdRealSize.t (* codegen *)
+             | Simd_Real_or of SimdRealSize.t (* codegen *)
+             | Simd_Real_xor of SimdRealSize.t (* codegen *)
+             | Simd_Real_hadd of SimdRealSize.t (* codegen *)
+             | Simd_Real_hsub of SimdRealSize.t (* codegen *)
+             | Simd_Real_addsub of SimdRealSize.t (* codegen *)
+(*             | Simd_Real_cmpeq of SimdRealSize.t (* codegen *)
+             | Simd_Real_cmplt of SimdRealSize.t (* codegen *)
+             | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
+             | Simd_Real_cmp of SimdRealSize.t*Word8.word
+             | Simd_Real_fromArray of SimdRealSize.t
+             | Simd_Real_toArray of SimdRealSize.t
+             | Simd_Real_fromScalar of SimdRealSize.t
+             | Simd_Real_toScalar of SimdRealSize.t
              | String_toWord8Vector (* defunctorize *)
              | Thread_atomicBegin (* backend *)
              | Thread_atomicEnd (* backend *)
@@ -257,7 +257,7 @@ signature PRIM =
                                       intInf: 'a,
                                       real: RealSize.t -> 'a,
                                       reff: 'a -> 'a,
-                                      simdReal: SimdReal.t -> 'a,
+                                      simdReal: SimdRealSize.t -> 'a,
                                       thread: 'a,
                                       unit: 'a,
                                       vector: 'a -> 'a,

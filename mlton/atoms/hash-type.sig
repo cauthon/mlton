@@ -18,8 +18,7 @@ signature HASH_TYPE =
       sharing type realSize = RealSize.t
       sharing type tycon = Tycon.t
       sharing type wordSize = WordSize.t
-      sharing type simdSize = SimdSize.t
-      sharing type simdRealSize = SimdSize.SimdReal.t
+      sharing type simdRealSize = SimdRealSize.t
 
       structure Dest:
          sig
@@ -57,7 +56,7 @@ signature HASH_TYPE =
       val plist: t -> PropertyList.t
       val stats: unit -> Layout.t
       val string: t (* synonym for word8Vector *)
-      (* substitute (t, [(a1, t1), ..., (an, tn)]) performs simultaneous
+      (* substitute (t, [(a1, t1), ..., (an, tn)]) performs simltaneous
        * substitution of the ti for ai in t.
        * The ai's are not required to contain every free variable in t
        *)

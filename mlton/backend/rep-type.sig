@@ -15,13 +15,13 @@ signature REP_TYPE_STRUCTS =
       structure RealSize: REAL_SIZE
       structure Runtime: RUNTIME
       structure Scale: SCALE
-      structure SimdSize: SIMD_SIZE
+      structure SimdRealSize: SIMD_REAL_SIZE
       structure WordSize: WORD_SIZE
       structure WordX: WORD_X
       structure WordXVector: WORD_X_VECTOR
       sharing CFunction = Prim.CFunction
       sharing RealSize = Prim.RealSize
-      sharing SimdSize = Prim.SimdSize
+      sharing SimdRealSize = Prim.SimdRealSize
       sharing WordSize = Prim.WordSize = WordX.WordSize
       sharing WordX = WordXVector.WordX
    end
@@ -95,14 +95,14 @@ signature REP_TYPE =
       val seq: t vector -> t
       val seqIndex: unit -> t
       val shiftArg: t
-      val simdReal: SimdSize.SimdReal.t -> t
+      val simdReal: SimdRealSize.t -> t
       val string: unit -> t
       val sum: t vector -> t
       val thread: unit -> t
       val toCType: t -> CType.t
       val unit: t
       val width: t -> Bits.t
-      val word: WordSize.t -> t
+
       val wordVector: WordSize.t -> t
       val zero: Bits.t -> t
 

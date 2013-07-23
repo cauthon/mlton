@@ -22,7 +22,7 @@ structure RepType = RepType (structure CFunction = CFunction
                              structure Prim = Prim
                              structure RealSize = RealSize
                              structure Runtime = Runtime
-                             structure SimdSize = SimdSize
+                             structure SimdRealSize = SimdRealSize
                              structure Scale = Scale
                              structure WordSize = WordSize
                              structure WordX = WordX

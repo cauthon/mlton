@@ -47,13 +47,15 @@ datatype 'a t =
  | CPointer_getCPointer (* ssa to rssa *)
  | CPointer_getObjptr (* ssa to rssa *)
  | CPointer_getReal of RealSize.t (* ssa to rssa *)
-(* | CPointer_getSimd of SimdSize.t (* ssa to rssa *)*)
+ | CPointer_getSimdReal of SimdRealSize.t (* ssa to rssa *)
+(*| CPointer_getSimdWord of SimdWordSize.t (* ssa to rssa *)*)
  | CPointer_getWord of WordSize.t (* ssa to rssa *)
  | CPointer_lt (* codegen *)
  | CPointer_setCPointer (* ssa to rssa *)
  | CPointer_setObjptr (* ssa to rssa *)
  | CPointer_setReal of RealSize.t (* ssa to rssa *)
-(* | CPointer_setSimd of SimdSize.t (* ssa to rssa *)*)
+ | CPointer_setSimdReal of SimdRealSize.t (* ssa to rssa *)
+(*| CPointer_setSimdWord of SimdWordSize.t (* ssa to rssa *)*)
  | CPointer_setWord of WordSize.t (* ssa to rssa *)
  | CPointer_sub (* codegen *)
  | CPointer_toWord (* codegen *)
@@ -142,30 +144,34 @@ datatype 'a t =
  | Ref_assign (* backend *)
  | Ref_deref (* backend *)
  | Ref_ref (* backend *)
- | Simd_Real_add of SimdReal.t (* codegen *)
- | Simd_Real_sub of SimdReal.t (* codegen *)
- | Simd_Real_mul of SimdReal.t (* codegen *)
- | Simd_Real_div of SimdReal.t (* codegen *)
- | Simd_Real_min of SimdReal.t (* codegen *)
- | Simd_Real_max of SimdReal.t (* codegen *)
- | Simd_Real_sqrt of SimdReal.t (* codegen *)
- | Simd_Real_and of SimdReal.t (* codegen *)
- | Simd_Real_andn of SimdReal.t (* codegen *)
- | Simd_Real_or of SimdReal.t (* codegen *)
- | Simd_Real_xor of SimdReal.t (* codegen *)
- | Simd_Real_hadd of SimdReal.t (* codegen *)
- | Simd_Real_hsub of SimdReal.t (* codegen *)
- | Simd_Real_addsub of SimdReal.t (* codegen *)
- | Simd_Real_cmpeq of SimdReal.t (* codegen *)
- | Simd_Real_cmplt of SimdReal.t (* codegen *)
- | Simd_Real_cmpgt of SimdReal.t (* codegen *)
-| Simd_Real_cmp of SimdReal.t * Word8.word
- | Simd_Real_fromArray of SimdReal.t
- | Simd_Real_toArray of SimdReal.t
- | Simd_Real_fromScalar of SimdReal.t
- | Simd_Real_toScalar of SimdReal.t
-(* | Simd_Real_castToWord of SimdSize.t*Realsize.t*WordSize.t
- | Simd_Word_castToWord of SimdSize.t*WordSize.t*WordSize.t*)
+ | Simd_Real_add of SimdRealSize.t (* codegen *)
+ | Simd_Real_sub of SimdRealSize.t (* codegen *)
+ | Simd_Real_mul of SimdRealSize.t (* codegen *)
+ | Simd_Real_div of SimdRealSize.t (* codegen *)
+ | Simd_Real_min of SimdRealSize.t (* codegen *)
+ | Simd_Real_max of SimdRealSize.t (* codegen *)
+ | Simd_Real_sqrt of SimdRealSize.t (* codegen *)
+ | Simd_Real_and of SimdRealSize.t (* codegen *)
+ | Simd_Real_andn of SimdRealSize.t (* codegen *)
+ | Simd_Real_or of SimdRealSize.t (* codegen *)
+ | Simd_Real_xor of SimdRealSize.t (* codegen *)
+ | Simd_Real_hadd of SimdRealSize.t (* codegen *)
+ | Simd_Real_hsub of SimdRealSize.t (* codegen *)
+ | Simd_Real_addsub of SimdRealSize.t (* codegen *)
+(* | Simd_Real_cmpeq of SimdRealSize.t (* codegen *)
+ | Simd_Real_cmplt of SimdRealSize.t (* codegen *)
+ | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
+ | Simd_Real_cmp of SimdRealSize.t * SimdReal.cmp
+(* | Simd_Real_shuffle of SimdRealSize.t * Word8.word*)
+ | Simd_Real_fromArray of SimdRealSize.t
+ | Simd_Real_toArray of SimdRealSize.t
+ | Simd_Real_fromScalar of SimdRealSize.t
+ | Simd_Real_toScalar of SimdRealSize.t
+(*
+ | Simd_Word_add of SimdWordSize.t
+ | Simd_Word_sub of SimdWordSize.t
+ |
+*)
  | String_toWord8Vector (* defunctorize *)
  | Thread_atomicBegin (* backend *)
  | Thread_atomicEnd (* backend *)
@@ -228,8 +234,8 @@ fun toString (n: 'a t): string =
       fun real (s: RealSize.t, str: string): string =
          concat ["Real", RealSize.toString s, "_", str]
       fun simd_real (s: SimdReal.t,str: string): string =
-            concat ["Simd", SimdReal.toStringSimd s, "_", "Real",
-                    SimdReal.toStringReal s, "_", str]
+            concat ["Simd", SimdRealSize.toStringSimd s, "_", "Real",
+                    SimdRealSize.toStringReal s, "_", str]
       fun sign {signed} = if signed then "WordS" else "WordU"
       fun word (s: WordSize.t, str: string): string =
          concat ["Word", WordSize.toString s, "_", str]
@@ -263,10 +269,16 @@ fun toString (n: 'a t): string =
        | CPointer_getObjptr => "CPointer_getObjptr"
        | CPointer_getReal s => cpointerGet ("Real", RealSize.toString s)
        | CPointer_getWord s => cpointerGet ("Word", WordSize.toString s)
+       | CPointer_getSimdReal s => 
+         cpointerGet ("Simd", concat [SimdRealSize.toStringSimd s,"_",
+                                      "Real",SimdRealSize.toStringReal s]
        | CPointer_lt => "CPointer_lt"
        | CPointer_Setcpointer => "CPointer_setCPointer"
        | CPointer_setObjptr => "CPointer_setObjptr"
        | CPointer_setReal s => cpointerSet ("Real", RealSize.toString s)
+       | CPointer_setSimdReal s => 
+         cpointerSet ("Simd", concat [SimdRealSize.toStringSimd s,"_",
+                                      "Real",SimdRealSize.toStringReal s]
        | CPointer_setWord s => cpointerSet ("Word", WordSize.toString s)
        | CPointer_sub => "CPointer_sub"
        | CPointer_toWord => "CPointer_toWord"
@@ -352,9 +364,10 @@ fun toString (n: 'a t): string =
        | Simd_Real_hadd s => simd_real (s,"hadd")
        | Simd_Real_hsub s => simd_real (s,"hsub")
        | Simd_Real_addsub s => simd_real (s,"addsub")
-       | Simd_Real_cmpeq s => simd_real (s,"cmpeq")
+(*       | Simd_Real_cmpeq s => simd_real (s,"cmpeq")
        | Simd_Real_cmplt s => simd_real (s,"cmplt")
-       | Simd_Real_cmpgt s => simd_real (s,"cmpgt")
+       | Simd_Real_cmpgt s => simd_real (s,"cmpgt")*)
+       | Simd_Real_cmp (s,c) => simd_real (s,SimdRealSize.cmpString c)
        | Simd_Real_fromScalar s => simd_real (s,"loads")
        | Simd_Real_toScalar s => simd_real (s, "stores")
        | Simd_Real_fromArray s => simd_real (s,"load")
@@ -424,11 +437,15 @@ val equals: 'a t * 'a t -> bool =
     | (CPointer_getCPointer, CPointer_getCPointer) => true
     | (CPointer_getObjptr, CPointer_getObjptr) => true
     | (CPointer_getReal s, CPointer_getReal s') => RealSize.equals (s, s')
+    | (CPointer_getSimdReal s, CPointer_getSimdReal s') => 
+      SimdRealSize.equals (s, s')
     | (CPointer_getWord s, CPointer_getWord s') => WordSize.equals (s, s')
     | (CPointer_lt, CPointer_lt) => true
     | (CPointer_setCPointer, CPointer_setCPointer) => true
     | (CPointer_setObjptr, CPointer_setObjptr) => true
     | (CPointer_setReal s, CPointer_setReal s') => RealSize.equals (s, s')
+    | (CPointer_setSimdReal s, CPointer_setSimdReal s') => 
+      SimdRealSize.equals (s, s')
     | (CPointer_setWord s, CPointer_setWord s') => WordSize.equals (s, s')
     | (CPointer_sub, CPointer_sub) => true
     | (CPointer_toWord, CPointer_toWord) => true
@@ -506,31 +523,33 @@ val equals: 'a t * 'a t -> bool =
     | (Ref_assign, Ref_assign) => true
     | (Ref_deref, Ref_deref) => true
     | (Ref_ref, Ref_ref) => true
-    | (Simd_Real_add s, Simd_Real_add s') =>SimdReal.equals (s,s')
-    | (Simd_Real_sub s, Simd_Real_sub s') => SimdReal.equals (s,s')
-    | (Simd_Real_mul s, Simd_Real_mul s') => SimdReal.equals (s,s')
-    | (Simd_Real_div s, Simd_Real_div s') => SimdReal.equals (s,s')
-    | (Simd_Real_max s, Simd_Real_max s') => SimdReal.equals (s,s')
-    | (Simd_Real_min s, Simd_Real_min s') => SimdReal.equals (s,s')
-    | (Simd_Real_sqrt s, Simd_Real_sqrt s') => SimdReal.equals (s,s')
-    | (Simd_Real_and s, Simd_Real_and s') => SimdReal.equals (s,s')
-    | (Simd_Real_andn s, Simd_Real_andn s') => SimdReal.equals (s,s')
-    | (Simd_Real_or s, Simd_Real_or s') => SimdReal.equals (s,s')
-    | (Simd_Real_xor s, Simd_Real_xor s') => SimdReal.equals (s,s')
-    | (Simd_Real_hadd s, Simd_Real_hadd s') => SimdReal.equals (s,s')
-    | (Simd_Real_hsub s, Simd_Real_hsub s') => SimdReal.equals (s,s')
-    | (Simd_Real_addsub s, Simd_Real_addsub s') => SimdReal.equals (s,s')
-    | (Simd_Real_cmpeq s, Simd_Real_cmpeq s') => SimdReal.equals (s,s')
-    | (Simd_Real_cmplt s, Simd_Real_cmplt s') => SimdReal.equals (s,s')
-    | (Simd_Real_cmpgt s, Simd_Real_cmpgt s') => SimdReal.equals (s,s')
+    | (Simd_Real_add s, Simd_Real_add s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_sub s, Simd_Real_sub s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_mul s, Simd_Real_mul s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_div s, Simd_Real_div s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_max s, Simd_Real_max s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_min s, Simd_Real_min s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_sqrt s, Simd_Real_sqrt s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_and s, Simd_Real_and s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_andn s, Simd_Real_andn s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_or s, Simd_Real_or s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_xor s, Simd_Real_xor s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_hadd s, Simd_Real_hadd s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_shub s, Simd_Real_hsub s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_addsub s, Simd_Real_addsub s') => SimdRealSize.equals (s,s')
+(*    | (Simd_Real_cmpeq s, Simd_Real_cmpeq s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_cmplt s, Simd_Real_cmplt s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_cmpgt s, Simd_Real_cmpgt s') => SimdRealSize.equals (s,s')*)
+    | (Simd_Real_cmp (s,c),Simd_Real_cmp (s',c')) => SimdRealSize.equals(s,s')
+                                             andalso SimdRealSize.equals(c,c')
     | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
-      SimdReal.equals (s,s')
+      SimdRealSize.equals (s,s')
     | (Simd_Real_toArray s, Simd_Real_toArray s') =>
-      SimdReal.equals (s,s')
+      SimdRealSize.equals (s,s')
     | (Simd_Real_fromScalar s, Simd_Real_fromScalar s') =>
-      SimdReal.equals (s,s')
+      SimdRealSize.equals (s,s')
     | (Simd_Real_toScalar s, Simd_Real_toScalar s') =>
-      SimdReal.equals (s,s')
+      SimdRealSize.equals (s,s')
     | (String_toWord8Vector, String_toWord8Vector) => true
     | (Thread_atomicBegin, Thread_atomicBegin) => true
     | (Thread_atomicEnd, Thread_atomicEnd) => true
@@ -612,11 +631,13 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | CPointer_getCPointer => CPointer_getCPointer
     | CPointer_getObjptr => CPointer_getObjptr
     | CPointer_getReal z => CPointer_getReal z
+    | CPointer_getSimdReal z => CPointer_getSimdReal z
     | CPointer_getWord z => CPointer_getWord z
     | CPointer_lt => CPointer_lt
     | CPointer_setCPointer => CPointer_setCPointer
     | CPointer_setObjptr => CPointer_setObjptr
     | CPointer_setReal z => CPointer_setReal z
+    | CPointer_setSimdReal z => CPointer_setSimdReal z
     | CPointer_setWord z => CPointer_setWord z
     | CPointer_sub => CPointer_sub
     | CPointer_toWord => CPointer_toWord
@@ -703,9 +724,10 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Real_hadd s => Simd_Real_hadd s
     | Simd_Real_hsub s => Simd_Real_hsub s
     | Simd_Real_addsub s => Simd_Real_addsub s
-    | Simd_Real_cmpeq s => Simd_Real_cmpeq s
+(*    | Simd_Real_cmpeq s => Simd_Real_cmpeq s
     | Simd_Real_cmplt s => Simd_Real_cmplt s
-    | Simd_Real_cmpgt s => Simd_Real_cmpgt s
+    | Simd_Real_cmpgt s => Simd_Real_cmpgt s*)
+    | Simd_Real_cmp (s,c) => Simd_Real_cmp (s,c)
     | Simd_Real_fromArray s => Simd_Real_fromArray s
     | Simd_Real_toArray s => Simd_Real_toArray s
     | Simd_Real_fromScalar s => Simd_Real_fromScalar s
@@ -784,8 +806,11 @@ fun cpointerGet ctype =
        | Word16 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 64))
-(*       | Simd128 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 128))
-       | Simd256 => CPointer_getSimd (SimdSize.fromBits (Bits.fromInt 256))*)
+       | Simd128Real32 => CPointer_getSimdReal (SimdRealSize.V128R32)
+       | Simd128Real64 => CPointer_getSimdReal (SimdRealSize.V128R64)
+       | Simd256Real32 => CPointer_getSimdReal (SimdRealSize.V256R32)
+       | Simd256Real64 => CPointer_getSimdReal (SimdRealSize.V256R64) 
+
    end
 val cpointerLt = CPointer_lt
 fun cpointerSet ctype = 
@@ -804,8 +829,10 @@ fun cpointerSet ctype =
        | Word16 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 64))
-(*       | Simd128 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 128))
-       | Simd256 => CPointer_setSimd (SimdSize.fromBits (Bits.fromInt 256))*)
+       | Simd128Real32 => CPointer_setSimdReal (SimdRealSize.V128R32)
+       | Simd128Real64 => CPointer_setSimdReal (SimdRealSize.V128R64)
+       | Simd256Real32 => CPointer_setSimdReal (SimdRealSize.V256R32)
+       | Simd256Real64 => CPointer_setSimdReal (SimdRealSize.V256R64)       
    end
 val cpointerSub = CPointer_sub
 val cpointerToWord = CPointer_toWord
@@ -854,7 +881,7 @@ val isCommutative =
     | Real_qequal _ => true
     | SimdReal_add _ => true
     | SimdReal_mul _ => true
-    | SimdReal_equal _ => true
+    | SimdReal_cmp _ => true
     | SimdReal_andb _ => true
     | SimdReal_andnb _ => true
     | SimdReal_orb _ => true
@@ -895,11 +922,13 @@ val kind: 'a t -> Kind.t =
        | CPointer_getCPointer => DependsOnState
        | CPointer_getObjptr => DependsOnState
        | CPointer_getReal _ => DependsOnState
+       | CPointer_getSimdReal _ => DependsOnState
        | CPointer_getWord _ => DependsOnState
        | CPointer_lt => Functional
        | CPointer_setCPointer => SideEffect
        | CPointer_setObjptr => SideEffect
        | CPointer_setReal _ => SideEffect
+       | CPointer_setSimdReal _ => SideEffect
        | CPointer_setWord _ => SideEffect
        | CPointer_sub => Functional
        | CPointer_toWord => Functional
@@ -985,9 +1014,9 @@ val kind: 'a t -> Kind.t =
        | Simd_Real_hadd _ => DependsOnState
        | Simd_Real_hsub _ => DependsOnState
        | Simd_Real_addsub _ => DependsOnState
-       | Simd_Real_cmpeq _ => Functional (*comparisons are bitwise*)
+(*       | Simd_Real_cmpeq _ => Functional (*comparisons are bitwise*)
        | Simd_Real_cmplt _ => Functional
-       | Simd_Real_cmpgt _ => Functional
+       | Simd_Real_cmpgt _ => Functional*)
        | Simd_Real_cmp _ => Functional
 (*should these be SideEffect or Moveable*)
        | Simd_Real_fromScalar _ => SideEffect
@@ -1089,9 +1118,10 @@ local
        (Simd_Real_hadd s),
        (Simd_Real_hsub s),
        (Simd_Real_addsub s),
-       (Simd_Real_cmpeq s),
+(*       (Simd_Real_cmpeq s),
        (Simd_Real_cmplt s),
-       (Simd_Real_cmpgt s),
+       (Simd_Real_cmpgt s),*)
+       (Simd_Real_cmp (s,c)),
        (Simd_Real_fromArray s),
        (Simd_Real_toArray s),
        (Simd_Real_fromScalar s),
@@ -1244,8 +1274,11 @@ in
           fun doit (all, get, set) =
              List.concatMap (all, fn s => [get s, set s])
        in
-          List.concat [doit (RealSize.all, CPointer_getReal, CPointer_setReal),
-                       doit (WordSize.prims, CPointer_getWord, CPointer_setWord)]
+          List.concat 
+            [doit (RealSize.all, CPointer_getReal, CPointer_setReal),
+             doit (WordSize.prims, CPointer_getWord, CPointer_setWord),
+             doit (SimdRealSize.all, CPointer_getSimdReal,
+                   CPointer_setSimdReal)]
        end
 end
 
@@ -1290,7 +1323,7 @@ fun 'a checkApp (prim: 'a t,
                              intInf: 'a,
                              real: RealSize.t -> 'a,
                              reff: 'a -> 'a,
-                             simdReal: SimdReal.t -> 'a,
+                             simdReal: SimdRealSize.t -> 'a,
                              thread: 'a,
                              unit: 'a,
                              vector: 'a -> 'a,
@@ -1395,6 +1428,8 @@ fun 'a checkApp (prim: 'a t,
             oneTarg (fn t => (twoArgs (cpointer, cptrdiff), t))
        | CPointer_getReal s =>
             noTargs (fn () => (twoArgs (cpointer, cptrdiff), real s))
+       | CPointer_getSimdReal s =>
+            noTargs (fn () => (twoArgs (cpointer, cptrdiff), simdReal s))
        | CPointer_getWord s =>
             noTargs (fn () => (twoArgs (cpointer, cptrdiff), word s))
        | CPointer_lt =>
@@ -1406,6 +1441,8 @@ fun 'a checkApp (prim: 'a t,
             oneTarg (fn t => (threeArgs (cpointer, cptrdiff, t), unit))
        | CPointer_setReal s =>
             noTargs (fn () => (threeArgs (cpointer, cptrdiff, real s), unit))
+       | CPointer_setSimdReal s =>
+            noTargs (fn () => (threeArgs (cpointer, cptrdiff, simdReal s),unit))
        | CPointer_setWord s =>
             noTargs (fn () => (threeArgs (cpointer, cptrdiff, word s), unit))
        | CPointer_sub =>
@@ -1502,9 +1539,12 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_addsub s => simdRealBinary s
   (* simd comparisons can't just return a bool as they need to
    * compare multiple objects*)
-       | Simd_Real_cmpeq s => simdRealBinary s
+       | Simd_Real_cmp (s,c) => 
+         noTargs (fn () => (threeArgs(simdReal s,simdReal s,
+                                      SimdRealSize.cmp c))(*...?*)
+(*       | Simd_Real_cmpeq s => simdRealBinary s
        | Simd_Real_cmplt s => simdRealBinary s
-       | Simd_Real_cmpgt s => simdRealBinary s
+       | Simd_Real_cmpgt s => simdRealBinary s*)
 (*Need to ask about these, not sure if I need a type arg or not*)
        | Simd_Real_toArray s =>
          noTargs (fn () => (oneArg (simdReal s), array t))
@@ -2278,21 +2318,6 @@ fun ('a, 'b) layoutApp (p: 'a t,
        | Ref_assign => two ":="
        | Ref_deref => one "!"
        | Ref_ref => one "ref"
-       (* TUCKER: Might need to change things here, we'll see*)
-       | Simd_Real_add _ => two "add"
-       | Simd_Real_sub _ => two "sub"
-       | Simd_Real_mul _ => two "mul"
-       | Simd_Real_div _ => two "div"
-       | Simd_Real_max _ => two "max"
-       | Simd_Real_min _ => two "min"
-       | Simd_Real_sqrt _ => one "sqrt"
-       | Simd_Real_and _ => two "and"
-       | Simd_Real_andn _ => two "andn"
-       | Simd_Real_or _ => two "or"
-       | Simd_Real_xor _ => two "xor"
-       | Simd_Real_hadd _ => two "hadd"
-       | Simd_Real_hsub _ => two "hsub"
-       | Simd_Real_addsub _ => two "addsub"
        | Vector_length => one "length"
        | Word_add _ => two "+"
        | Word_addCheck _ => two "+"

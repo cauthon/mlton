@@ -142,13 +142,12 @@ fun name t =
     | Word16 => "W16"
     | Word32 => "W32"
     | Word64 => "W64"
-(*NOTE TUCKER: FIX THIS*)
-    | Simd128_Real32 => "V128"
-    | Simd128_Real64 => "V128"
-    | Simd128_WordX => "V128"
-    | Simd256_Real32 => "V256"
-    | Simd256_Real64 => "V256"
-    | Simd256_WordX => "V256"
+    | Simd128_Real32 => "V128R32"
+    | Simd128_Real64 => "V128R64"
+    | Simd128_WordX => "V128WX"
+    | Simd256_Real32 => "V256R32"
+    | Simd256_Real64 => "V256R64"
+    | Simd256_WordX => "V256WX"
 
 fun align (t: t, b: Bytes.t): Bytes.t =
    Bytes.align (b, {alignment = size t})
@@ -173,16 +172,15 @@ fun word' (b: Bits.t, {signed: bool}): t =
 
 fun word (s: WordSize.t, {signed: bool}): t =
    word' (WordSize.bits s, {signed = signed})
-(*TUCKER: FIX THIS*)
-fun simdReal (s: SimdSize.t,r: RealSize.t):t =
-   case Bits.toInt (SimdSize.bits s) of
+fun simdReal (s: SimdRealSize.t) =
+   case Bits.toInt (SimdRealSize.bits s) of
       128 => 
-      (case Bits.toInt (RealSize.bits r) of
+      (case Bits.toInt (SimdRealSize.realBits r) of
           32 => Simd128_Real32
         | 64 => Simd128_Real64
         | Error.bug "CType.simdReal")
     | 256 => 
-      (case Bits.toInt (RealSize.bits r) of
+      (case Bits.toInt (SimdRealSize.realBits r) of
            32 => Simd256_Real32
          | 64 => Simd256_Real64
          | Error.bug "CType.simdReal")

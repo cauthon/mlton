@@ -1,10 +1,21 @@
+(*could a functor work here or not?*)
+functor SimdXRealY(sig (*type/val/datatype..?*)SimdReal.t end):SIMD_REAL =
+struct
+  val vec_size = Bits.toInt(SimdReal.simdBits t)
+  val real_size = Bits.toInt(SimdReal.realBits t)
+end
 structure Simd128Real32 : SIMD_REAL =
 struct
+  type t = SimdReal.V128R32
+  type e = RealSize.R32
   val vec_size = 128
   val real_size = 32
 (*I suppose this should be a conditonal for sse, but all 64 bit
  *computers have sse*)
   val fromArray = _prim "Simd128_Real32_load"
+  val toArray = _prim "Simd128_Rea32_store"
+  val fromScalar = _prim "Simd128_Real32_loads"
+  val toScalar = _prim "Simd128_Real32_stores"
   val fromList = fn x => fromArray(Array.fromList x)
   val add = _prim "Simd128_Real32_add"
 (*...*)
@@ -19,6 +30,14 @@ struct
   val addsub = Software SSE3.addsub
 (*endif*)
 (*non primitives*)
+  datatype cmp = cmpgt | cmpngt | cmpge | cmpnge | SimdRealSize.cmp
+  fun cmp(a,b,c) =
+      case c of
+          cmpgt => cmp(b,a,cmple)
+        | cmpngt => cmp(a,b,cmple)
+        | cmpge => cmp(b,a,cmplt)
+        | cmpnge => cmp(a,b,cmplt)
+        | _ => _prim (concat ["Simd128_Real32_",SimdRealSize.cmpString c])
 (*val not = andn 0xffffffffffffffffffffffffffffffff s*)
 end                        
 structure Simd128Real64 : SIMD_REAL =
