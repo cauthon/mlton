@@ -13,7 +13,7 @@ signature ATOMS_STRUCTS =
       structure IntSize: INT_SIZE
       structure RealSize: REAL_SIZE
       structure Record: RECORD
-      structure SimdSize: SIMD_SIZE
+      structure SimdRealSize: SIMD_REAL_SIZE
       structure SortedRecord: RECORD
       structure Tyvar: TYVAR
       structure WordSize: WORD_SIZE
@@ -52,7 +52,8 @@ signature ATOMS' =
          = Tycon.RealSize
       sharing RealX = Const.RealX
       sharing SourceInfo = ProfileExp.SourceInfo
-      sharing SimdSize = CType.SimdSize = Prim.SimdSize = Tycon.SimdSize
+      sharing SimdRealSize = CType.SimdRealSize = 
+                          Prim.SimdRealSize = Tycon.SimdRealSize
       sharing WordSize = CType.WordSize = Prim.WordSize = Tycon.WordSize
          = WordX.WordSize
       sharing WordX = Const.WordX = WordXVector.WordX
@@ -88,7 +89,7 @@ signature ATOMS =
       sharing RealSize = Atoms.RealSize
       sharing RealX = Atoms.RealX
       sharing Record = Atoms.Record
-      sharing SimdSize = Atoms.SimdSize
+      sharing SimdRealSize = Atoms.SimdRealSize
       sharing SortedRecord = Atoms.SortedRecord
       sharing SourceInfo = Atoms.SourceInfo
       sharing Tycon = Atoms.Tycon

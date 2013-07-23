@@ -102,7 +102,7 @@ signature REP_TYPE =
       val toCType: t -> CType.t
       val unit: t
       val width: t -> Bits.t
-
+      val word: WordSize.t -> t
       val wordVector: WordSize.t -> t
       val zero: Bits.t -> t
 

@@ -5,11 +5,11 @@ datatype t = V128R32 | V128R64
            | V256R32 | V256R64
 val all = [V128R32, V128R64, V256R32, V256R64]
 val equals = op =
-val real =
+(*val real =
  fn V128R32 => RealSize.R32
   | V128R64 => RealSize.R64
   | V256R32 => RealSize.R32
-  | V256R64 => RealSize.R64
+  | V256R64 => RealSize.R64*)
 val bytes = 
  fn V128R32 => Bytes.fromInt 16
   | V128R64 => Bytes.fromInt 16
@@ -35,28 +35,29 @@ val toStringReal =
 val memoize: (t -> 'a) -> t -> 'a =
    fn f =>
    let
-     val v128r32 => f V128R32
-     val v128r64 => f V128R64
-     val v256r32 => f V256R32
-     val v256r64 => f V256R64
+     val v128r32 = f V128R32
+     val v128r64 = f V128R64
+     val v256r32 = f V256R32
+     val v256r64 = f V256R64
    in
      fn  V128R32 => v128r32
-   | V128R64 => v128r64
-   | V256R32 => v256r32
-   | V256R64 => v256r64
+       | V128R64 => v128r64
+       | V256R32 => v256r32
+       | V256R64 => v256r64
+   end
 datatype cmp = cmpeq | cmplt | cmple | cmpunord
                | cmpneq | cmpnlt | cmpnle | cmpord
-val cmp (c:cmp) =
+fun cmp (c:cmp) =
     case c of
-        cmpeq => 0w0
-      | cmplt => 0w1
-      | cmple => 0w2
-      | cmpunord => 0w3
-      | cmpneq => 0w4
-      | cmpnlt => 0w5
-      | cmpnle => 0w6
-      | cmpord => 0w7
-val cmpString (c:cmp) =
+        cmpeq => 0
+      | cmplt => 1
+      | cmple => 2
+      | cmpunord => 3
+      | cmpneq => 4
+      | cmpnlt => 5
+      | cmpnle => 6
+      | cmpord => 7
+fun cmpString (c:cmp) =
     case c of
         cmpeq => "cmpeq"
       | cmplt => "cmplt"
@@ -66,4 +67,15 @@ val cmpString (c:cmp) =
       | cmpnlt => "cmpnlt"
       | cmpnle => "cmpnle"
       | cmpord => "cmpord"
+(*fun cmpString (i:int) =
+    case c of
+        0 => "cmpeq"
+      | 1 => "cmplt"
+      | 2 => "cmple"
+      | 3 => "cmpunord"
+      | 4 => "cmpneq"
+      | 5 => "cmpnlt"
+      | 6 => "cmpnle"
+      | 7 => "cmpord"
+      | _ => Error.bug "SimdRealSize.cmp"*)
    end

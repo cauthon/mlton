@@ -1,3 +1,5 @@
-#include <x86intrin.h>
+#include "platform.h"
+
+#ifdef __x86_64__
 #include "Simd-opts.h"
-#include "Simd-types.h"
+#endif

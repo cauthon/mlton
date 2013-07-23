@@ -77,7 +77,6 @@ signature PRIM_TYCONS =
                   tycon: tycon} list
       val real: RealSize.t -> tycon
       val reals: (tycon * RealSize.t) vector
-      val simd: SimdSize.t -> tycon
       val simdReal: SimdRealSize.t -> tycon
       val simdReals: (tycon * SimdRealSize.t) vector
 (*    val simdWord: SimdWordSize.t -> tycon

@@ -161,7 +161,7 @@ datatype 'a t =
 (* | Simd_Real_cmpeq of SimdRealSize.t (* codegen *)
  | Simd_Real_cmplt of SimdRealSize.t (* codegen *)
  | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
- | Simd_Real_cmp of SimdRealSize.t * SimdReal.cmp
+ | Simd_Real_cmp of SimdRealSize.t * SimdRealSize.cmp
 (* | Simd_Real_shuffle of SimdRealSize.t * Word8.word*)
  | Simd_Real_fromArray of SimdRealSize.t
  | Simd_Real_toArray of SimdRealSize.t
@@ -170,7 +170,6 @@ datatype 'a t =
 (*
  | Simd_Word_add of SimdWordSize.t
  | Simd_Word_sub of SimdWordSize.t
- |
 *)
  | String_toWord8Vector (* defunctorize *)
  | Thread_atomicBegin (* backend *)
@@ -233,7 +232,7 @@ fun toString (n: 'a t): string =
    let
       fun real (s: RealSize.t, str: string): string =
          concat ["Real", RealSize.toString s, "_", str]
-      fun simd_real (s: SimdReal.t,str: string): string =
+      fun simd_real (s: SimdRealSize.t,str: string): string =
             concat ["Simd", SimdRealSize.toStringSimd s, "_", "Real",
                     SimdRealSize.toStringReal s, "_", str]
       fun sign {signed} = if signed then "WordS" else "WordU"
@@ -271,14 +270,14 @@ fun toString (n: 'a t): string =
        | CPointer_getWord s => cpointerGet ("Word", WordSize.toString s)
        | CPointer_getSimdReal s => 
          cpointerGet ("Simd", concat [SimdRealSize.toStringSimd s,"_",
-                                      "Real",SimdRealSize.toStringReal s]
+                                      "Real",SimdRealSize.toStringReal s])
        | CPointer_lt => "CPointer_lt"
        | CPointer_Setcpointer => "CPointer_setCPointer"
        | CPointer_setObjptr => "CPointer_setObjptr"
        | CPointer_setReal s => cpointerSet ("Real", RealSize.toString s)
        | CPointer_setSimdReal s => 
          cpointerSet ("Simd", concat [SimdRealSize.toStringSimd s,"_",
-                                      "Real",SimdRealSize.toStringReal s]
+                                      "Real",SimdRealSize.toStringReal s])
        | CPointer_setWord s => cpointerSet ("Word", WordSize.toString s)
        | CPointer_sub => "CPointer_sub"
        | CPointer_toWord => "CPointer_toWord"
@@ -357,10 +356,10 @@ fun toString (n: 'a t): string =
        | Simd_Real_max s => simd_real (s,"max")
        | Simd_Real_min s => simd_real (s,"min")
        | Simd_Real_sqrt s => simd_real (s,"sqrt")
-       | Simd_Real_and s => simd_real (s,"and")
-       | Simd_Real_andn s => simd_real (s,"andn")
-       | Simd_Real_or s => simd_real (s,"or")
-       | Simd_Real_xor s => simd_real (s,"xor")
+       | Simd_Real_and s => simd_real (s,"andb")
+       | Simd_Real_andn s => simd_real (s,"andnotb")
+       | Simd_Real_or s => simd_real (s,"orb")
+       | Simd_Real_xor s => simd_real (s,"xorb")
        | Simd_Real_hadd s => simd_real (s,"hadd")
        | Simd_Real_hsub s => simd_real (s,"hsub")
        | Simd_Real_addsub s => simd_real (s,"addsub")
@@ -371,7 +370,7 @@ fun toString (n: 'a t): string =
        | Simd_Real_fromScalar s => simd_real (s,"loads")
        | Simd_Real_toScalar s => simd_real (s, "stores")
        | Simd_Real_fromArray s => simd_real (s,"load")
-       | Simd_Real_toArray => simd_real (s,"store")
+       | Simd_Real_toArray s => simd_real (s,"store")
        | String_toWord8Vector => "String_toWord8Vector"
        | Thread_atomicBegin => "Thread_atomicBegin"
        | Thread_atomicEnd => "Thread_atomicEnd"
@@ -535,13 +534,13 @@ val equals: 'a t * 'a t -> bool =
     | (Simd_Real_or s, Simd_Real_or s') => SimdRealSize.equals (s,s')
     | (Simd_Real_xor s, Simd_Real_xor s') => SimdRealSize.equals (s,s')
     | (Simd_Real_hadd s, Simd_Real_hadd s') => SimdRealSize.equals (s,s')
-    | (Simd_Real_shub s, Simd_Real_hsub s') => SimdRealSize.equals (s,s')
+    | (Simd_Real_hsub s, Simd_Real_hsub s') => SimdRealSize.equals (s,s')
     | (Simd_Real_addsub s, Simd_Real_addsub s') => SimdRealSize.equals (s,s')
 (*    | (Simd_Real_cmpeq s, Simd_Real_cmpeq s') => SimdRealSize.equals (s,s')
     | (Simd_Real_cmplt s, Simd_Real_cmplt s') => SimdRealSize.equals (s,s')
     | (Simd_Real_cmpgt s, Simd_Real_cmpgt s') => SimdRealSize.equals (s,s')*)
     | (Simd_Real_cmp (s,c),Simd_Real_cmp (s',c')) => SimdRealSize.equals(s,s')
-                                             andalso SimdRealSize.equals(c,c')
+                                             andalso op=(c,c')
     | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
       SimdRealSize.equals (s,s')
     | (Simd_Real_toArray s, Simd_Real_toArray s') =>
@@ -879,13 +878,13 @@ val isCommutative =
     | Real_mul _ => true
     | Real_equal _ => true
     | Real_qequal _ => true
-    | SimdReal_add _ => true
+(*    | SimdReal_add _ => true
     | SimdReal_mul _ => true
     | SimdReal_cmp _ => true
     | SimdReal_andb _ => true
     | SimdReal_andnb _ => true
     | SimdReal_orb _ => true
-    | SimdReal_xorb _ => true
+    | SimdReal_xorb _ => true*)
     | Word_add _ => true
     | Word_addCheck _ => true
     | Word_andb _ => true
@@ -1103,7 +1102,7 @@ local
        (Real_qequal s),
        (Real_round s),
        (Real_sub s)]
-   fun simdReals (s: SimdReal.t) =
+   fun simdReals (s: SimdRealSize.t) =
       [(Simd_Real_add s),
        (Simd_Real_sub s),
        (Simd_Real_mul s),
@@ -1121,11 +1120,12 @@ local
 (*       (Simd_Real_cmpeq s),
        (Simd_Real_cmplt s),
        (Simd_Real_cmpgt s),*)
-       (Simd_Real_cmp (s,c)),
        (Simd_Real_fromArray s),
        (Simd_Real_toArray s),
        (Simd_Real_fromScalar s),
        (Simd_Real_toScalar s)]
+   fun simdRealcmp (s: SimdRealSize.t,c: SimdRealSize.cmp) =
+       [(Simd_Real_cmp (s,c))]
 
    fun wordSigns (s: WordSize.t, signed: bool) =
       let
@@ -1241,7 +1241,7 @@ in
        World_save]
       @ List.concat [List.concatMap (RealSize.all, reals),
                      List.concatMap (WordSize.prims, words),
-                     List.concatMap (SimdReal.all, simdReals)]
+                     List.concatMap (SimdRealSize.all, simdReals)]
       @ let
            val real = RealSize.all
            val word = WordSize.all
@@ -1390,7 +1390,11 @@ fun 'a checkApp (prim: 'a t,
       val shiftArg = word WordSize.shiftArg
       val bigIntInfWord = word (WordSize.bigIntInfWord ())
       val smallIntInfWord = word (WordSize.smallIntInfWord ())
-
+      val simdRealtoReal =
+       fn V128R32 => RealSize.R32
+        | V128R64 => RealSize.R64
+        | V256R32 => RealSize.R32
+        | V256R64 => RealSize.R64
       val word8 = word WordSize.word8
       val word32 = word WordSize.word32
       fun intInfBinary () =
@@ -1539,21 +1543,21 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_addsub s => simdRealBinary s
   (* simd comparisons can't just return a bool as they need to
    * compare multiple objects*)
-       | Simd_Real_cmp (s,c) => 
-         noTargs (fn () => (threeArgs(simdReal s,simdReal s,
-                                      SimdRealSize.cmp c))(*...?*)
+       | Simd_Real_cmp (s,c) => simdRealBinary s
+(*         noTargs (fn () => (threeArgs(simdReal s,simdReal s,
+                                      word c),simdReal s))(*...?*)*)
 (*       | Simd_Real_cmpeq s => simdRealBinary s
        | Simd_Real_cmplt s => simdRealBinary s
        | Simd_Real_cmpgt s => simdRealBinary s*)
 (*Need to ask about these, not sure if I need a type arg or not*)
        | Simd_Real_toArray s =>
-         noTargs (fn () => (oneArg (simdReal s), array t))
+         noTargs (fn () => (oneArg (simdReal s), array (simdReal s)))
        | Simd_Real_fromArray s =>
-         noTargs (fn () => (oneArg (array t), simdReal s))
+         noTargs (fn () => (oneArg (array (simdReal s)), simdReal s))
        | Simd_Real_toScalar s =>
-         noTargs (fn () => (oneArg (simdReal s), real r))
+         noTargs (fn () => (oneArg (simdReal s), real (simdRealtoReal s)))
        | Simd_Real_fromScalar s =>
-         noTargs (fn () => (oneArg (real r), simdReal s))
+         noTargs (fn () => (oneArg (real (simdRealtoReal s)), simdReal s))
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))
        | Thread_atomicState => noTargs (fn () => (noArgs, word32))

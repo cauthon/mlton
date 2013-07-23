@@ -101,7 +101,6 @@ COMPILE_TIME_ASSERT(sizeof_double__is_eight, sizeof(double) == 8);
 #include "platform/alpha.h"
 #elif (defined (__x86_64__))
 #include "platform/amd64.h"
-#include <x86intrin.h>
 #elif (defined (__arm__))
 #include "platform/arm.h"
 #elif (defined (__aarch64__))

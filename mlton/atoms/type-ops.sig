@@ -25,7 +25,6 @@ signature TYPE_OPS =
        *)
       type realSize
       type tycon
-      type simdSize
       type simdRealSize
       type wordSize
       type t
@@ -50,7 +49,6 @@ signature TYPE_OPS =
       val list: t -> t
       val real: realSize -> t
       val reff: t -> t
-      val simd: simdSize -> t
       val simdReal: simdRealSize -> t
       val thread: t
       val tuple: t vector -> t

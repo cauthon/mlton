@@ -65,7 +65,7 @@ struct
 
       datatype t 
         = BYTE | WORD | LONG | QUAD
-        | SNGL | DBLE | XMM  | YMM 
+        | SNGL | DBLE | VXMM | VYMM 
       (*| XMMS | XMMD
         | YMMS | YMMD | XMMW | YMMW*)
 (*TUCKER: more specifically it comes from here*)
@@ -79,8 +79,8 @@ struct
              | QUAD => str "q"
              | SNGL => str "s"
              | DBLE => str "d"
-             | XMM => str ""
-             | YMM => str ""
+             | VXMM => str ""
+             | VYMM => str ""
 (*             | XMMS => str "s"
              | XMMD => str "d"
              | YMMS => str "s"
@@ -98,8 +98,8 @@ struct
 (*This is troublesome, how do we do this,
 because 16 => XMMS or XMMD or XMMW and
         32 => YMMS of YMMD or YMMW*)
-           | 16 => XMM
-           | 32 => YMM
+           | 16 => VXMM
+           | 32 => VYMM
            | _ => Error.bug "amd64.Size.fromBytes"
       val toBytes : t -> int
         = fn BYTE => 1
@@ -108,8 +108,8 @@ because 16 => XMMS or XMMD or XMMW and
            | QUAD => 8
            | SNGL => 4
            | DBLE => 8
-           | XMM => 16
-           | YMM => 32
+           | VXMM => 16
+           | VYMM => 32
 (*           | XMMS => 16
            | XMMD => 16
            | XMMW => 16
@@ -134,12 +134,12 @@ because 16 => XMMS or XMMD or XMMW and
              | Word16 => Vector.new1 WORD
              | Word32 => Vector.new1 LONG
              | Word64 => Vector.new1 QUAD
-             | Simd128_Real32 => Vector.new1 XMM
-             | Simd128_Real64 => Vector.new1 XMM
-             | Simd128_WordX => Vector.new1 XMM
-             | Simd256_Real32 => Vector.new1 YMM
-             | Simd256_Real64 => Vector.new1 YMM
-             | Simd256_WordX => Vector.new1 YMM
+             | Simd128_Real32 => Vector.new1 VXMM
+             | Simd128_Real64 => Vector.new1 VXMM
+             | Simd128_WordX => Vector.new1 VXMM
+             | Simd256_Real32 => Vector.new1 VYMM
+             | Simd256_Real64 => Vector.new1 VYMM
+             | Simd256_WordX => Vector.new1 VYMM
 (*However This should fix the type issue noted above*)
 (*             | Simd128_Real32 => Vector.new1 XMMS
              | Simd128_Real64 => Vector.new1 XMMD
@@ -156,8 +156,8 @@ because 16 => XMMS or XMMD or XMMW and
            | QUAD => INT
            | SNGL => FLT
            | DBLE => FLT
-           | XMM => VEC
-           | YMM => VEC
+           | VXMM => VEC
+           | VYMM => VEC
 (*           | XMMS => VEC
            | XMMD => VEC
            | XMMW => VEC
@@ -411,6 +411,8 @@ because 16 => XMMS or XMMD or XMMW and
         = case part
             of D => Size.DBLE
              | S => Size.SNGL
+             | X => Size.VXMM
+             | Y => Size.VYMM
 (*             | XS => Size.XMMS
              | XD => Size.XMMD
              | XW => Size.XMMW
@@ -468,67 +470,67 @@ because 16 => XMMS or XMMD or XMMW and
                                  i j i j))))
   (indent-region start (point)))*)
       val xmm0X = T {reg = XMM0, part = X}
-      val xmm0Y = T {reg = XMM0, part = Y}
+      val ymm0 = T {reg = XMM0, part = Y}
       val xmm0S = T {reg = XMM0, part = S}
       val xmm0D = T {reg = XMM0, part = D}
       val xmm1X = T {reg = XMM1, part = X}
-      val xmm1Y = T {reg = XMM1, part = Y}
+      val ymm1 = T {reg = XMM1, part = Y}
       val xmm1S = T {reg = XMM1, part = S}
       val xmm1D = T {reg = XMM1, part = D}
       val xmm2X = T {reg = XMM2, part = X}
-      val xmm2Y = T {reg = XMM2, part = Y}
+      val ymm2 = T {reg = XMM2, part = Y}
       val xmm2S = T {reg = XMM2, part = S}
       val xmm2D = T {reg = XMM2, part = D}
       val xmm3X = T {reg = XMM3, part = X}
-      val xmm3Y = T {reg = XMM3, part = Y}
+      val ymm3 = T {reg = XMM3, part = Y}
       val xmm3S = T {reg = XMM3, part = S}
       val xmm3D = T {reg = XMM3, part = D}
       val xmm4X = T {reg = XMM4, part = X}
-      val xmm4Y = T {reg = XMM4, part = Y}
+      val ymm4 = T {reg = XMM4, part = Y}
       val xmm4S = T {reg = XMM4, part = S}
       val xmm4D = T {reg = XMM4, part = D}
       val xmm5X = T {reg = XMM5, part = X}
-      val xmm5Y = T {reg = XMM5, part = Y}
+      val ymm5 = T {reg = XMM5, part = Y}
       val xmm5S = T {reg = XMM5, part = S}
       val xmm5D = T {reg = XMM5, part = D}
       val xmm6X = T {reg = XMM6, part = X}
-      val xmm6Y = T {reg = XMM6, part = Y}
+      val ymm6 = T {reg = XMM6, part = Y}
       val xmm6S = T {reg = XMM6, part = S}
       val xmm6D = T {reg = XMM6, part = D}
       val xmm7X = T {reg = XMM7, part = X}
-      val xmm7Y = T {reg = XMM7, part = Y}
+      val ymm7 = T {reg = XMM7, part = Y}
       val xmm7S = T {reg = XMM7, part = S}
       val xmm7D = T {reg = XMM7, part = D}
       val xmm8X = T {reg = XMM8, part = X}
-      val xmm8Y = T {reg = XMM8, part = Y}
+      val ymm8 = T {reg = XMM8, part = Y}
       val xmm8S = T {reg = XMM8, part = S}
       val xmm8D = T {reg = XMM8, part = D}
       val xmm9X = T {reg = XMM9, part = X}
-      val xmm9Y = T {reg = XMM9, part = Y}
+      val ymm9 = T {reg = XMM9, part = Y}
       val xmm9S = T {reg = XMM9, part = S}
       val xmm9D = T {reg = XMM9, part = D}
       val xmm10X = T {reg = XMM10, part = X}
-      val xmm10Y = T {reg = XMM10, part = Y}
+      val ymm10 = T {reg = XMM10, part = Y}
       val xmm10S = T {reg = XMM10, part = S}
       val xmm10D = T {reg = XMM10, part = D}
       val xmm11X = T {reg = XMM11, part = X}
-      val xmm11Y = T {reg = XMM11, part = Y}
+      val ymm11 = T {reg = XMM11, part = Y}
       val xmm11S = T {reg = XMM11, part = S}
       val xmm11D = T {reg = XMM11, part = D}
       val xmm12X = T {reg = XMM12, part = X}
-      val xmm12Y = T {reg = XMM12, part = Y}
+      val ymm12 = T {reg = XMM12, part = Y}
       val xmm12S = T {reg = XMM12, part = S}
       val xmm12D = T {reg = XMM12, part = D}
       val xmm13X = T {reg = XMM13, part = X}
-      val xmm13Y = T {reg = XMM13, part = Y}
+      val ymm13 = T {reg = XMM13, part = Y}
       val xmm13S = T {reg = XMM13, part = S}
       val xmm13D = T {reg = XMM13, part = D}
       val xmm14X = T {reg = XMM14, part = X}
-      val xmm14Y = T {reg = XMM14, part = Y}
+      val ymm14 = T {reg = XMM14, part = Y}
       val xmm14S = T {reg = XMM14, part = S}
       val xmm14D = T {reg = XMM14, part = D}
       val xmm15X = T {reg = XMM15, part = X}
-      val xmm15Y = T {reg = XMM15, part = Y}
+      val ymm15 = T {reg = XMM15, part = Y}
       val xmm15S = T {reg = XMM15, part = S}
       val xmm15D = T {reg = XMM15, part = D}
       local
@@ -603,8 +605,8 @@ because 16 => XMMS or XMMD or XMMW and
       val registers
         = fn Size.SNGL => singleRegisters
            | Size.DBLE => doubleRegisters
-           | Size.XMM => xmmRegisters
-           | Size.YMM => ymmRegisters
+           | Size.VXMM => xmmRegisters
+           | Size.VYMM => ymmRegisters
 (*           | Size.XMMS => sseSingleRegisters
            | Size.XMMD => sseDoubleRegisters
            | Size.YMMS => avxSingleRegisters
@@ -1519,7 +1521,6 @@ because 16 => XMMS or XMMD or XMMW and
          datatype z = datatype CType.t
          datatype z = datatype Size.t
       in
-(*TUCKER: I have stuff to do here that I'm putting off right now*)
          fun cReturnTemps ty =
             if RepType.isUnit ty
                then []
@@ -1537,12 +1538,12 @@ because 16 => XMMS or XMMD or XMMW and
                   val x64 = x (XmmRegister.xmm0D, DBLE)
                   fun v (x, s) =
                       [{src = xmmregister x, dst = cReturnTempContent (0,s)}]
-                  val v128r32 = v (XmmRegister.xmm0X, XMM)
-                  val v128r64 = v (XmmRegister.xmm0X, XMM)
-                  val v128wx = v (XmmRegister.xmm0X, XMM)
-                  val v256r32 = v (XmmRegister.ymm0, YMM)
-                  val v256r64 = v (XmmRegister.ymm0, YMM)
-                  val v256wx = v (XmmRegister.ymm0, YMM)
+                  val v128r32 = v (XmmRegister.xmm0X, VXMM)
+                  val v128r64 = v (XmmRegister.xmm0X, VXMM)
+                  val v128wx = v (XmmRegister.xmm0X, VXMM)
+                  val v256r32 = v (XmmRegister.ymm0, VYMM)
+                  val v256r64 = v (XmmRegister.ymm0, VYMM)
+                  val v256wx = v (XmmRegister.ymm0, VYMM)
                in
                   case RepType.toCType ty of
                      CPointer => w64
@@ -2575,7 +2576,7 @@ because 16 => XMMS or XMMD or XMMW and
                         Size.layout size,
                         Operand.layout src,
                         Operand.layout dst,
-                        Operand.layout imm,)
+                        Operand.layout imm)
              | SSE_MOVS {src, dst, size}
              => bin (str "movs", 
                      Size.layout size,
@@ -3218,7 +3219,7 @@ because 16 => XMMS or XMMD or XMMW and
                         dst = replacer {use = false, def = true} dst,
                         size = size}
            | SSE_CMPFP {oper, src, dst, imm,  size}
-           => SSE_CmpFP {oper = oper,
+           => SSE_CMPFP {oper = oper,
                          src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         imm = replacer {use = true, def = false} imm,

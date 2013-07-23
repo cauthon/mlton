@@ -149,6 +149,7 @@ in
    ../integer/embed-word.sml
    ../integer/pack-word.sig
    ../integer/pack-word.sml
+
    local 
       ../config/bind/int-top.sml 
       ../config/bind/pointer-prim.sml
@@ -210,6 +211,7 @@ in
    ../real/real-global.sml
    ../real/pack-real.sig
    ../real/pack-real.sml
+(*simd here*)
    local 
       ../config/bind/int-top.sml 
       ../config/bind/pointer-prim.sml

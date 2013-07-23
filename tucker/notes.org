@@ -71,6 +71,13 @@
   -Ask about a way to make sml Arrays behave like c pointers
   -REALLY need to ask above, I kinda really need pointer arathmatic
      or something similar
+  -packReal and packWord, use a primitive Word8Array type thing
+  -Add a Word8Array_subSimd primitive
+  -add primitive stuff to the basis library(make basis-library/simd &
+      add a file primitives/simd-prim.sml
+Word8_subSIMD of SimdRealSize.t
+val Word8_subSIMD_f32v4 : Word8.word array * ArraySeqInt.t -> f32v4
+_import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
 * Low level details
 ** Immediate opperands
 *** Compairson
@@ -207,149 +214,468 @@
   end
 #+END_SRC
 
-* current compiler errors <2013-07-17 Wed>
 
-	 defunctorize finished in 1.42 + 1.51 (52% GC)
-	 xmlSimplify starting
-	    typeCheck starting
-	    typeCheck finished in 0.83 + 0.41 (33% GC)
-	    xmlShrink starting
-	    xmlShrink finished in 0.79 + 0.61 (44% GC)
-	    xmlSimplifyTypes starting
-	    xmlSimplifyTypes finished in 0.28 + 0.00 (0% GC)
-	    typeCheck starting
-	    typeCheck finished in 0.69 + 0.34 (33% GC)
-	 xmlSimplify finished in 2.59 + 1.37 (35% GC)
-	 monomorphise starting
-	 monomorphise finished in 1.15 + 1.04 (47% GC)
-	 sxmlSimplify starting
-	    typeCheck starting
-	    typeCheck finished in 0.65 + 0.36 (36% GC)
-	    sxmlShrink1 starting
-	    sxmlShrink1 finished in 1.12 + 3.50 (76% GC)
-	    implementSuffix starting
-	    implementSuffix finished in 0.04 + 0.00 (0% GC)
-	    sxmlShrink2 starting
-	    sxmlShrink2 finished in 0.91 + 0.00 (0% GC)
-	    implementExceptions starting
-	    implementExceptions finished in 0.12 + 0.00 (0% GC)
-	    sxmlShrink3 starting
-	    sxmlShrink3 finished in 0.91 + 0.42 (32% GC)
-	    polyvariance starting
-	       duplicate1 starting
-	       duplicate1 finished in 1.51 + 1.50 (50% GC)
-	       duplicate2 starting
-	       duplicate2 finished in 1.45 + 1.47 (50% GC)
-	    polyvariance finished in 2.96 + 2.97 (50% GC)
-	    sxmlShrink4 starting
-	    sxmlShrink4 finished in 1.10 + 1.27 (54% GC)
-	    typeCheck starting
-	    typeCheck finished in 0.45 + 0.45 (50% GC)
-	 sxmlSimplify finished in 8.25 + 8.97 (52% GC)
-	 closureConvert starting
-	    flow analysis starting
-	    flow analysis finished in 0.99 + 0.00 (0% GC)
-	    free variables starting
-	    free variables finished in 0.22 + 0.00 (0% GC)
-	    globalize starting
-	    globalize finished in 0.18 + 0.00 (0% GC)
-	    convert starting
-	    convert finished in 2.46 + 2.58 (51% GC)
-	 closureConvert finished in 4.07 + 2.58 (39% GC)
-	 ssaSimplify starting
-	    typeCheck starting
-	    typeCheck finished in 1.32 + 0.00 (0% GC)
-	    removeUnused1 starting
-	    removeUnused1 finished in 2.32 + 1.16 (33% GC)
-	    introduceLoops1 starting
-	    introduceLoops1 finished in 0.03 + 0.00 (0% GC)
-	    loopInvariant1 starting
-	    loopInvariant1 finished in 0.68 + 0.47 (41% GC)
-	    inlineLeaf1 starting
-	    inlineLeaf1 finished in 0.96 + 0.59 (38% GC)
-	    inlineLeaf2 starting
-	    inlineLeaf2 finished in 0.77 + 0.57 (42% GC)
-	    contify1 starting
-	    contify1 finished in 0.66 + 0.00 (0% GC)
-	    localFlatten1 starting
-	    localFlatten1 finished in 0.65 + 0.49 (43% GC)
-	    constantPropagation starting
-	    constantPropagation finished in 2.04 + 2.08 (50% GC)
-	    useless starting
-	    useless finished in 2.48 + 2.34 (49% GC)
-	    removeUnused2 starting
-	    removeUnused2 finished in 1.08 + 0.74 (41% GC)
-	    simplifyTypes starting
-	    simplifyTypes finished in 0.61 + 2.29 (79% GC)
-	    polyEqual starting
-	    polyEqual finished in 0.08 + 0.00 (0% GC)
-	    polyHash starting
-	    polyHash finished in 0.06 + 0.00 (0% GC)
-	    introduceLoops2 starting
-	    introduceLoops2 finished in 0.01 + 0.00 (0% GC)
-	    loopInvariant2 starting
-	    loopInvariant2 finished in 0.34 + 0.18 (35% GC)
-	    contify2 starting
-	    contify2 finished in 0.36 + 0.00 (0% GC)
-	    inlineNonRecursive starting
-	    inlineNonRecursive finished in 0.76 + 0.46 (38% GC)
-	    localFlatten2 starting
-	    localFlatten2 finished in 0.56 + 0.21 (27% GC)
-	    removeUnused3 starting
-	    removeUnused3 finished in 1.15 + 0.36 (24% GC)
-	    contify3 starting
-	    contify3 finished in 0.48 + 0.41 (46% GC)
-	    introduceLoops3 starting
-	    introduceLoops3 finished in 0.00 + 0.00 (0% GC)
-	    loopInvariant3 starting
-	    loopInvariant3 finished in 0.56 + 0.17 (24% GC)
-	    localRef starting
-	    localRef finished in 1.12 + 0.86 (43% GC)
-	    flatten starting
-	    flatten finished in 0.86 + 0.74 (46% GC)
-	    localFlatten3 starting
-	    localFlatten3 finished in 0.56 + 0.21 (28% GC)
-	    combineConversions starting
-	    combineConversions finished in 0.57 + 0.26 (31% GC)
-	    commonArg starting
-	    commonArg finished in 0.80 + 1.10 (58% GC)
-	    commonSubexp starting
-	    commonSubexp finished in 0.79 + 0.00 (0% GC)
-	    commonBlock starting
-	    commonBlock finished in 0.39 + 0.37 (48% GC)
-	    redundantTests starting
-	    redundantTests finished in 0.95 + 0.00 (0% GC)
-	    redundant starting
-	    redundant finished in 0.63 + 0.00 (0% GC)
-	    knownCase starting
-	    knownCase finished in 2.13 + 0.77 (27% GC)
-	    removeUnused4 starting
-	    removeUnused4 finished in 1.04 + 0.46 (31% GC)
-	    orderFunctions1 starting
-	    orderFunctions1 finished in 0.12 + 0.00 (0% GC)
-	    typeCheck starting
-	    typeCheck finished in 0.63 + 0.00 (0% GC)
-	 ssaSimplify finished in 28.54 + 17.30 (38% GC)
-	 toSsa2 starting
-	 toSsa2 finished in 0.63 + 0.00 (0% GC)
-	 ssa2Simplify starting
-	    typeCheck starting
-	    typeCheck finished in 0.67 + 0.49 (42% GC)
-	    deepFlatten starting
-	    deepFlatten finished in 2.20 + 0.97 (31% GC)
-	    refFlatten starting
-	    refFlatten finished in 1.53 + 0.00 (0% GC)
-	    removeUnused5 starting
-	    removeUnused5 finished in 1.46 + 0.89 (38% GC)
-	    zone starting
-	    zone finished in 0.00 + 0.00 (0% GC)
-	    orderFunctions2 starting
-	    orderFunctions2 finished in 0.16 + 0.00 (0% GC)
-	    typeCheck starting
-	    typeCheck finished in 0.81 + 0.58 (42% GC)
-	 ssa2Simplify finished in 6.83 + 2.94 (30% GC)
-	 backend starting
-	    toRssa starting
-	    toRssa finished in 1.14 + 0.00 (0% GC)
-	    rssaSimplify starting
-	       rssaShrink1 starting
+* Compiler Warnings <2013-07-23 Tue>
+Warning: ast/simd-word-size.fun 1.9.
+  Unused functor: SimdWordSize.
+Warning: ast/simd-word-size.fun 22.22.
+  Unused variable: W8.
+Warning: ast/simd-word-size.fun 23.22.
+  Unused variable: W16.
+Warning: ast/simd-word-size.fun 24.22.
+  Unused variable: W32.
+Warning: ast/simd-word-size.fun 25.22.
+  Unused variable: W64.
+Warning: atoms/c-type.fun 175.5.
+  Unused variable: simdReal.
+Warning: atoms/prim.fun 275.10.
+  Unused variable: CPointer_Setcpointer.
+Warning: atoms/prim.fun 808.10.
+  Unused variable: Simd128Real32.
+Warning: atoms/prim.fun 809.10.
+  Unused variable: Simd128Real64.
+Warning: atoms/prim.fun 810.10.
+  Unused variable: Simd256Real32.
+Warning: atoms/prim.fun 811.10.
+  Unused variable: Simd256Real64.
+Warning: atoms/prim.fun 831.10.
+  Unused variable: Simd128Real32.
+Warning: atoms/prim.fun 832.10.
+  Unused variable: Simd128Real64.
+Warning: atoms/prim.fun 833.10.
+  Unused variable: Simd256Real32.
+Warning: atoms/prim.fun 834.10.
+  Unused variable: Simd256Real64.
+Warning: atoms/prim.fun 1127.8.
+  Unused variable: simdRealcmp.
+Warning: atoms/prim.fun 1394.11.
+  Unused variable: V128R32.
+Warning: atoms/prim.fun 1395.11.
+  Unused variable: V128R64.
+Warning: atoms/prim.fun 1396.11.
+  Unused variable: V256R32.
+Warning: atoms/prim.fun 1397.11.
+  Unused variable: V256R64.
+Warning: atoms/prim.fun 1546.27.
+  Unused variable: c.
+Warning: atoms/type-ops.fun 22.6.
+  Unused type: simdRealSize.
+Warning: backend/packed-representation.fun 30.14.
+  Unused structure: SimdRealSize.
+Warning: backend/rep-type.fun 575.12.
+  Unused variable: V128R32.
+Warning: backend/rep-type.fun 576.11.
+  Unused variable: V128R64.
+Warning: backend/rep-type.fun 577.11.
+  Unused variable: V256R32.
+Warning: backend/rep-type.fun 578.11.
+  Unused variable: V256R64.
+Warning: backend/rep-type.fun 669.27.
+  Unused variable: w.
+Warning: codegen/amd64-codegen/amd64-mlton-basic.fun 261.16.
+  Unused variable: Simd128.
+Warning: codegen/amd64-codegen/amd64-mlton-basic.fun 262.16.
+  Unused variable: Simd256.
+Warning: codegen/amd64-codegen/amd64-mlton.fun 581.13.
+  Unused variable: sse_imov.
+Warning: codegen/amd64-codegen/amd64-mlton.fun 871.13.
+  Unused variable: sse_ibinap.
+Warning: codegen/amd64-codegen/amd64-mlton.fun 930.26.
+  Unused variable: src2size.
+Warning: codegen/amd64-codegen/amd64.fun 777.16.
+  Unused variable: Simd128Real32.
+Warning: codegen/amd64-codegen/amd64.fun 778.16.
+  Unused variable: Simd128Real64.
+Warning: codegen/amd64-codegen/amd64.fun 779.16.
+  Unused variable: Simd128WordX.
+Warning: codegen/amd64-codegen/amd64.fun 780.16.
+  Unused variable: Simd256Real32.
+Warning: codegen/amd64-codegen/amd64.fun 781.16.
+  Unused variable: Simd256Real64.
+Warning: codegen/amd64-codegen/amd64.fun 782.16.
+  Unused variable: Simd256WordX.
+Warning: codegen/amd64-codegen/amd64.fun 1561.22.
+  Unused variable: Simd128Real32.
+Warning: codegen/amd64-codegen/amd64.fun 1562.22.
+  Unused variable: Simd128Real64.
+Warning: codegen/amd64-codegen/amd64.fun 1563.22.
+  Unused variable: Simd128WordX.
+Warning: codegen/amd64-codegen/amd64.fun 1564.22.
+  Unused variable: Simd256Real32.
+Warning: codegen/amd64-codegen/amd64.fun 1565.22.
+  Unused variable: Simd256Real64.
+Warning: codegen/amd64-codegen/amd64.fun 1566.22.
+  Unused variable: Simd256WordX.
+Warning: codegen/amd64-codegen/amd64.fun 1814.16.
+  Unused variable: SSE_RCPPS.
+Warning: codegen/amd64-codegen/amd64.fun 1815.16.
+  Unused variable: SSE_RSQRTPS.
+Warning: codegen/amd64-codegen/amd64.fun 1849.18.
+  Unused variable: SSE_HUSBPS.
+Warning: codegen/amd64-codegen/amd64.fun 1852.18.
+  Unused variable: SSE_HUSBPD.
+Warning: codegen/amd64-codegen/amd64.fun 1866.11.
+  Unused variable: sse_shuffp_layout.
+Warning: codegen/amd64-codegen/amd64.fun 1928.19.
+  Unused variable: SSE_PADUS.
+Warning: codegen/amd64-codegen/amd64.fun 1944.11.
+  Unused variable: sse_imov_layout.
+Warning: codegen/amd64-codegen/amd64.fun 1963.11.
+  Unused variable: sse_pmd_layout.
+Warning: codegen/amd64-codegen/amd64.fun 1970.19.
+  Unused variable: SSE_PUMLLW.
+Warning: codegen/amd64-codegen/amd64.fun 1983.11.
+  Unused variable: ssse3_ibinap_layout.
+Warning: codegen/amd64-codegen/amd64.fun 2002.11.
+  Unused variable: sse_ibinlp_layout.
+	 deadCode starting
+	 deadCode finished in 0.14 + 0.00 (0% GC)
+	 defunctorize starting
+Warning: atoms/prim.fun 256.7.
+  Case has redundant rules.
+    rules: CPointer_setObjptr => "CPointer_setObjptr"
+	   CPointer_setReal s => cpointerSet  ...  RealSize.toString s)
+	   CPointer_setSimdReal s => cpointe  ...  ize.toStringReal s])
+	   CPointer_setWord s => cpointerSet  ...  WordSize.toString s)
+	   CPointer_sub => "CPointer_sub"
+	   CPointer_toWord => "CPointer_toWord"
+	   Exn_extra => "Exn_extra"
+	   Exn_name => "Exn_name"
+	   Exn_setExtendExtra => "Exn_setExtendExtra"
+	   FFI f => (CFunction.Target.toString o CFunction.target) f
+	   FFI_Symbol {name, ...} => name
+	   GC_collect => "GC_collect"
+	   IntInf_add => "IntInf_add"
+	   IntInf_andb => "IntInf_andb"
+	   IntInf_arshift => "IntInf_arshift"
+	   IntInf_compare => "IntInf_compare"
+	   IntInf_equal => "IntInf_equal"
+	   IntInf_gcd => "IntInf_gcd"
+	   IntInf_lshift => "IntInf_lshift"
+	   IntInf_mul => "IntInf_mul"
+	   IntInf_neg => "IntInf_neg"
+	   IntInf_notb => "IntInf_notb"
+	   IntInf_orb => "IntInf_orb"
+	   IntInf_quot => "IntInf_quot"
+	   IntInf_rem => "IntInf_rem"
+	   IntInf_sub => "IntInf_sub"
+	   IntInf_toString => "IntInf_toString"
+	   IntInf_toVector => "IntInf_toVector"
+	   IntInf_toWord => "IntInf_toWord"
+	   IntInf_xorb => "IntInf_xorb"
+	   MLton_bogus => "MLton_bogus"
+	   MLton_bug => "MLton_bug"
+	   MLton_deserialize => "MLton_deserialize"
+	   MLton_eq => "MLton_eq"
+	   MLton_equal => "MLton_equal"
+	   MLton_halt => "MLton_halt"
+	   MLton_hash => "MLton_hash"
+	   MLton_handlesSignals => "MLton_handlesSignals"
+	   MLton_installSignalHandler => "MLton_installSignalHandler"
+	   MLton_serialize => "MLton_serialize"
+	   MLton_share => "MLton_share"
+	   MLton_size => "MLton_size"
+	   MLton_touch => "MLton_touch"
+	   Real_Math_acos s => real (s, "Math_acos")
+	   Real_Math_asin s => real (s, "Math_asin")
+	   Real_Math_atan s => real (s, "Math_atan")
+	   Real_Math_atan2 s => real (s, "Math_atan2")
+	   Real_Math_cos s => real (s, "Math_cos")
+	   Real_Math_exp s => real (s, "Math_exp")
+	   Real_Math_ln s => real (s, "Math_ln")
+	   Real_Math_log10 s => real (s, "Math_log10")
+	   Real_Math_sin s => real (s, "Math_sin")
+	   Real_Math_sqrt s => real (s, "Math_sqrt")
+	   Real_Math_tan s => real (s, "Math_tan")
+	   Real_abs s => real (s, "abs")
+	   Real_add s => real (s, "add")
+	   Real_castToWord (s1, s2) => cast (realC, wordC, s1, s2)
+	   Real_div s => real (s, "div")
+	   Real_equal s => real (s, "equal")
+	   Real_ldexp s => real (s, "ldexp")
+	   Real_le s => real (s, "le")
+	   Real_lt s => real (s, "lt")
+	   Real_mul s => real (s, "mul")
+	   Real_muladd s => real (s, "muladd")
+	   Real_mulsub s => real (s, "mulsub")
+	   Real_neg s => real (s, "neg")
+	   Real_qequal s => real (s, "qequal")
+	   Real_rndToReal (s1, s2) => rnd (realC, realC, s1, s2)
+	   Real_rndToWord (s1, s2, sg) => rn  ...  , wordCS sg, s1, s2)
+	   Real_round s => real (s, "round")
+	   Real_sub s => real (s, "sub")
+	   Ref_assign => "Ref_assign"
+	   Ref_deref => "Ref_deref"
+	   Ref_ref => "Ref_ref"
+	   Simd_Real_add s => simd_real (s, "add")
+	   Simd_Real_sub s => simd_real (s, "sub")
+	   Simd_Real_mul s => simd_real (s, "mul")
+	   Simd_Real_div s => simd_real (s, "div")
+	   Simd_Real_max s => simd_real (s, "max")
+	   Simd_Real_min s => simd_real (s, "min")
+	   Simd_Real_sqrt s => simd_real (s, "sqrt")
+	   Simd_Real_and s => simd_real (s, "and")
+	   Simd_Real_andn s => simd_real (s, "andn")
+	   Simd_Real_or s => simd_real (s, "or")
+	   Simd_Real_xor s => simd_real (s, "xor")
+	   Simd_Real_hadd s => simd_real (s, "hadd")
+	   Simd_Real_hsub s => simd_real (s, "hsub")
+	   Simd_Real_addsub s => simd_real (s, "addsub")
+	   Simd_Real_cmp (s, c) => simd_real  ...  ealSize.cmpString c)
+	   Simd_Real_fromScalar s => simd_real (s, "loads")
+	   Simd_Real_toScalar s => simd_real (s, "stores")
+	   Simd_Real_fromArray s => simd_real (s, "load")
+	   Simd_Real_toArray s => simd_real (s, "store")
+	   String_toWord8Vector => "String_toWord8Vector"
+	   Thread_atomicBegin => "Thread_atomicBegin"
+	   Thread_atomicEnd => "Thread_atomicEnd"
+	   Thread_atomicState => "Thread_atomicState"
+	   Thread_copy => "Thread_copy"
+	   Thread_copyCurrent => "Thread_copyCurrent"
+	   Thread_returnToC => "Thread_returnToC"
+	   Thread_switchTo => "Thread_switchTo"
+	   TopLevel_getHandler => "TopLevel_getHandler"
+	   TopLevel_getSuffix => "TopLevel_getSuffix"
+	   TopLevel_setHandler => "TopLevel_setHandler"
+	   TopLevel_setSuffix => "TopLevel_setSuffix"
+	   Vector_length => "Vector_length"
+	   Vector_sub => "Vector_sub"
+	   Weak_canGet => "Weak_canGet"
+	   Weak_get => "Weak_get"
+	   Weak_new => "Weak_new"
+	   Word8Array_subWord w => word8Seq ("Array", "sub", w)
+	   Word8Array_updateWord w => word8Seq ("Array", "update", w)
+	   Word8Vector_subWord w => word8Seq ("Vector", "sub", w)
+	   Word8Vector_toString => "Word8Vector_toString"
+	   WordVector_toIntInf => "WordVector_toIntInf"
+	   Word_add s => word (s, "add")
+	   Word_addCheck (s, sg) => wordS (s, sg, "addCheck")
+	   Word_andb s => word (s, "andb")
+	   Word_castToReal (s1, s2) => cast (wordC, realC, s1, s2)
+	   Word_equal s => word (s, "equal")
+	   Word_extdToWord (s1, s2, sg) => e  ...  S sg, wordC, s1, s2)
+	   Word_lshift s => word (s, "lshift")
+	   Word_lt (s, sg) => wordS (s, sg, "lt")
+	   Word_mul (s, sg) => wordS (s, sg, "mul")
+	   Word_mulCheck (s, sg) => wordS (s, sg, "mulCheck")
+	   Word_neg s => word (s, "neg")
+	   Word_negCheck s => word (s, "negCheck")
+	   Word_notb s => word (s, "notb")
+	   Word_orb s => word (s, "orb")
+	   Word_quot (s, sg) => wordS (s, sg, "quot")
+	   Word_rem (s, sg) => wordS (s, sg, "rem")
+	   Word_rndToReal (s1, s2, sg) => rn  ...  S sg, realC, s1, s2)
+	   Word_rol s => word (s, "rol")
+	   Word_ror s => word (s, "ror")
+	   Word_rshift (s, sg) => wordS (s, sg, "rshift")
+	   Word_sub s => word (s, "sub")
+	   Word_subCheck (s, sg) => wordS (s, sg, "subCheck")
+	   Word_toIntInf => "Word_toIntInf"
+	   Word_xorb s => word (s, "xorb")
+	   World_save => "World_save"
+    in: case n of Array_array => "Array_a  ...  save => "World_save"
+Warning: atoms/prim.fun 795.7.
+  Case has redundant rules.
+    rules: Simd128Real64 => CPointer_getSimdReal SimdRealSize.V128R64
+	   Simd256Real32 => CPointer_getSimdReal SimdRealSize.V256R32
+	   Simd256Real64 => CPointer_getSimdReal SimdRealSize.V256R64
+    in: case ctype of CPointer => CPointe  ...  imdRealSize.V256R64)
+Warning: atoms/prim.fun 818.7.
+  Case has redundant rules.
+    rules: Simd128Real64 => CPointer_setSimdReal SimdRealSize.V128R64
+	   Simd256Real32 => CPointer_setSimdReal SimdRealSize.V256R32
+	   Simd256Real64 => CPointer_setSimdReal SimdRealSize.V256R64
+    in: case ctype of CPointer => CPointe  ...  imdRealSize.V256R64)
+Warning: atoms/prim.fun 1394.11.
+  Function has redundant rules.
+    rules: V128R64 => RealSize.R64
+	   V256R32 => RealSize.R32
+	   V256R64 => RealSize.R64
+    in: fn V128R32 => RealSize.R32 | V128  ...  6R64 => RealSize.R64
+Warning: ssa/poly-equal.fun 310.13.
+  Case is not exhaustive.
+    missing pattern: (SimdReal _)
+    in: case Type.dest ty of (Type.Array   ...  ws, Vector.new0 ()))
+Warning: ssa/poly-hash.fun 522.16.
+  Case is not exhaustive.
+    missing pattern: (SimdReal _)
+    in: case Type.dest ty of (Type.Array   ...  Bytes (dst, dx, ws))
+Warning: ssa/type-check2.fun 77.18.
+  Case is not exhaustive.
+    missing pattern: (SimdReal _)
+    in: case Type.dest ty of CPointer =>   ...  ty) | (Word _) => ()
+Warning: ssa/ref-flatten.fun 777.31.
+  Case is not exhaustive.
+    missing pattern: (SimdReal _)
+    in: case Type.dest t of CPointer => (  ...   () | (Word _) => ()
+Warning: backend/rep-type.fun 575.12.
+  Function has redundant rules.
+    rules: V128R64 => RealSize.R64
+	   V256R32 => RealSize.R32
+	   V256R64 => RealSize.R64
+    in: fn V128R32 => RealSize.R32 | V128  ...  6R64 => RealSize.R64
+Warning: ssa/ssa-to-ssa2.fun 39.12.
+  Case is not exhaustive.
+    missing pattern: (SimdReal _)
+    in: case S.Type.dest t of (S.Type.Arr  ...   => (S2.Type.word s)
+Warning: backend/packed-representation.fun 2559.15.
+  Case is not exhaustive.
+    missing pattern: (SimdReal _)
+    in: case S.Type.dest t of CPointer =>  ...  bjptr (Type.word s))
+Warning: codegen/x86-codegen/x86.fun 104.13.
+  Case is not exhaustive.
+    missing pattern: Simd128_Real32 | Simd128_Real64 | Simd128_WordX | Simd256_Real32 | Simd256_Real64 | Simd256_WordX
+    in: case t of CPointer => (Vector.new  ...  r.new2 (LONG, LONG))
+Warning: codegen/x86-codegen/x86.fun 480.13.
+  Case is not exhaustive.
+    missing pattern: Simd128_Real32 | Simd128_Real64 | Simd128_WordX | Simd256_Real32 | Simd256_Real64 | Simd256_WordX
+    in: case t of CPointer => Four | Int8  ...  ur | Word64 => Eight
+Warning: codegen/x86-codegen/x86.fun 1245.19.
+  Case is not exhaustive.
+    missing pattern: Simd128_Real32 | Simd128_Real64 | Simd128_WordX | Simd256_Real32 | Simd256_Real64 | Simd256_WordX
+    in: case RepType.toCType ty of CPoint  ...   w32 | Word64 => w64
+Warning: codegen/x86-codegen/x86-mlton-basic.fun 306.13.
+  Case is not exhaustive.
+    missing pattern: Simd128_Real32 | Simd128_Real64 | Simd128_WordX | Simd256_Real32 | Simd256_Real64 | Simd256_WordX
+    in: case t of CPointer => (Label.from  ...  | Word64 => (w "64")
+Warning: codegen/amd64-codegen/amd64.fun 764.13.
+  Case has redundant rules.
+    rules: Simd128Real64 => Sixteen
+	   Simd128WordX => Sixteen
+	   Simd256Real32 => ThirtyTwo
+	   Simd256Real64 => ThirtyTwo
+	   Simd256WordX => ThirtyTwo
+    in: case t of CPointer => Eight | Int  ...  56WordX => ThirtyTwo
+Warning: codegen/amd64-codegen/amd64.fun 1548.19.
+  Case has redundant rules.
+    rules: Simd128Real64 => v128r64
+	   Simd128WordX => v128wx
+	   Simd256Real32 => v256r32
+	   Simd256Real64 => v256r64
+	   Simd256WordX => v256wx
+    in: case RepType.toCType ty of CPoint  ...  md256WordX => v256wx
+Warning: codegen/amd64-codegen/amd64.fun 1812.16.
+  Function has redundant rules.
+    rules: SSE_RCPPS => str "rcpps"
+	   SSE_RSQRTPS => str "rcppd"
+    in: fn SSE_SQRTPS => (str "sqrtps") |  ...  TPS => (str "rcppd")
+Warning: codegen/amd64-codegen/amd64.fun 1847.18.
+  Function has redundant rules.
+    rules: SSE_ADDSUBPD => str "addsubpd"
+	   SSE_HADDPD => str "haddpd"
+	   SSE_HUSBPD => str "hsubpd"
+    in: fn SSE_ADDSUBPS => (str "addsubps  ...  PD => (str "hsubpd")
+Warning: codegen/amd64-codegen/amd64.fun 1926.19.
+  Function has redundant rules.
+    rules: SSE_PSUB => str "psub"
+	   SSE_PSUBS => str "psubs"
+	   SSE_PSUBUS => str "psubus"
+	   SSE_PMAXS => str "pmaxs"
+	   SSE_PMAXU => str "pmaxu"
+	   SSE_PMINS => str "pmins"
+	   SSE_PMINU => str "pminu"
+	   SSE_PAVG => str "pavg"
+    in: fn SSE_PADD => (str "padd") | SSE  ...  PAVG => (str "pavg")
+Warning: codegen/amd64-codegen/amd64.fun 1967.19.
+  Function has redundant rules.
+    rules: SSE_PMADDWD => str "pmaddwd"
+	   SSE_PMULDQ => str "pmuldq"
+	   SSE_PMULUDQ => str "pmuludq"
+	   SSE_PMULD => str "pmuld"
+    in: fn SSE_PCMULQDQ => (str "pcmulqdq  ...  ULD => (str "pmuld")
+Warning: codegen/amd64-codegen/amd64.fun 2384.16.
+  Function is not exhaustive.
+    missing pattern: (SSE_IMOV _) | (SSE_BLENDVP _)
+    in: fn NOP => (str "nop") | HLT => (s  ...  Operand.layout dst))
+Warning: codegen/amd64-codegen/amd64.fun 2635.14.
+  Function is not exhaustive.
+    missing pattern: (SSE_BLENDVP _)
+    in: fn NOP => {uses = [], defs = [],   ...  = [dst], kills = []}
+Warning: codegen/amd64-codegen/amd64.fun 2926.14.
+  Function is not exhaustive.
+    missing pattern: (SSE_MOVFP _) | (SSE_IMOV _) | (SSE_BLENDVP _)
+    in: fn NOP => {srcs = NONE, dsts = NO  ...  , dsts = SOME [dst]}
+Warning: codegen/amd64-codegen/amd64.fun 3081.14.
+  Function is not exhaustive.
+    missing pattern: (SSE_MOVFP _) | (SSE_IMOV _) | (SSE_BLENDVP _)
+    in: fn NOP => NOP | HLT => HLT | (Bin  ...   dstsize = dstsize})
+Warning: codegen/amd64-codegen/amd64-mlton-basic.fun 247.13.
+  Case has redundant rules.
+    rules: Simd256 => v "256"
+    in: case t of CPointer => (Label.from  ...  Simd256 => (v "256")
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1472.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_movfp I  ...  struction.SSE_MOVSD)
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1468.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_movfp I  ...  truction.SSE_MOVUPD)
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1464.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_movfp I  ...  truction.SSE_MOVUPD)
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1460.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_movfp I  ...  truction.SSE_MOVUPD)
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1445.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_cmpfp (  ...   (Bits.fromInt 8))))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1439.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse3_binap   ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1433.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse3_binap   ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1427.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse3_binap   ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1421.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binlp (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1415.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binlp (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1409.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binlp (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1403.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binlp (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1397.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_unap In  ...  truction.SSE_SQRTPD)
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1391.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binap (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1385.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binap (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1379.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binap (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1373.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binap (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1367.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binap (  ...  ruction.SSE_MOVUPD))
+Warning: codegen/amd64-codegen/amd64-mlton.fun 1357.16.
+  Case is not exhaustive.
+    missing pattern: V256R32 | V256R64
+    in: case s of V128R32 => (sse_binap (  ...  ruction.SSE_MOVUPD))

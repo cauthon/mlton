@@ -16,7 +16,7 @@ sig
   val toStringReal: t -> string
   val toStringSimd: t -> string
   datatype cmp = cmpeq | cmplt | cmple | cmpunord
-               | cmpneq | cmpnlt | cmpnle | cmpor
-  val cmp:cmp -> Word8.word
+               | cmpneq | cmpnlt | cmpnle | cmpord
+  val cmp:cmp -> int
   val cmpString: cmp -> string
 end

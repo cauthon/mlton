@@ -338,10 +338,10 @@ structure Type =
                        | RealSize.R64 => C.Real64)
                 | SimdReal s =>
                      (case s of 
-                          SimdRealSize.V128R32 => C.Simd128Real32
-                        | SimdRealSize.V128R64 => C.Simd128Real64
-                        | SimdRealSize.V256R32 => C.Simd256Real32
-                        | SimdRealSize.V256R64 => C.Simd256Real64)
+                          SimdRealSize.V128R32 => C.Simd128_Real32
+                        | SimdRealSize.V128R64 => C.Simd128_Real64
+                        | SimdRealSize.V256R32 => C.Simd256_Real32
+                        | SimdRealSize.V256R64 => C.Simd256_Real64)
                 | _ => C.fromBits (width t)
                          
          val name = C.name o toCType
@@ -571,6 +571,11 @@ fun checkPrimApp {args, prim, result} =
              of Seq _ => Bits.equals (width t, WordSize.bits s) 
            | _ => false)
       val simdReal = fn s => fn t => equals (t, simdReal s)
+      val simdRealtoReal =
+       (fn V128R32 => RealSize.R32
+        | V128R64 => RealSize.R64
+        | V256R32 => RealSize.R32
+        | V256R64 => RealSize.R64)
       val word = fn s => fn t => equals (t, word s)
 
       val cint = word (WordSize.cint ())
@@ -661,13 +666,20 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
-       | Simd_Real_cmp (s,w) => simdRealTernary (s,w)
-       | Simd_Real_shuffle (s,w) => simdRealTernary (s,w)
+       | Simd_Real_cmp (s,w) => 
+         simdRealTernary (s,WordSize.fromBits(Bits.fromInt 8))
+(*       | Simd_Real_shuffle (s,w) => simdRealTernary (s,w)*)
 (*FIXME: TUCKER: This won't work as is*)
-       | Simd_Real_toScalar s => done ([simdReal s], SOME (real s))
-       | Simd_Real_fromScalar s => done ([real s], SOME (simdReal s))
-       | Simd_Real_toArray s => dome ([simdReal s], SOME (seq s))
-       | Simd_Real_fromArray s => done ([seq s], SOME (simdReal s))
+       | Simd_Real_toScalar s => 
+         done ([simdReal s], SOME (real (simdRealtoReal s)))
+       | Simd_Real_fromScalar s => 
+         done ([real (simdRealtoReal s)], SOME (simdReal s))
+       | Simd_Real_toArray s => 
+         done ([simdReal s], 
+               SOME (seq (WordSize.fromBits(SimdRealSize.bits s))))
+       | Simd_Real_fromArray s => 
+         done ([seq (WordSize.fromBits(SimdRealSize.bits s))], 
+               SOME (simdReal s))
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s
        | Word_addCheck (s, _) => wordBinary s

@@ -33,7 +33,7 @@ in
    structure CharSize = CharSize
    structure IntSize = IntSize
    structure RealSize = RealSize
-   structure SimdSize = SimdSize
+   structure SimdRealSize = SimdRealSize
    structure WordSize = WordSize
 end
 structure Atoms = Atoms (structure CharSize = CharSize
@@ -41,7 +41,7 @@ structure Atoms = Atoms (structure CharSize = CharSize
                          structure IntSize = IntSize
                          structure RealSize = RealSize
                          structure Record = Record
-                         structure SimdSize = SimdSize
+                         structure SimdRealSize = SimdRealSize
                          structure SortedRecord = SortedRecord
                          structure Tyvar = Tyvar
                          structure WordSize = WordSize)

@@ -13,7 +13,6 @@ signature WORD_SIZE_STRUCTS =
 signature WORD_SIZE =
    sig
       include WORD_SIZE_STRUCTS
-
       type t
 
       val all: t list

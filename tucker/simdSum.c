@@ -142,7 +142,7 @@ int simdFind(float* v,int len, float val){
     case 0x8: return i+3;//1000
     case 0x9: return i;//1001
     case 0xa: return i+1;//1010
-    case 0xb: return i://1011
+    case 0xb: return i;//1011
     case 0xc: return i+2;//1100
     case 0xd: return i;//1101
     case 0xe: return i+1;//1110

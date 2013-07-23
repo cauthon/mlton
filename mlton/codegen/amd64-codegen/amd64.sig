@@ -578,6 +578,9 @@ signature AMD64 =
           | SSE_PSLL (*logical shift left, w,d,q,dq*)
           | SSE_PSRL (*logical shift right w,d,q,dq*)
           | SSE_PSRA (*arithmetic shift right, w/d*)
+      datatype sse_cmpfp
+        = SSE_CMPPS
+        | SSE_CMPPD
 (*TODO: AVX Instructions (TUCKER)
  *because there are AVX 128 bit vex incoded int instructions and
  *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
@@ -782,7 +785,8 @@ signature AMD64 =
                            dst: Operand.t,
                            size: Size.t}
           (* Packed SSE floating point compare*)
-          | SSE_CmpFP of {src: Operand.t,
+          | SSE_CMPFP of {oper: sse_cmpfp,
+                          src: Operand.t,
                           dst: Operand.t,
                           size: Size.t,
                           imm: Operand.t}
@@ -1203,7 +1207,8 @@ signature AMD64 =
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
-        val instruction_sse_cmpfp : {src: Operand.t,
+        val instruction_sse_cmpfp : {oper: Instruction.sse_cmpfp,
+                                     src: Operand.t,
                                      dst: Operand.t,
                                      imm: Operand.t,
                                      size: Size.t} -> t

@@ -21,11 +21,11 @@ struct
      structure CFunction = CFunction
      structure RealSize = RealSize
      structure Prim = Prim
-     structure SimdSize = SimdSize
+     structure SimdRealSize = SimdRealSize
      structure WordSize = WordSize
      datatype z = datatype RealSize.t
      datatype z = datatype WordSize.prim
-     datatype z = datatype SimdSize.t
+     datatype z = datatype SimdRealSize.t
   end
 
   type transInfo = {addData : amd64.Assembly.t list -> unit,
@@ -38,7 +38,7 @@ struct
      let
         datatype z = datatype RealSize.t
         datatype z = datatype WordSize.prim
-        datatype z = datatype SimdSize.t
+        datatype z = datatype SimdRealSize.t
         fun w32168 s =
            case WordSize.prim s of
               W8 => true
@@ -99,9 +99,9 @@ struct
          | Simd_Real_hsub  _ => true
          | Simd_Real_addsub _ => true
          | Simd_Real_cmp _ => true
-         | Simd_Real_cmpeq _ => true
+(*         | Simd_Real_cmpeq _ => true
          | Simd_Real_cmplt _ => true
-         | Simd_Real_cmpgt _ => true
+         | Simd_Real_cmpgt _ => true*)
          | Simd_Real_fromArray _ => true
          | Simd_Real_toArray _ => true
          | Simd_Real_fromScalar _ => true
@@ -747,8 +747,6 @@ struct
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
                             src2size = dstsize)
-              (*TUCKER: how to select right move instr*)
-              val instr = Instruction.SSE_MOVAP 
               (* Reverse src1/src2 when src1 and src2 are temporaries
                * and the oper is commutative.
                *)
@@ -926,7 +924,7 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun SSE_CMPFP (oper,mov,imm) = 
+        fun sse_cmpfp (oper,mov,imm) 
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
@@ -1404,27 +1402,27 @@ struct
              | Simd_Real_and s =>
                (case s of
                    V128R32 =>
-                   sse_binlp (Instruction.SSE_ANDPS,Instruction.SSE_MOVUPS)
+                   sse_binlp (Instruction.SSE_ANDP,Instruction.SSE_MOVUPS)
                  | V128R64 => 
-                   sse_binlp (Instruction.SSE_ANDPD,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_ANDP,Instruction.SSE_MOVUPD))
              | Simd_Real_andn s =>
                (case s of
                    V128R32 =>
-                   sse_binlp (Instruction.SSE_ANDNPS,Instruction.SSE_MOVUPS)
+                   sse_binlp (Instruction.SSE_ANDNP,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binlp (Instruction.SSE_ANDNPD,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_ANDNP,Instruction.SSE_MOVUPD))
              | Simd_Real_or s => 
                (case s of
                    V128R32 =>
-                   sse_binlp (Instruction.SSE_ORPS,Instruction.SSE_MOVUPS)
+                   sse_binlp (Instruction.SSE_ORP,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binlp (Instruction.SSE_ORPD,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_ORP,Instruction.SSE_MOVUPD))
              | Simd_Real_xor s =>
                (case s of
                    V128R32 =>
-                   sse_binlp (Instruction.SSE_XORPS,Instruction.SSE_MOVUPS)
+                   sse_binlp (Instruction.SSE_XORP,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binlp (Instruction.SSE_XORPD,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_XORP,Instruction.SSE_MOVUPD))
              | Simd_Real_hadd s => 
                (case s of
                    V128R32 =>
@@ -1446,29 +1444,34 @@ struct
              | Simd_Real_cmp (s,i) =>
                (case s of
                    V128R32 =>
-                   sse_cmpfp (Instruction.SSE_CMPPS,Instruction.SSE_MOVUPS,i)
+                   sse_cmpfp (Instruction.SSE_CMPPS,Instruction.SSE_MOVUPS,
+                              Operand.immediate_int' 
+                                ((SimdRealSize.cmp i),
+                                 WordSize.fromBits(Bits.fromInt 8)))
                  | V128R64 =>
-                   sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD,i))
-             | Simd_Real_cmpeq s => sse_cmpfp 0w0
+                   sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD,
+                              Operand.immediate_int' ((SimdRealSize.cmp i),
+                                 WordSize.fromBits(Bits.fromInt 8))))
+(*             | Simd_Real_cmpeq s => sse_cmpfp 0w0
              | Simd_Real_cmplt s => sse_cmpfp 0w1
              | Simd_Real_cmpgt s => sse_cmpfp 0w6 (*actually not less than or
-                                                   *equal, but same thing*)
+                                                   *equal, but same thing*)*)
              | Simd_Real_toArray s => 
-               case s of 
+               (case s of 
                    V128R32 => sse_movfp Instruction.SSE_MOVUPS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD
+                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)
              | Simd_Real_fromArray s =>
-               case s of
+               (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVUPS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD
+                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)
              | Simd_Real_toScalar s => 
-               case s of
+               (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVPD
+                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)
              | Simd_Real_fromScalar s => 
-               case s of
+               (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVSD
+                 | V128R64 => sse_movfp Instruction.SSE_MOVSD)
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

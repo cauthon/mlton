@@ -21,10 +21,10 @@ structure Atoms =
                                structure IntSize = IntSize
                                structure RealSize = RealSize
                                structure WordSize = WordSize
-                               structure SimdSize = SimdSize)
+                               structure SimdRealSize = SimdRealSize)
       structure Con = Con ()
       structure CType = CType (structure RealSize = RealSize
-                               structure SimdSize = SimdSize
+                               structure SimdRealSize = SimdRealSize
                                structure WordSize = WordSize)
       structure WordX = WordX (structure WordSize = WordSize)
       structure RealX = RealX (structure RealSize = RealSize
@@ -53,7 +53,7 @@ structure Atoms =
                              structure Const = Const
                              structure RealSize = RealSize
                              structure WordSize = WordSize
-                             structure SimdSize = SimdSize)
+                             structure SimdRealSize = SimdRealSize)
       structure Ffi = Ffi (structure CFunction = CFunction
                            structure CType = CType)
       structure Vars = UnorderedSet (Var)

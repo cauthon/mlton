@@ -440,7 +440,8 @@ struct
                                                src = src,
                                                size = srcsize}
                           | amd64.Size.VEC => amd64.Assembly.instruction_sse_movfp
-                                              {instr = amd64.Instruction.SSE_MOVAP,
+(*NOTE: TUCKER: Needs to be parameterized by element size*)
+                                              {instr = amd64.Instruction.SSE_MOVAPD,
                                                 dst = dst,
                                                src = src,
                                                size = srcsize}),

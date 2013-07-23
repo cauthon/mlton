@@ -5,7 +5,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  */
-
+//TUCKER: You need to add simd types to this file
 #include "cenv.h"
 #include "util.h"
 
@@ -127,6 +127,21 @@ static const char* mlTypesHStd[] = {
   "typedef Vector(Char16_t) String16;",
   "typedef Vector(Char32_t) String32_t;",
   "typedef Vector(Char32_t) String32;",
+  "",
+  "typedef __m128 Simd128_Real32;",
+  "typedef __m128 Simd128_Real32_t;",
+  "typedef __m128d Simd128_Real64;",
+  "typedef __m128d Simd128_Real64_t;",
+  "typedef __m128i Simd128_WordX;",
+  "typedef __m128i Simd128_WordX_t;",
+  "#ifdef __AVX__",
+  "typedef __m256 Simd256_Real32;",
+  "typedef __m256 Simd256_Real32_t;",
+  "typedef __m256d Simd256_Real64;",
+  "typedef __m256d Simd256_Real64_t;",
+  "typedef __m256i Simd256_WordX;",
+  "typedef __m256i Simd256_WordX_t;",
+  "#endif",
   "",
   "typedef Int32_t Bool_t;",
   "typedef Int32_t Bool;",

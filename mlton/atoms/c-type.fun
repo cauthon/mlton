@@ -58,12 +58,12 @@ fun memo (f: t -> 'a): t -> 'a =
       val word16 = f Word16
       val word32 = f Word32
       val word64 = f Word64
-      val Simd128_Real32 = f Simd128_Real32
-      val Simd128_Real64 = f Simd128_Real64
-      val Simd128_WordX  = f Simd128_WordX
-      val Simd256_Real32 = f Simd256_Real32
-      val Simd256_Real64 = f Simd256_Real64
-      val Simd256_WordX  = f Simd256_WordX
+      val simd128_real32 = f Simd128_Real32
+      val simd128_real64 = f Simd128_Real64
+      val simd128_wordx  = f Simd128_WordX
+      val simd256_real32 = f Simd256_Real32
+      val simd256_real64 = f Simd256_Real64
+      val simd256_wordx  = f Simd256_WordX
    in
       fn CPointer => cpointer
        | Int8 => int8
@@ -175,15 +175,15 @@ fun word (s: WordSize.t, {signed: bool}): t =
 fun simdReal (s: SimdRealSize.t) =
    case Bits.toInt (SimdRealSize.bits s) of
       128 => 
-      (case Bits.toInt (SimdRealSize.realBits r) of
+      (case Bits.toInt (SimdRealSize.realBits s) of
           32 => Simd128_Real32
         | 64 => Simd128_Real64
-        | Error.bug "CType.simdReal")
+        | _ =>Error.bug "CType.simdReal")
     | 256 => 
-      (case Bits.toInt (SimdRealSize.realBits r) of
+      (case Bits.toInt (SimdRealSize.realBits s) of
            32 => Simd256_Real32
          | 64 => Simd256_Real64
-         | Error.bug "CType.simdReal")
+         | _ =>Error.bug "CType.simdReal")
     | _ => Error.bug "CType.simdReal"
 
 val cint =

@@ -218,18 +218,25 @@ signature AMD64_PSEUDO =
           | SSE_MINS (* minimum; p. 132, 134 *)
         (* Packed SSE binary arithmetic instructions. *)
         datatype sse_binap
-          = SSE_ADDP
-          | SSE_SUBP
-          | SSE_MULP
-          | SSE_DIVP
-          | SSE_MAXP
-          | SSE_MINP
+          = SSE_ADDPS
+          | SSE_SUBPS
+          | SSE_MULPS
+          | SSE_DIVPS
+          | SSE_MAXPS
+          | SSE_MINPS
+          | SSE_ADDPD
+          | SSE_SUBPD
+          | SSE_MULPD
+          | SSE_DIVPD
+          | SSE_MAXPD
+          | SSE_MINPD
         (* Scalar SSE unary arithmetic instructions. *)
         datatype sse_unas
           = SSE_SQRTS (* square root; p. 360,362 *)
         (* Packed SSE unary arithmetic instructions. *)
         datatype sse_unap
-          = SSE_SQRTP
+          = SSE_SQRTPS
+          | SSE_SQRTPD
         (* Packed SSE binary logical instructions 
          *(same for scalar and packed). *)
         datatype sse_binlp
@@ -237,17 +244,41 @@ signature AMD64_PSEUDO =
           | SSE_ANDP (* and; p. 21,23 *)
           | SSE_ORP (* or; p. 206,208 *)
           | SSE_XORP (* xor; p. 391,393 *)
+        (*TODO:sse fp shuffle, pack, and blend operations*)
+        (*sse3 binary artihmatic opperations (hadd/sub & addsub*)
         datatype sse3_binap
-          = SSE_ADDSUBP (*add odd pairs, subtract even pairs*)
-          | SSE_HADDP (*horizontal add*)
-          | SSE_HSUBP (*horizontal subtract*)
+        = SSE_ADDSUBPS (*add odd pairs, subtract even pairs*)
+        | SSE_HADDPS (*horizontal add*)
+        | SSE_HSUBPS (*horizontal subtract*)
+        | SSE_ADDSUBPD (*add odd pairs, subtract even pairs*)
+        | SSE_HADDPD (*horizontal add*)
+        | SSE_HSUBPD (*horizontal subtract*)
         (*floating point sse move instructions*)
-        datatype sse_movfp
-          = SSE_MOVAP
-          | SSE_MOVUP
-          | SSE_MOVLP
-          | SSE_MOVHP
-(*          | SSE_MOVS*)
+      datatype sse_movfp
+        =   SSE_MOVAPS (*Move aligned fp data*)
+          | SSE_MOVUPS (*Move unaligned fp data*)
+          | SSE_MOVLPS (*Move low fp value(s)*)
+          | SSE_MOVHPS (*Move high fp value (s)*)
+          | SSE_MOVSS  (*Move scalar fp value*)
+          | SSE_MOVAPD (*Move aligned fp data*)
+          | SSE_MOVUPD (*Move unaligned fp data*)
+          | SSE_MOVLPD (*Move low fp value(s)*)
+          | SSE_MOVHPD (*Move high fp value (s)*)
+          | SSE_MOVSD  (*Move scalar fp value*)
+(*there are also instructions to duplicate elements and move*)
+        datatype sse_shuffp (*shuffle floating point*)
+        = SSE_SHUFPS (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                     *selected by imm8*)
+        | SSE_MOVHLPS
+        | SSE_MOVLHPS
+        | SSE_BLENDPS (*BLEND xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                      *chosen from src or dst based on imm8*)
+        | SSE_SHUFPD 
+        | SSE_MOVHLPD
+        | SSE_MOVLHPD
+        | SSE_BLENDPD (*BLEND xmm,xmm/m128,imm8 -> xmm, elements of dst are
+                      *chosen from src or dst based on imm8*)
+        (* TODO: Integer SSE instructions(TUCKER)*)
         (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
         (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
         datatype sse_ibinap
@@ -295,6 +326,9 @@ signature AMD64_PSEUDO =
           | SSE_PSLL (*logical shift left, w,d,q,dq*)
           | SSE_PSRL (*logical shift right w,d,q,dq*)
           | SSE_PSRA (*arithmetic shift right, w/d*)
+        datatype sse_cmpfp
+          = SSE_CMPPS
+          | SSE_CMPPD
 (*TODO: AVX Instructions (TUCKER)
  *because there are AVX 128 bit vex incoded int instructions and
  *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
@@ -464,6 +498,11 @@ signature AMD64_PSEUDO =
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
+        val instruction_sse_cmpfp : {oper: Instruction.sse_cmpfp,
+                                     src: Operand.t,
+                                     dst: Operand.t,
+                                     imm: Operand.t,
+                                     size: Size.t} -> t
         val instruction_sse_comis : {src1: Operand.t,
                                      src2: Operand.t,
                                      size: Size.t} -> t

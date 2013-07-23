@@ -603,8 +603,9 @@ struct
                                                         src = Operand.memloc src,
                                                         size = dstsize})::stmts
                                                | Size.VEC =>
+(*NOTE: TUCKER: Needs to be parameterized by element size*)
                                                       (amd64.Assembly.instruction_sse_movfp
-                                                       {instr = amd64.Instruction.SSE_MOVAP,
+                                                       {instr = amd64.Instruction.SSE_MOVAPD,
                                                         dst = dst,
                                                         src = Operand.memloc src,
                                                         size = dstsize})::stmts)

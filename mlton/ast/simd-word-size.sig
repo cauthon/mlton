@@ -1,8 +1,8 @@
-signature SIMD_WORD_STRUCTS =
+signature SIMD_WORD_SIZE_STRUCTS =
   sig
     structure WordSize:WORD_SIZE
   end
-signature SIMD_WORD =
+signature SIMD_WORD_SIZE =
 sig
   type t'
   datatype t = V128WX of t'

@@ -8,3 +8,4 @@
 #else
 #define ADDRESS_BITS 40
 #endif
+#include <x86intrin.h>
