@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <unistd.h>
 void features();
-void flags();
+void mflags();
+int main(int argc,char * const argv[]){
 #if (defined (__x86_64__))
 /* call cpuid function to determine available instructions,
    running the program prints a list of the form
@@ -13,7 +15,6 @@ cpuid(unsigned info,unsigned *eax,unsigned *ebx,unsigned *ecx,unsigned *edx){
                     :"=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx)
                     :"0" (info));
 }
-{
   typedef union{
     unsigned int name;
     unsigned char bytes[4];
@@ -67,17 +68,37 @@ cpuid(unsigned info,unsigned *eax,unsigned *ebx,unsigned *ecx,unsigned *edx){
   printf(//"mmx=%c\nfxsave=%c\nsse=%c\nsse2=%c\n"
          "sse3=%c\nssse3=%c\nsse4_1=%c\nsse4_2=%c\n"
          "aes=%c\nosxsave=%c\navx=%c\nfma=%c\navx2=%c\n",
-         //bool_flags[0],bool_flags[1],bool_flags[2],bool_flags[3],bool_flags[4],
-         bool_flags[5],bool_flags[6],bool_flags[7],bool_flags[8],bool_flags[9],
-         bool_flags[10],bool_flags[11],bool_flags[12]);
+         //bool_flags[0],bool_flags[1],bool_flags[2],bool_flags[3]
+         bool_flags[4],bool_flags[5],bool_flags[6],bool_flags[7],bool_flags[8],
+         bool_flags[9],bool_flags[10],bool_flags[11],bool_flags[12]);
   }
-  void flags(){
-}
+  void mflags(){
+    if (bool_flags[12]){
+      printf("-mavx2");
+    } else if (bool_flags[10]){
+      printf("-mavx");
+    } else if (bool_flags[7]){
+      printf("-msse4.2");
+    } else if (bool_flags[6]){
+      printf("-msse4.1");
+    } else if (bool_flags[5]){
+      printf("-mssse3");
+    } else if (bool_flags[4]){
+      printf("-msse3");
+    } else {
+      printf("-msse2");
+    }
+  }
 #else
 void features(){}
+void flags(){}
 #endif
 
-int main(){
-  features();
+
+  if (getopt(argc,argv,"m") == 'm'){
+    mflags();
+  } else {
+    features();
+  }
   return 0;
 }

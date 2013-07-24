@@ -1,47 +1,42 @@
 signature SIMD_REAL =
-(*there are enough differences between floating pt simd instructions and 
- *integer ones that they merit different signatures*)
 sig
-  val vec_size:Int32.int (*size of the simd vector, multiple of 128*)
-  val real_size:Int32.int
+  val vecSize:Int32.int (*size of the simd vector 128 or 256,
+                          *hopefully later any multiple of 128*)
+  val realSize:Int32.int (*size of real, 32/64*)
   type t (* high level type *)
-  type e (* element type*)
+  type elem (* element type*)
 (*load/store*)
-  val fromArray:e array -> t
-(*I wish I new how to get an array from an array*)
-  val fromArraySlice:e slice -> t
-  val fromList:e list -> t
-  val fromScalar:e -> t
-  val toScalar:t -> e(*e = lowest element in t*)
+  val fromArray:elem array -> t
+  val fromArraySlice:elem slice -> t
+  val set:elem list -> t
+  val set1:elem -> t
+  val fromScalar:elem -> t
+  val toScalar:t -> elem(*e = lowest element in t*)
 (* because of toScalar we can get any element of a simd vector,
- * albeit not super efficently.
- * basically given a simd vector and an index i we can shuffle the
- * vector so that i is the lowest element then get the scalar value*)
+ * albeit not super efficently, via shuffling.*)
 (*math*)
-  val add:t*t->t(*vex 256 && 128*)
-  val sub:t*t->t(*vex 256 && 128*)
-  val mul:t*t->t(*vex 256 && 128*)
-  val div:t*t->t(*vex 256 && 128*)
-  val sqrt:t*t->t(*vex 256 && 128*)
-  val min:t*t->t(*vex 256 && 128*)
-  val max:t*t->t(*vex 256 && 128*)
-(*HADD(HSUB is same but with - instead of +
+  val add:t*t->t
+  val sub:t*t->t
+  val mul:t*t->t
+  val div:t*t->t
+  val sqrt:t*t->t
+  val min:t*t->t
+  val max:t*t->t
+(*HADD(HSUB follows same pattern
  *SRC :|X7|X6|X5|X4|X3|X2|X1|X0|
  *DEST:|Y7|Y6|Y5|Y4|Y3|Y2|Y1|Y0| (*or SRC2*)
  *END :|Y6+Y7|Y4+Y5|X6+X7|X4+X5|Y2+Y3|X0+Y1|X2+X3|X0+X1|*)
-  val hadd:t*t->t(*horozontal add*)(*vex 256 && 128*)
-  val hsub:t*t->t(*horozontal sub*)(*vex 256 && 128*)
-  val addsub:t*t->t(*add odd indices, sub even indices*)(*vex 256 && 128*)
-(*  val VDOT:v*v->e vdot not acutually super useful *)
-(*bitwise, no shifts for floating pt numbers*)
-  val andb:t*t->t(*vex 256 && 128*)
-  val xorb:t*t->t(*vex 256 && 128*)
-  val orb: t*t->t(*vex 256 && 128*)
-  val andnb:t*t->t(*vex 256 && 128*)
+  val hadd:t*t->t(*horozontal add*)
+  val hsub:t*t->t(*horozontal sub*)
+  val addsub:t*t->t(*add odd indices, sub even indices*)
+(*bitwise, no shifts for floating pt numbers, for obvious reasons*)
+  val andb:t*t->t
+  val xorb:t*t->t
+  val orb: t*t->t
+  val andnb:t*t->t
   val notb:t->t (*0xff..ff and opperand = ! opperand*)
-(*Round/Convert*)
-  val vroundp:v*v*word8.word->vi(*actual round instruction*)(*vex 256 && 128*)
-(*might not make ^ part of the final sig, but it does need to exist internally*)
+(*(*Round/Convert*)
+  val vroundp:t*t*word8.word->wordx.t(*actual round instruction*)
   (*Need to implement these myself,all are just round with a different imm*)
   (*Also need to make theme take a type argument to determine size*)
   val vround:t*t*int->wordx.t(*imm=00*)
@@ -51,11 +46,10 @@ sig
 (*these are a lot more complicated, but we should be able to just have a from
  *and a to function and pick the right instruction based on the types*)
   val vcvt2f:WordX.t->t
-  val vcvt2i:t->WordX.t
-(*SSE has 8 float comparisons, AVX has 32 so we implement comparisons as
- *a datatype of possible comparisions and a function that takes
- *a value of that type to generate the right instruction*)
-  datatype cmp(*type of comparison predicates*)
+  val vcvt2i:t->WordX.t*)
+(*SSE has 8 float comparisons, AVX has 32 so we implement comparisons using
+ *a datatype of possible comparisions*)
+  datatype cmp(*type of comparison predicates, its just an integer*)
   val cmp: t*t*cmp->t
 (*return true if any of the comparisons return true, uses maskmove
    fun cmpBool(s1,s2,cmp) =
@@ -65,38 +59,12 @@ sig
    end
  *)
   val cmpBool: t*t*cmp -> bool
-(*return a list of booleans, one for each comparison
-  maskmove results: a 4bit mask 0 if false 1 if true, fastest way is
-  likely to write out a jmp table(switch statment) for all 15 values,
-  unless someone can think of a better way thats what I'll do
- *)
+(*return a list of booleans, one for each comparison*)
   val cmpBools: t*t*cmp -> bool list
-(*basic use of comparisons to find an element in an array could look like this
-  fun simdFind (a:'a array,x: 'a) =
-     let 
-       val search = set1(x)(*load a simd vector of repeated x's*)
-       val len = Array.length a
-       fun find (i:int):bool =
-         let
-           val s1 = fromArray(a[i])
-         in cmpBool(s1,search,cmpeq) end
-       fun loop (i:int) = if i > len then (false,false...false)
-          else if cmpBool(i) then cmpBools(fromArray(a[i],search,cmpeq)
-          else loop(i+n)
-   in loop 0 end
-  *needs to be fixed up a bit to deal with arrays of length not divisable by 
-  *the length of the simd vector*)
-(*unpack/shuffle/blend,etc*)
-(*if we can have any size vector not sure how best to do shuffle
- *but we need it so figure it out*)
-  val shuffle:t*t*word8.word->t(*vex 256 && 128*)
-  val blend:t*t*t->t(*vex 256 && 128*)
-  val toScalar:t -> e
-  val extract:t*word8.word -> e
-  val toArray:t -> e array
-(*whole bunch of mov & pack/unpack etc instructions, don't need those in the
- *public sig, though part of me wants to put them there since I hate private
- *stuff that doesn't need to be private*)
+(*(*unpack/shuffle/blend,etc*)
+  val shuffle:t*t*word8.word->t
+  val blend:t*t*t->t
+  val extract:t*word8.word -> e*)
 end
 
 signature SIMD_WORD = sig
