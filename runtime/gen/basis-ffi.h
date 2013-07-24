@@ -852,7 +852,7 @@ PRIVATE Real64_t Real64_strtor(NullString8_t,C_Int_t);
 MLTON_CODEGEN_STATIC_INLINE Real64_t Real64_sub(Real64_t,Real64_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_add(Simd128_Real32_t,Simd128_Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_andb(Simd128_Real32_t,Simd128_Real32_t);
-MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_andnb(Simd128_Real32_t,Simd128_Real32_t);
+MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_andnotb(Simd128_Real32_t,Simd128_Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_div(Simd128_Real32_t,Simd128_Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_load(Array(Real32_t));
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_load1(Real32_t);

@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <ctype.h>
+void features();
+void flags();
+#if (defined (__x86_64__))
 /* call cpuid function to determine available instructions,
    running the program prints a list of the form
    feature = 1/0, where 1 indicates the feature is present
@@ -10,8 +13,7 @@ cpuid(unsigned info,unsigned *eax,unsigned *ebx,unsigned *ecx,unsigned *edx){
                     :"=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx)
                     :"0" (info));
 }
-void
-features(){
+{
   typedef union{
     unsigned int name;
     unsigned char bytes[4];
@@ -61,13 +63,20 @@ features(){
   for (i=0;i<13;i++){
     bool_flags[i] = flags[i]==0?0x0:0x31;
   }
+  void features(){
   printf(//"mmx=%c\nfxsave=%c\nsse=%c\nsse2=%c\n"
          "sse3=%c\nssse3=%c\nsse4_1=%c\nsse4_2=%c\n"
          "aes=%c\nosxsave=%c\navx=%c\nfma=%c\navx2=%c\n",
          //bool_flags[0],bool_flags[1],bool_flags[2],bool_flags[3],bool_flags[4],
          bool_flags[5],bool_flags[6],bool_flags[7],bool_flags[8],bool_flags[9],
          bool_flags[10],bool_flags[11],bool_flags[12]);
+  }
+  void flags(){
 }
+#else
+void features(){}
+#endif
+
 int main(){
   features();
   return 0;

@@ -205,9 +205,9 @@ runtime:
 		basis-library/primitive/basis-ffi.sml
 	$(CP) runtime/*.h "$(INC)/"
 	mv "$(INC)/c-types.h" "$(LIB)/targets/$(TARGET)/include"
-	for d in basis basis/Real basis/Word gc platform util; do	\
-		mkdir -p "$(INC)/$$d";					\
-		$(CP) runtime/$$d/*.h "$(INC)/$$d";			\
+	for d in basis basis/Real basis/Word basis/Simd gc platform util; do	\
+		mkdir -p "$(INC)/$$d";						\
+		$(CP) runtime/$$d/*.h "$(INC)/$$d";				\
 	done
 	for x in "$(LIB)/targets/$(TARGET)"/*.a; do $(RANLIB) "$$x"; done
 

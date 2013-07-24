@@ -1023,7 +1023,7 @@ val sub = _import "Real64_sub" private : Real64.t * Real64.t -> Real64.t;
 end
 val Simd128_Real32_add = _import "Simd128_Real32_add" private : Simd128_Real32.t * Simd128_Real32.t -> Simd128_Real32.t;
 val Simd128_Real32_andb = _import "Simd128_Real32_andb" private : Simd128_Real32.t * Simd128_Real32.t -> Simd128_Real32.t;
-val Simd128_Real32_andnb = _import "Simd128_Real32_andnb" private : Simd128_Real32.t * Simd128_Real32.t -> Simd128_Real32.t;
+val Simd128_Real32_andnotb = _import "Simd128_Real32_andnotb" private : Simd128_Real32.t * Simd128_Real32.t -> Simd128_Real32.t;
 val Simd128_Real32_div = _import "Simd128_Real32_div" private : Simd128_Real32.t * Simd128_Real32.t -> Simd128_Real32.t;
 val Simd128_Real32_load = _import "Simd128_Real32_load" private : (Real32.t) array -> Simd128_Real32.t;
 val Simd128_Real32_load1 = _import "Simd128_Real32_load1" private : Real32.t -> Simd128_Real32.t;
