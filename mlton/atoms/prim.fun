@@ -219,6 +219,8 @@ datatype 'a t =
  | WordVector_toIntInf (* ssa to rssa *)
  | Word8Array_subWord of WordSize.t (* ssa to rssa *)
  | Word8Array_updateWord of WordSize.t  (* ssa to rssa *)
+ | Word8Array_subSimdReal of SimdRealSize.t (* to be determined *)
+ | Word8Array_updateSimdReal of SimdRealSize.t (* to be determined *)
  | Word8Vector_subWord of WordSize.t  (* ssa to rssa *)
  | Word8Vector_toString (* defunctorize *)
  | World_save (* ssa to rssa *)
@@ -240,6 +242,9 @@ fun toString (n: 'a t): string =
          concat ["Word", WordSize.toString s, "_", str]
       fun word8Seq (seq: string, oper: string, s: WordSize.t): string =
          concat ["Word8", seq, "_", oper, "Word", WordSize.toString s]
+      fun word8SimdReal (oper: string, SimdRealSize.t): string =
+         concat ["Word8", seq, "_", oper, "Simd",
+                 SimdRealSize.toStringSimd s, "_" , "Real", SimdRealSize.toStringReal s]
       fun wordS (s: WordSize.t, sg, str: string): string =
          concat [sign sg, WordSize.toString s, "_", str]
       val realC = ("Real", RealSize.toString)

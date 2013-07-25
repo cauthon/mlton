@@ -55,7 +55,7 @@ structure Type =
              | Real s => str (concat ["Real", RealSize.toString s])
              | Seq ts => List.layout layout (Vector.toList ts)
              | SimdReal s => str (concat 
-                                    ["Simd", SimdRealSize.toStringSimd s,
+                                    ["Simd", SimdRealSize.toStringSimd s,"_",
                                      "Real", SimdRealSize.toStringReal s])
              | Word s => str (concat ["Word", WordSize.toString s])
          end
@@ -235,7 +235,12 @@ structure Type =
          fn t =>
          case node t of
             Real s => SOME s
-          | _ => NONE
+(*Do I need this ??*)
+      val deSimdReal: t -> RealSize.t option =
+         fn t =>
+         case node t of
+            SimdReal s => SOME s
+          | _ => NONE          | _ => NONE
       
       val deSeq: t -> t vector option =
          fn t =>

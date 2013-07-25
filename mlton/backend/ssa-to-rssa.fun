@@ -269,7 +269,7 @@ structure CFunction =
             target = Direct "GC_size",
             writesStackTop = true}
    end
-
+(*TUCKER: You probably need to add simd names here*)
 structure Name =
    struct
       open Prim.Name
