@@ -12,7 +12,6 @@ local
 in
 val all = (List.map (all',temp128) @ List.map(all',temp256))
 end
-val equals = op =
 val bytes =
  fn (V128WX _) => Bytes.fromInt 128
   | (V256WX _) => Bytes.fromInt 256
@@ -30,6 +29,8 @@ in
 end
 val bits = Bytes.toBits o bytes
 val wordBits = Bytes.toBits o wordBytes
+fun equals (s,s') = Bits.equals(bits s,bits s') andalso 
+                    Bits.equals(wordBits s,wordBits s')
 val toStringSimd = Bits.toString o bits
 val toStringWord = Bits.toString o wordBits
 val memoize: (t -> 'a) -> t -> 'a =

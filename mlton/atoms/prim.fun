@@ -163,8 +163,8 @@ datatype 'a t =
  | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
  | Simd_Real_cmp of SimdRealSize.t * SimdRealSize.cmp
 (* | Simd_Real_shuffle of SimdRealSize.t * Word8.word*)
- | Simd_Real_fromArray of SimdRealSize.t
- | Simd_Real_toArray of SimdRealSize.t
+(* | Simd_Real_fromArray of SimdRealSize.t
+ | Simd_Real_toArray of SimdRealSize.t*)
  | Simd_Real_fromScalar of SimdRealSize.t
  | Simd_Real_toScalar of SimdRealSize.t
 (*
@@ -242,8 +242,8 @@ fun toString (n: 'a t): string =
          concat ["Word", WordSize.toString s, "_", str]
       fun word8Seq (seq: string, oper: string, s: WordSize.t): string =
          concat ["Word8", seq, "_", oper, "Word", WordSize.toString s]
-      fun word8SimdReal (oper: string, SimdRealSize.t): string =
-         concat ["Word8", seq, "_", oper, "Simd",
+      fun word8SimdReal (oper: string, s: SimdRealSize.t): string =
+         concat ["Word8", "Array", "_", oper, "Simd",
                  SimdRealSize.toStringSimd s, "_" , "Real", SimdRealSize.toStringReal s]
       fun wordS (s: WordSize.t, sg, str: string): string =
          concat [sign sg, WordSize.toString s, "_", str]
@@ -374,8 +374,8 @@ fun toString (n: 'a t): string =
        | Simd_Real_cmp (s,c) => simd_real (s,SimdRealSize.cmpString c)
        | Simd_Real_fromScalar s => simd_real (s,"loads")
        | Simd_Real_toScalar s => simd_real (s, "stores")
-       | Simd_Real_fromArray s => simd_real (s,"load")
-       | Simd_Real_toArray s => simd_real (s,"store")
+(*       | Simd_Real_fromArray s => simd_real (s,"load")
+       | Simd_Real_toArray s => simd_real (s,"store")*)
        | String_toWord8Vector => "String_toWord8Vector"
        | Thread_atomicBegin => "Thread_atomicBegin"
        | Thread_atomicEnd => "Thread_atomicEnd"
@@ -395,6 +395,8 @@ fun toString (n: 'a t): string =
        | Weak_new => "Weak_new"
        | Word8Array_subWord w => word8Seq ("Array", "sub", w)
        | Word8Array_updateWord w => word8Seq ("Array", "update", w)
+       | Word8Array_subSimdReal s => word8SimdReal ("sub", s)
+       | Word8Array_updateSimdReal s => word8SimdReal ("update", s)
        | Word8Vector_subWord w => word8Seq ("Vector", "sub", w)
        | Word8Vector_toString => "Word8Vector_toString"
        | WordVector_toIntInf => "WordVector_toIntInf"
@@ -546,10 +548,10 @@ val equals: 'a t * 'a t -> bool =
     | (Simd_Real_cmpgt s, Simd_Real_cmpgt s') => SimdRealSize.equals (s,s')*)
     | (Simd_Real_cmp (s,c),Simd_Real_cmp (s',c')) => SimdRealSize.equals(s,s')
                                              andalso op=(c,c')
-    | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
+(*    | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
       SimdRealSize.equals (s,s')
     | (Simd_Real_toArray s, Simd_Real_toArray s') =>
-      SimdRealSize.equals (s,s')
+      SimdRealSize.equals (s,s')*)
     | (Simd_Real_fromScalar s, Simd_Real_fromScalar s') =>
       SimdRealSize.equals (s,s')
     | (Simd_Real_toScalar s, Simd_Real_toScalar s') =>
@@ -614,6 +616,10 @@ val equals: 'a t * 'a t -> bool =
     | (WordVector_toIntInf, WordVector_toIntInf) => true
     | (Word8Array_subWord s, Word8Array_subWord s') => WordSize.equals (s, s')
     | (Word8Array_updateWord s, Word8Array_updateWord s') => WordSize.equals (s, s')
+    | (Word8Array_subSimdReal s, Word8Array_subSimdReal s') =>
+      SimdRealSize.equals (s, s')
+    | (Word8Array_updateSimdReal s, Word8Array_updateSimdReal s') => 
+      SimdRealSize.equals (s, s')
     | (Word8Vector_subWord s, Word8Vector_subWord s') => WordSize.equals (s, s')
     | (Word8Vector_toString, Word8Vector_toString) => true
     | (World_save, World_save) => true
@@ -732,8 +738,8 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Real_cmplt s => Simd_Real_cmplt s
     | Simd_Real_cmpgt s => Simd_Real_cmpgt s*)
     | Simd_Real_cmp (s,c) => Simd_Real_cmp (s,c)
-    | Simd_Real_fromArray s => Simd_Real_fromArray s
-    | Simd_Real_toArray s => Simd_Real_toArray s
+(*    | Simd_Real_fromArray s => Simd_Real_fromArray s
+    | Simd_Real_toArray s => Simd_Real_toArray s*)
     | Simd_Real_fromScalar s => Simd_Real_fromScalar s
     | Simd_Real_toScalar s => Simd_Real_toScalar s
     | String_toWord8Vector => String_toWord8Vector
@@ -780,6 +786,8 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | WordVector_toIntInf => WordVector_toIntInf
     | Word8Array_subWord z => Word8Array_subWord z
     | Word8Array_updateWord z => Word8Array_updateWord z
+    | Word8Array_subSimdReal z => Word8Array_subSimdReal z
+    | Word8Array_updateSimdReal z => Word8Array_updateSimdReal z
     | Word8Vector_subWord z => Word8Vector_subWord z
     | Word8Vector_toString => Word8Vector_toString
     | World_save => World_save
@@ -810,10 +818,10 @@ fun cpointerGet ctype =
        | Word16 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 64))
-       | Simd128Real32 => CPointer_getSimdReal (SimdRealSize.V128R32)
-       | Simd128Real64 => CPointer_getSimdReal (SimdRealSize.V128R64)
-       | Simd256Real32 => CPointer_getSimdReal (SimdRealSize.V256R32)
-       | Simd256Real64 => CPointer_getSimdReal (SimdRealSize.V256R64) 
+       | Simd128_Real32 => CPointer_getSimdReal (SimdRealSize.V128R32)
+       | Simd128_Real64 => CPointer_getSimdReal (SimdRealSize.V128R64)
+       | Simd256_Real32 => CPointer_getSimdReal (SimdRealSize.V256R32)
+       | Simd256_Real64 => CPointer_getSimdReal (SimdRealSize.V256R64) 
 
    end
 val cpointerLt = CPointer_lt
@@ -833,10 +841,10 @@ fun cpointerSet ctype =
        | Word16 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 64))
-       | Simd128Real32 => CPointer_setSimdReal (SimdRealSize.V128R32)
-       | Simd128Real64 => CPointer_setSimdReal (SimdRealSize.V128R64)
-       | Simd256Real32 => CPointer_setSimdReal (SimdRealSize.V256R32)
-       | Simd256Real64 => CPointer_setSimdReal (SimdRealSize.V256R64)       
+       | Simd128_Real32 => CPointer_setSimdReal (SimdRealSize.V128R32)
+       | Simd128_Real64 => CPointer_setSimdReal (SimdRealSize.V128R64)
+       | Simd256_Real32 => CPointer_setSimdReal (SimdRealSize.V256R32)
+       | Simd256_Real64 => CPointer_setSimdReal (SimdRealSize.V256R64)       
    end
 val cpointerSub = CPointer_sub
 val cpointerToWord = CPointer_toWord
@@ -1025,8 +1033,8 @@ val kind: 'a t -> Kind.t =
 (*should these be SideEffect or Moveable*)
        | Simd_Real_fromScalar _ => SideEffect
        | Simd_Real_toScalar _ => SideEffect
-       | Simd_Real_fromArray _ => SideEffect
-       | Simd_Real_toArray _ => SideEffect
+(*       | Simd_Real_fromArray _ => SideEffect
+       | Simd_Real_toArray _ => SideEffect*)
        | String_toWord8Vector => Functional
        | Thread_atomicBegin => SideEffect
        | Thread_atomicEnd => SideEffect
@@ -1046,6 +1054,8 @@ val kind: 'a t -> Kind.t =
        | Weak_new => Moveable
        | Word8Array_subWord _ => DependsOnState
        | Word8Array_updateWord _ => SideEffect
+       | Word8Array_subSimdReal_ => DependsOnState
+       | Word8Array_updateSimdReal_ => SideEffect
        | Word8Vector_subWord _ => Functional
        | Word8Vector_toString => Functional
        | WordVector_toIntInf => Functional
@@ -1125,10 +1135,11 @@ local
 (*       (Simd_Real_cmpeq s),
        (Simd_Real_cmplt s),
        (Simd_Real_cmpgt s),*)
-       (Simd_Real_fromArray s),
-       (Simd_Real_toArray s),
+(*       (Simd_Real_fromArray s),
+       (Simd_Real_toArray s),*)
        (Simd_Real_fromScalar s),
        (Simd_Real_toScalar s)]
+(*need to add to list, via some sort of mapping *)
    fun simdRealcmp (s: SimdRealSize.t,c: SimdRealSize.cmp) =
        [(Simd_Real_cmp (s,c))]
 
@@ -1166,6 +1177,9 @@ local
       [(Word8Array_subWord s),
        (Word8Array_updateWord s),
        (Word8Vector_subWord s)]
+   fun word8SimdReals (s: SimdRealSize.t) =
+      [(Word8Array_subSimdReal s),
+       (Word8Array_updateSimdReal s)]
 in
    val all: unit t list =
       [Array_array,
@@ -1275,6 +1289,7 @@ in
            coercesS (Word_rndToReal, word, real, []))))))
         end
      @ List.concatMap (WordSize.prims, word8Seqs)
+     @ List.concatMap (SimdRealSize.all, word8SimdReals)
      @ let
           fun doit (all, get, set) =
              List.concatMap (all, fn s => [get s, set s])
@@ -1396,10 +1411,10 @@ fun 'a checkApp (prim: 'a t,
       val bigIntInfWord = word (WordSize.bigIntInfWord ())
       val smallIntInfWord = word (WordSize.smallIntInfWord ())
       val simdRealtoReal =
-       fn V128R32 => RealSize.R32
-        | V128R64 => RealSize.R64
-        | V256R32 => RealSize.R32
-        | V256R64 => RealSize.R64
+       fn SimdRealSize.V128R32 => RealSize.R32
+        | SimdRealSizeV128R64 => RealSize.R64
+        | SimdRealSizeV256R32 => RealSize.R32
+        | SimdRealSizeV256R64 => RealSize.R64
       val word8 = word WordSize.word8
       val word32 = word WordSize.word32
       fun intInfBinary () =
@@ -1555,10 +1570,10 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_cmplt s => simdRealBinary s
        | Simd_Real_cmpgt s => simdRealBinary s*)
 (*Need to ask about these, not sure if I need a type arg or not*)
-       | Simd_Real_toArray s =>
+(*       | Simd_Real_toArray s =>
          noTargs (fn () => (oneArg (simdReal s), array (simdReal s)))
        | Simd_Real_fromArray s =>
-         noTargs (fn () => (oneArg (array (simdReal s)), simdReal s))
+         noTargs (fn () => (oneArg (array (simdReal s)), simdReal s))*)
        | Simd_Real_toScalar s =>
          noTargs (fn () => (oneArg (simdReal s), real (simdRealtoReal s)))
        | Simd_Real_fromScalar s =>
@@ -1587,6 +1602,11 @@ fun 'a checkApp (prim: 'a t,
             noTargs (fn () => (twoArgs (word8Array, seqIndex), word s))
        | Word8Array_updateWord s =>
             noTargs (fn () => (threeArgs (word8Array, seqIndex, word s), unit))
+       | Word8Array_subSimdReal s =>
+            noTargs (fn () => (twoArgs (word8Array, seqIndex), simdReal s))
+       | Word8Array_updateSimdReal s =>
+            noTargs (fn () => (threeArgs (word8Array, seqIndex, simdReal s),
+                               unit))
        | Word8Vector_subWord s =>
             noTargs (fn () => (twoArgs (word8Vector, seqIndex), word s))
        | Word8Vector_toString =>

@@ -86,6 +86,7 @@ fun checkScopes (program as
                           ()
                        end
                   | Real _ => ()
+                  | SimdReal _ => ()
                   | Thread => ()
                   | Weak ty => loopType ty
                   | Word _ => ()

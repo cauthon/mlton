@@ -774,12 +774,12 @@ because 16 => XMMS or XMMD or XMMW and
              | Word16 => Two
              | Word32 => Four
              | Word64 => Eight
-             | Simd128Real32 => Sixteen
-             | Simd128Real64 => Sixteen
-             | Simd128WordX => Sixteen
-             | Simd256Real32 => ThirtyTwo
-             | Simd256Real64 => ThirtyTwo
-             | Simd256WordX => ThirtyTwo
+             | Simd128_Real32 => Sixteen
+             | Simd128_Real64 => Sixteen
+             | Simd128_WordX => Sixteen
+             | Simd256_Real32 => ThirtyTwo
+             | Simd256_Real64 => ThirtyTwo
+             | Simd256_WordX => ThirtyTwo
       end
 
       fun eq(s1, s2) = s1 = s2
@@ -1558,12 +1558,12 @@ because 16 => XMMS or XMMD or XMMW and
                    | Word16 => w16
                    | Word32 => w32
                    | Word64 => w64
-                   | Simd128Real32 => v128r32
-                   | Simd128Real64 => v128r64
-                   | Simd128WordX => v128wx
-                   | Simd256Real32 => v256r32
-                   | Simd256Real64 => v256r64
-                   | Simd256WordX => v256wx
+                   | Simd128_Real32 => v128r32
+                   | Simd128_Real64 => v128r64
+                   | Simd128_WordX => v128wx
+                   | Simd256_Real32 => v256r32
+                   | Simd256_Real64 => v256r64
+                   | Simd256_WordX => v256wx
                end
       end
     end
@@ -1811,8 +1811,8 @@ because 16 => XMMS or XMMD or XMMW and
           in
             fn SSE_SQRTPS => str "sqrtps"
              | SSE_SQRTPD => str "sqrtpd"
-             | SSE_RCPPS => str "rcpps"
-             | SSE_RSQRTPS => str "rcppd"
+(*             | SSE_RCPPS => str "rcpps"
+             | SSE_RSQRTPS => str "rcppd"*)
           end
       (* Packed SSE binary logical instructions 
        * work for both scalar and packed data
@@ -1846,10 +1846,10 @@ because 16 => XMMS or XMMD or XMMW and
             in
               fn SSE_ADDSUBPS => str "addsubps"
                | SSE_HADDPS => str "haddps"
-               | SSE_HUSBPS => str "hsubps"
+               | SSE_HSUBPS => str "hsubps"
                | SSE_ADDSUBPD => str "addsubpd"
                | SSE_HADDPD => str "haddpd"
-               | SSE_HUSBPD => str "hsubpd"
+               | SSE_HSUBPD => str "hsubpd"
             end
       datatype sse_shuffp (*shuffle floating point*)
         = SSE_SHUFPS (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
@@ -1908,7 +1908,7 @@ because 16 => XMMS or XMMD or XMMW and
         (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
         (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
       datatype sse_ibinap
-        = SSE_PADD (*add signed or unsignedb,w,d,q*)
+        = SSE_PADD (*add signed or unsigned b,w,d,q*)
         | SSE_PADDS (*add signed integers w/saturation,b,w*)
         | SSE_PADDUS (*add  unsigned integers w/saturation*)
         | SSE_PSUB (*subtract signed or unsigned, b,w,d,q*)
@@ -1925,7 +1925,7 @@ because 16 => XMMS or XMMD or XMMW and
             in
                fn SSE_PADD => str "padd"
                 | SSE_PADDS => str "padds"
-                | SSE_PADUS => str "paddus"
+                | SSE_PADDUS => str "paddus"
                 | SSE_PSUB => str "psub"
                 | SSE_PSUBS => str "psubs"
                 | SSE_PSUBUS => str "psubus"
@@ -1967,7 +1967,7 @@ because 16 => XMMS or XMMD or XMMW and
                fn SSE_PCMULQDQ => str "pcmulqdq"
                 | SSE_PMULHW => str "pmulhw"
                 | SSE_PMULHUW => str "pmulhuw"
-                | SSE_PUMLLW => str "pumllw"
+                | SSE_PMULLW => str "pumllw"
                 | SSE_PMADDWD => str "pmaddwd"
                 | SSE_PMULDQ => str "pmuldq"
                 | SSE_PMULUDQ => str "pmuludq"

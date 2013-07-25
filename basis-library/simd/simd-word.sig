@@ -4,10 +4,10 @@ signature SIMD_WORD = sig
  *avx still provides 3 opperannd instructions and unaligned access
  *so it is still quite useful. the only note are for insructinons
  *than don't support the avx exensions(I believe there aren't any)*)
-  val vec_size:SimdSize.t
-  val word_size:WordSize.prim
+  val vec_size : Int32.int
+  val word_size : Int32.int
   type t
-  type t2 (* t with element size of word_size*2 *)
+  type elt (* t with element size of word_size*2 *)
 (*Math*)
 (*S & US suffixs are for signed and unsigned saturation, saturation means
  *values don't wraparound, ie in an unsigned byte 255+1->0 w/o saturation

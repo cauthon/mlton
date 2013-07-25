@@ -783,6 +783,7 @@ fun transform2 (program as Program.T {datatypes, functions, globals, main}) =
                                        then Size.makeTop s
                                     else Prod.foreach (args, dependsOn)
                                | Real _ => ()
+                               | SimdReal _ => ()
                                | Thread => Size.makeTop s
                                | Weak _ => ()
                                | Word _ => ()

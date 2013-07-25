@@ -4,7 +4,6 @@ open S
 datatype t = V128R32 | V128R64
            | V256R32 | V256R64
 val all = [V128R32, V128R64, V256R32, V256R64]
-val equals = op =
 (*val real =
  fn V128R32 => RealSize.R32
   | V128R64 => RealSize.R64
@@ -22,6 +21,8 @@ val realBytes =
   | V256R64 => Bytes.fromInt 8
 val bits = Bytes.toBits o bytes
 val realBits = Bytes.toBits o realBytes
+fun allBits s = (bits s,realBits s)
+fun equals (s,s') = op=(bits s,bits s') andalso op=(realBits s,realBits s')
 val toStringSimd =
  fn V128R32 => "128"
   | V128R64 => "128"
@@ -67,15 +68,15 @@ fun cmpString (c:cmp) =
       | cmpnlt => "cmpnlt"
       | cmpnle => "cmpnle"
       | cmpord => "cmpord"
-(*fun cmpString (i:int) =
-    case c of
-        0 => "cmpeq"
-      | 1 => "cmplt"
-      | 2 => "cmple"
-      | 3 => "cmpunord"
-      | 4 => "cmpneq"
-      | 5 => "cmpnlt"
-      | 6 => "cmpnle"
-      | 7 => "cmpord"
-      | _ => Error.bug "SimdRealSize.cmp"*)
+fun cmpFromInt (i:int) =
+    case i of
+        0 => cmpeq
+      | 1 => cmplt
+      | 2 => cmple
+      | 3 => cmpunord
+      | 4 => cmpneq
+      | 5 => cmpnlt
+      | 6 => cmpnle
+      | 7 => cmpord
+      | _ => Error.bug "SimdRealSize.cmp"
    end

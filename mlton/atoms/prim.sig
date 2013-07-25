@@ -154,8 +154,8 @@ signature PRIM =
              | Simd_Real_cmplt of SimdRealSize.t (* codegen *)
              | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
              | Simd_Real_cmp of SimdRealSize.t*SimdRealSize.cmp
-             | Simd_Real_fromArray of SimdRealSize.t
-             | Simd_Real_toArray of SimdRealSize.t
+(*             | Simd_Real_fromArray of SimdRealSize.t
+             | Simd_Real_toArray of SimdRealSize.t*)
              | Simd_Real_fromScalar of SimdRealSize.t
              | Simd_Real_toScalar of SimdRealSize.t
              | String_toWord8Vector (* defunctorize *)
@@ -206,6 +206,8 @@ signature PRIM =
              | WordVector_toIntInf (* ssa to rssa *)
              | Word8Array_subWord of WordSize.t (* ssa to rssa *)
              | Word8Array_updateWord of WordSize.t (* ssa to rssa *)
+             | Word8Array_subSimdReal of SimdRealSize.t (* to be determined *)
+             | Word8Array_updateSimdReal of SimdRealSize.t (* to be determined *)
              | Word8Vector_subWord of WordSize.t (* ssa to rssa *)
              | Word8Vector_toString (* defunctorize *)
              | World_save (* ssa to rssa *)

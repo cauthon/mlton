@@ -258,8 +258,12 @@ struct
              | Word32 => w "32"
              | Word64 => w "64"
 (*TUCKER: not sure if I actually need to insert this*)
-             | Simd128 => v "128"
-             | Simd256 => v "256")
+             | Simd128_Real32 => v "128_Real32"
+             | Simd128_Real64 => v "128_Real64"
+             | Simd128_WordX => v "128_WordX"
+             | Simd256_Real32 => v "256_Real32"
+             | Simd256_Real64 => v "256_Real64"
+             | Simd256_WordX => v "256_WordX")
         end
   in
      val local_base = make "local"

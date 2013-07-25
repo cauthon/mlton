@@ -53,6 +53,7 @@ signature C_TYPE =
       val real: RealSize.t -> t
       val seqIndex: unit -> t
       val shiftArg: t
+      val simdReal: SimdRealSize.t -> t
       val size: t -> Bytes.t
       val thread: t
       val toString: t -> string

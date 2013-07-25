@@ -216,114 +216,38 @@ _import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
 
 
 * Compiler Warnings <2013-07-23 Tue>
-Warning: ast/simd-word-size.fun 1.9.
-  Unused functor: SimdWordSize.
-Warning: ast/simd-word-size.fun 22.22.
-  Unused variable: W8.
-Warning: ast/simd-word-size.fun 23.22.
-  Unused variable: W16.
-Warning: ast/simd-word-size.fun 24.22.
-  Unused variable: W32.
-Warning: ast/simd-word-size.fun 25.22.
-  Unused variable: W64.
-Warning: atoms/c-type.fun 175.5.
-  Unused variable: simdReal.
-Warning: atoms/prim.fun 275.10.
-  Unused variable: CPointer_Setcpointer.
-Warning: atoms/prim.fun 808.10.
-  Unused variable: Simd128Real32.
-Warning: atoms/prim.fun 809.10.
-  Unused variable: Simd128Real64.
-Warning: atoms/prim.fun 810.10.
-  Unused variable: Simd256Real32.
-Warning: atoms/prim.fun 811.10.
-  Unused variable: Simd256Real64.
-Warning: atoms/prim.fun 831.10.
-  Unused variable: Simd128Real32.
-Warning: atoms/prim.fun 832.10.
-  Unused variable: Simd128Real64.
-Warning: atoms/prim.fun 833.10.
-  Unused variable: Simd256Real32.
-Warning: atoms/prim.fun 834.10.
-  Unused variable: Simd256Real64.
+
 Warning: atoms/prim.fun 1127.8.
   Unused variable: simdRealcmp.
-Warning: atoms/prim.fun 1394.11.
-  Unused variable: V128R32.
-Warning: atoms/prim.fun 1395.11.
-  Unused variable: V128R64.
-Warning: atoms/prim.fun 1396.11.
-  Unused variable: V256R32.
-Warning: atoms/prim.fun 1397.11.
-  Unused variable: V256R64.
+
 Warning: atoms/prim.fun 1546.27.
   Unused variable: c.
 Warning: atoms/type-ops.fun 22.6.
   Unused type: simdRealSize.
 Warning: backend/packed-representation.fun 30.14.
   Unused structure: SimdRealSize.
-Warning: backend/rep-type.fun 575.12.
-  Unused variable: V128R32.
-Warning: backend/rep-type.fun 576.11.
-  Unused variable: V128R64.
-Warning: backend/rep-type.fun 577.11.
-  Unused variable: V256R32.
-Warning: backend/rep-type.fun 578.11.
-  Unused variable: V256R64.
+
 Warning: backend/rep-type.fun 669.27.
   Unused variable: w.
-Warning: codegen/amd64-codegen/amd64-mlton-basic.fun 261.16.
-  Unused variable: Simd128.
-Warning: codegen/amd64-codegen/amd64-mlton-basic.fun 262.16.
-  Unused variable: Simd256.
+
 Warning: codegen/amd64-codegen/amd64-mlton.fun 581.13.
   Unused variable: sse_imov.
 Warning: codegen/amd64-codegen/amd64-mlton.fun 871.13.
   Unused variable: sse_ibinap.
 Warning: codegen/amd64-codegen/amd64-mlton.fun 930.26.
   Unused variable: src2size.
-Warning: codegen/amd64-codegen/amd64.fun 777.16.
-  Unused variable: Simd128Real32.
-Warning: codegen/amd64-codegen/amd64.fun 778.16.
-  Unused variable: Simd128Real64.
-Warning: codegen/amd64-codegen/amd64.fun 779.16.
-  Unused variable: Simd128WordX.
-Warning: codegen/amd64-codegen/amd64.fun 780.16.
-  Unused variable: Simd256Real32.
-Warning: codegen/amd64-codegen/amd64.fun 781.16.
-  Unused variable: Simd256Real64.
-Warning: codegen/amd64-codegen/amd64.fun 782.16.
-  Unused variable: Simd256WordX.
-Warning: codegen/amd64-codegen/amd64.fun 1561.22.
-  Unused variable: Simd128Real32.
-Warning: codegen/amd64-codegen/amd64.fun 1562.22.
-  Unused variable: Simd128Real64.
-Warning: codegen/amd64-codegen/amd64.fun 1563.22.
-  Unused variable: Simd128WordX.
-Warning: codegen/amd64-codegen/amd64.fun 1564.22.
-  Unused variable: Simd256Real32.
-Warning: codegen/amd64-codegen/amd64.fun 1565.22.
-  Unused variable: Simd256Real64.
-Warning: codegen/amd64-codegen/amd64.fun 1566.22.
-  Unused variable: Simd256WordX.
 Warning: codegen/amd64-codegen/amd64.fun 1814.16.
   Unused variable: SSE_RCPPS.
 Warning: codegen/amd64-codegen/amd64.fun 1815.16.
   Unused variable: SSE_RSQRTPS.
-Warning: codegen/amd64-codegen/amd64.fun 1849.18.
-  Unused variable: SSE_HUSBPS.
-Warning: codegen/amd64-codegen/amd64.fun 1852.18.
-  Unused variable: SSE_HUSBPD.
 Warning: codegen/amd64-codegen/amd64.fun 1866.11.
   Unused variable: sse_shuffp_layout.
-Warning: codegen/amd64-codegen/amd64.fun 1928.19.
-  Unused variable: SSE_PADUS.
+
 Warning: codegen/amd64-codegen/amd64.fun 1944.11.
   Unused variable: sse_imov_layout.
 Warning: codegen/amd64-codegen/amd64.fun 1963.11.
   Unused variable: sse_pmd_layout.
-Warning: codegen/amd64-codegen/amd64.fun 1970.19.
-  Unused variable: SSE_PUMLLW.
+
 Warning: codegen/amd64-codegen/amd64.fun 1983.11.
   Unused variable: ssse3_ibinap_layout.
 Warning: codegen/amd64-codegen/amd64.fun 2002.11.
@@ -474,54 +398,28 @@ Warning: atoms/prim.fun 256.7.
 	   Word_xorb s => word (s, "xorb")
 	   World_save => "World_save"
     in: case n of Array_array => "Array_a  ...  save => "World_save"
-Warning: atoms/prim.fun 795.7.
-  Case has redundant rules.
-    rules: Simd128Real64 => CPointer_getSimdReal SimdRealSize.V128R64
-	   Simd256Real32 => CPointer_getSimdReal SimdRealSize.V256R32
-	   Simd256Real64 => CPointer_getSimdReal SimdRealSize.V256R64
-    in: case ctype of CPointer => CPointe  ...  imdRealSize.V256R64)
-Warning: atoms/prim.fun 818.7.
-  Case has redundant rules.
-    rules: Simd128Real64 => CPointer_setSimdReal SimdRealSize.V128R64
-	   Simd256Real32 => CPointer_setSimdReal SimdRealSize.V256R32
-	   Simd256Real64 => CPointer_setSimdReal SimdRealSize.V256R64
-    in: case ctype of CPointer => CPointe  ...  imdRealSize.V256R64)
+
 Warning: atoms/prim.fun 1394.11.
   Function has redundant rules.
     rules: V128R64 => RealSize.R64
 	   V256R32 => RealSize.R32
 	   V256R64 => RealSize.R64
     in: fn V128R32 => RealSize.R32 | V128  ...  6R64 => RealSize.R64
-Warning: ssa/poly-equal.fun 310.13.
-  Case is not exhaustive.
-    missing pattern: (SimdReal _)
-    in: case Type.dest ty of (Type.Array   ...  ws, Vector.new0 ()))
+
 Warning: ssa/poly-hash.fun 522.16.
   Case is not exhaustive.
     missing pattern: (SimdReal _)
     in: case Type.dest ty of (Type.Array   ...  Bytes (dst, dx, ws))
-Warning: ssa/type-check2.fun 77.18.
-  Case is not exhaustive.
-    missing pattern: (SimdReal _)
-    in: case Type.dest ty of CPointer =>   ...  ty) | (Word _) => ()
-Warning: ssa/ref-flatten.fun 777.31.
-  Case is not exhaustive.
-    missing pattern: (SimdReal _)
-    in: case Type.dest t of CPointer => (  ...   () | (Word _) => ()
+
+
 Warning: backend/rep-type.fun 575.12.
   Function has redundant rules.
     rules: V128R64 => RealSize.R64
 	   V256R32 => RealSize.R32
 	   V256R64 => RealSize.R64
     in: fn V128R32 => RealSize.R32 | V128  ...  6R64 => RealSize.R64
-Warning: ssa/ssa-to-ssa2.fun 39.12.
-  Case is not exhaustive.
-    missing pattern: (SimdReal _)
-    in: case S.Type.dest t of (S.Type.Arr  ...   => (S2.Type.word s)
-Warning: backend/packed-representation.fun 2559.15.
-  Case is not exhaustive.
-    missing pattern: (SimdReal _)
-    in: case S.Type.dest t of CPointer =>  ...  bjptr (Type.word s))
+
+
 Warning: codegen/x86-codegen/x86.fun 104.13.
   Case is not exhaustive.
     missing pattern: Simd128_Real32 | Simd128_Real64 | Simd128_WordX | Simd256_Real32 | Simd256_Real64 | Simd256_WordX
@@ -538,51 +436,9 @@ Warning: codegen/x86-codegen/x86-mlton-basic.fun 306.13.
   Case is not exhaustive.
     missing pattern: Simd128_Real32 | Simd128_Real64 | Simd128_WordX | Simd256_Real32 | Simd256_Real64 | Simd256_WordX
     in: case t of CPointer => (Label.from  ...  | Word64 => (w "64")
-Warning: codegen/amd64-codegen/amd64.fun 764.13.
-  Case has redundant rules.
-    rules: Simd128Real64 => Sixteen
-	   Simd128WordX => Sixteen
-	   Simd256Real32 => ThirtyTwo
-	   Simd256Real64 => ThirtyTwo
-	   Simd256WordX => ThirtyTwo
-    in: case t of CPointer => Eight | Int  ...  56WordX => ThirtyTwo
-Warning: codegen/amd64-codegen/amd64.fun 1548.19.
-  Case has redundant rules.
-    rules: Simd128Real64 => v128r64
-	   Simd128WordX => v128wx
-	   Simd256Real32 => v256r32
-	   Simd256Real64 => v256r64
-	   Simd256WordX => v256wx
-    in: case RepType.toCType ty of CPoint  ...  md256WordX => v256wx
-Warning: codegen/amd64-codegen/amd64.fun 1812.16.
-  Function has redundant rules.
-    rules: SSE_RCPPS => str "rcpps"
-	   SSE_RSQRTPS => str "rcppd"
-    in: fn SSE_SQRTPS => (str "sqrtps") |  ...  TPS => (str "rcppd")
-Warning: codegen/amd64-codegen/amd64.fun 1847.18.
-  Function has redundant rules.
-    rules: SSE_ADDSUBPD => str "addsubpd"
-	   SSE_HADDPD => str "haddpd"
-	   SSE_HUSBPD => str "hsubpd"
-    in: fn SSE_ADDSUBPS => (str "addsubps  ...  PD => (str "hsubpd")
-Warning: codegen/amd64-codegen/amd64.fun 1926.19.
-  Function has redundant rules.
-    rules: SSE_PSUB => str "psub"
-	   SSE_PSUBS => str "psubs"
-	   SSE_PSUBUS => str "psubus"
-	   SSE_PMAXS => str "pmaxs"
-	   SSE_PMAXU => str "pmaxu"
-	   SSE_PMINS => str "pmins"
-	   SSE_PMINU => str "pminu"
-	   SSE_PAVG => str "pavg"
-    in: fn SSE_PADD => (str "padd") | SSE  ...  PAVG => (str "pavg")
-Warning: codegen/amd64-codegen/amd64.fun 1967.19.
-  Function has redundant rules.
-    rules: SSE_PMADDWD => str "pmaddwd"
-	   SSE_PMULDQ => str "pmuldq"
-	   SSE_PMULUDQ => str "pmuludq"
-	   SSE_PMULD => str "pmuld"
-    in: fn SSE_PCMULQDQ => (str "pcmulqdq  ...  ULD => (str "pmuld")
+
+
+
 Warning: codegen/amd64-codegen/amd64.fun 2384.16.
   Function is not exhaustive.
     missing pattern: (SSE_IMOV _) | (SSE_BLENDVP _)

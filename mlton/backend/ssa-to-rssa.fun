@@ -269,7 +269,7 @@ structure CFunction =
             target = Direct "GC_size",
             writesStackTop = true}
    end
-(*TUCKER: You probably need to add simd names here*)
+
 structure Name =
    struct
       open Prim.Name
@@ -291,9 +291,11 @@ structure Name =
             val name = toString n
             val real = Type.real
             val word = Type.word
+            val simdReal = Type.simdReal
             val vanilla = CFunction.vanilla
             fun wordCType (s, sg) = CType.word (s, sg)
             fun realCType s = CType.real s
+            fun simdRealCType s = CType.simdReal s
             fun coerce (t1, ct1, t2, ct2) =
                vanilla {args = Vector.new1 t1,
                         name = name,
@@ -448,6 +450,31 @@ structure Name =
                            prototype = (Vector.new2 (ct, CType.shiftArg), SOME ct),
                            return = t}
                end
+            local
+               fun make n s =
+                  let
+                     val t = simdReal s
+                     val ct = CType.simdReal s
+                  in
+                     vanilla {args = Vector.new (n, t),
+                              name = name,
+                              prototype = (Vector.new (n, ct), SOME ct),
+                              return = t}
+                  end
+            in
+               val simdRealBinary = make 2
+               val simdRealUnary = make 1
+            end
+            fun simdRealCompare s = 
+                let 
+                  val t = simdReal s
+                  val ct = CType.simdReal s
+                in
+                  vanilla {args = Vector.new3 (t,t,Type.Word8),
+                           name = name,
+                           prototype = (Vector.new3(t,t,CType.Word8)),
+                           return = t}
+                end
          in
             case n of
                IntInf_add => intInfBinary ()
@@ -521,6 +548,21 @@ structure Name =
                           word s2, wordCType (s2, sg))
              | Real_round s => realUnary s
              | Real_sub s => realBinary s
+             | Simd_Real_add s => simdRealBinary s
+             | Simd_Real_sub s => simdRealBinary s
+             | Simd_Real_mul s => simdRealBinary s
+             | Simd_Real_div s => simdRealBinary s
+             | Simd_Real_min s => simdRealBinary s
+             | Simd_Real_max s => simdRealBinary s
+             | Simd_Real_sqrt s => simdRealUnary s
+             | Simd_Real_and s => simdRealBinary s
+             | Simd_Real_andn s => simdRealBinary s
+             | Simd_Real_or s => simdRealBinary s
+             | Simd_Real_xor s => simdRealBinary s
+             | Simd_Real_hadd s => simdRealBinary s
+             | Simd_Real_hsub s => simdRealBinary s
+             | Simd_Real_addsub s => simdRealBinary s
+             | Simd_Real_cmp (s,_) = simdRealCompare s
              | Thread_returnToC => CFunction.returnToC ()
              | Word_add s => wordBinary (s, {signed = false})
              | Word_addCheck (s, sg) => wordBinaryOverflows (s, sg)
@@ -1065,6 +1107,16 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                        scale = Type.scale ty,
                                                        ty = ty})
                                  end
+                              fun subSimdReal s =
+                                 let
+                                    val ty = Type.simdReal s
+                                 in
+                                    move (ArrayOffset {base = a 0,
+                                                       index = a 1,
+                                                       offset = Bytes.zero,
+                                                       scale = Type.scale ty,
+                                                       ty = ty})
+                                 end
                               fun dst () =
                                  case var of
                                     SOME x =>
@@ -1448,6 +1500,20 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                              ty = ty}),
                                                      src = a 2})
                                        end
+                               | Word8Array_subSimdReal s => subSimdReal s
+                               | Word8Array_updateSimdReal s =>
+                                       let
+                                          val ty = Type.simdReal s
+                                       in
+                                          add (Move {dst = (ArrayOffset
+                                                            {base = a 0,
+                                                             index = a 1,
+                                                             offset = Bytes.zero,
+                                                             scale = Type.scale ty,
+                                                             ty = ty}),
+                                                     src = a 2})
+                                       end
+
                                | Word8Vector_subWord s => subWord s
                                | World_save =>
                                     simpleCCallWithGCState
@@ -1553,7 +1619,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                          objectTypes = objectTypes}
       val _ = Program.clear p
    in
-      p
+
    end
 
 end

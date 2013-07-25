@@ -236,11 +236,11 @@ structure Type =
          case node t of
             Real s => SOME s
 (*Do I need this ??*)
-      val deSimdReal: t -> RealSize.t option =
+(*      val deSimdReal: t -> RealSize.t option =
          fn t =>
          case node t of
             SimdReal s => SOME s
-          | _ => NONE          | _ => NONE
+          | _ => NONE          | _ => NONE*)
       
       val deSeq: t -> t vector option =
          fn t =>
@@ -577,10 +577,10 @@ fun checkPrimApp {args, prim, result} =
            | _ => false)
       val simdReal = fn s => fn t => equals (t, simdReal s)
       val simdRealtoReal =
-       (fn V128R32 => RealSize.R32
-        | V128R64 => RealSize.R64
-        | V256R32 => RealSize.R32
-        | V256R64 => RealSize.R64)
+       (fn SimdRealSize.V128R32 => RealSize.R32
+        | SimdRealSize.V128R64 => RealSize.R64
+        | SimdRealSize.V256R32 => RealSize.R32
+        | SimdRealSize.V256R64 => RealSize.R64)
       val word = fn s => fn t => equals (t, word s)
 
       val cint = word (WordSize.cint ())
@@ -679,12 +679,12 @@ fun checkPrimApp {args, prim, result} =
          done ([simdReal s], SOME (real (simdRealtoReal s)))
        | Simd_Real_fromScalar s => 
          done ([real (simdRealtoReal s)], SOME (simdReal s))
-       | Simd_Real_toArray s => 
+(*       | Simd_Real_toArray s => 
          done ([simdReal s], 
                SOME (seq (WordSize.fromBits(SimdRealSize.bits s))))
        | Simd_Real_fromArray s => 
          done ([seq (WordSize.fromBits(SimdRealSize.bits s))], 
-               SOME (simdReal s))
+               SOME (simdReal s))*)
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s
        | Word_addCheck (s, _) => wordBinary s
