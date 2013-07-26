@@ -102,10 +102,13 @@ structure Type =
 
       val real: RealSize.t -> t =
          fn s => T {node = Real s, width = RealSize.bits s}
+
       val simdReal: SimdRealSize.t -> t =
-       fn s => T {node = SimdReal s, width = SimdRealSize.bits s}
+         fn s => T {node = SimdReal s, width = SimdRealSize.bits s}
+
       val word: WordSize.t -> t = 
          fn s => T {node = Word s, width = WordSize.bits s}
+
       val bool: t = word WordSize.bool
 
       val csize: unit -> t = word o WordSize.csize
@@ -235,6 +238,7 @@ structure Type =
          fn t =>
          case node t of
             Real s => SOME s
+          | _ => NONE
 (*Do I need this ??*)
 (*      val deSimdReal: t -> RealSize.t option =
          fn t =>
@@ -856,7 +860,9 @@ fun arrayOffsetIsOk {base, index, offset, tyconTy, result, scale} =
                      CPointer => true
                    | Objptr _ => true (* for FFI export of indirect types *)
                    | Real _ => true
+                   | SimdReal _ => true
                    | Word _ => true
+
                    | _ => false)
          andalso (case Scale.fromBytes (bytes result) of
                      NONE => false

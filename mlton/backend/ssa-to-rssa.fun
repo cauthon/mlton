@@ -465,16 +465,18 @@ structure Name =
                val simdRealBinary = make 2
                val simdRealUnary = make 1
             end
-            fun simdRealCompare s = 
+(*            fun simdRealCompare s = 
                 let 
                   val t = simdReal s
                   val ct = CType.simdReal s
+                  val wt = word W8
+
                 in
-                  vanilla {args = Vector.new3 (t,t,Type.Word8),
+                  vanilla {args = Vector.new3 (t,t,Type.word),
                            name = name,
-                           prototype = (Vector.new3(t,t,CType.Word8)),
+                           prototype = (Vector.new3(t,t,CType.word),SOME t),
                            return = t}
-                end
+                end*)
          in
             case n of
                IntInf_add => intInfBinary ()
@@ -562,7 +564,7 @@ structure Name =
              | Simd_Real_hadd s => simdRealBinary s
              | Simd_Real_hsub s => simdRealBinary s
              | Simd_Real_addsub s => simdRealBinary s
-             | Simd_Real_cmp (s,_) = simdRealCompare s
+(*             | Simd_Real_cmp (s,_) => simdRealCompare s*)
              | Thread_returnToC => CFunction.returnToC ()
              | Word_add s => wordBinary (s, {signed = false})
              | Word_addCheck (s, sg) => wordBinaryOverflows (s, sg)
@@ -1252,10 +1254,12 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                | CPointer_getCPointer => cpointerGet ()
                                | CPointer_getObjptr => cpointerGet ()
                                | CPointer_getReal _ => cpointerGet ()
+                               | CPointer_getSimdReal _ => cpointerGet ()
                                | CPointer_getWord _ => cpointerGet ()
                                | CPointer_setCPointer => cpointerSet ()
                                | CPointer_setObjptr => cpointerSet ()
                                | CPointer_setReal _ => cpointerSet ()
+                               | CPointer_setSimdReal _ => cpointerSet ()
                                | CPointer_setWord _ => cpointerSet ()
                                | FFI f => simpleCCall f
                                | GC_collect =>
@@ -1513,7 +1517,6 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                              ty = ty}),
                                                      src = a 2})
                                        end
-
                                | Word8Vector_subWord s => subWord s
                                | World_save =>
                                     simpleCCallWithGCState
@@ -1619,7 +1622,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                          objectTypes = objectTypes}
       val _ = Program.clear p
    in
-
+      p
    end
 
 end

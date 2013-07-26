@@ -197,8 +197,6 @@ fun implementsPrim (p: 'a Prim.t): bool =
        | Simd_Real_cmplt _ => true
        | Simd_Real_cmpgt _ => true*)
        | Simd_Real_cmp _ => true
-       | Simd_Real_toArray _ => true
-       | Simd_Real_fromArray _ => true
        | Simd_Real_toScalar _ => true
        | Simd_Real_fromScalar _ => true
        | Word_add _ => true
@@ -653,6 +651,7 @@ fun output {program as Machine.Program.T {chunks,
                then s
             else concat [s, " /* ", Label.toString l, " */"]
          end
+(*TUCKER: Check here for alignment stuff*)
       val handleMisaligned =
          let
             open Control

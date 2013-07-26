@@ -46,7 +46,7 @@ endif
 
 FLAGS += -target $(TARGET)
 FLAGS += -verbose 2 -output "$(AOUT)"
-FLAGS += $(COMPILE_ARGS)
+FLAGS += $(COMPILE_ARGS) -cc-opt '-g'
 
 FRONT_END_SOURCES :=		\
 	front-end/ml.lex.sml	\
@@ -106,7 +106,7 @@ $(AOUT): $(SOURCES)
 	rm -f control/version.sml
 	$(MAKE) control/version.sml
 	@echo 'Compiling mlton (takes a while)'
-	mlton $(FLAGS) $(FILE)
+	mlton $(FLAGS) -cc-opt '-g' $(FILE)
 
 .PHONY: def-use
 def-use: mlton.def-use

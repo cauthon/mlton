@@ -102,8 +102,8 @@ struct
 (*         | Simd_Real_cmpeq _ => true
          | Simd_Real_cmplt _ => true
          | Simd_Real_cmpgt _ => true*)
-         | Simd_Real_fromArray _ => true
-         | Simd_Real_toArray _ => true
+(*         | Simd_Real_fromArray _ => true
+         | Simd_Real_toArray _ => true*)
          | Simd_Real_fromScalar _ => true
          | Simd_Real_toScalar _ => true
          | Thread_returnToC => false
@@ -1456,14 +1456,14 @@ struct
              | Simd_Real_cmplt s => sse_cmpfp 0w1
              | Simd_Real_cmpgt s => sse_cmpfp 0w6 (*actually not less than or
                                                    *equal, but same thing*)*)
-             | Simd_Real_toArray s => 
+(*             | Simd_Real_toArray s => 
                (case s of 
                    V128R32 => sse_movfp Instruction.SSE_MOVUPS
                  | V128R64 => sse_movfp Instruction.SSE_MOVUPD)
              | Simd_Real_fromArray s =>
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVUPS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)
+                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)*)
              | Simd_Real_toScalar s => 
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS

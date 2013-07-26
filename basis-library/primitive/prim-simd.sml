@@ -18,6 +18,9 @@ signature PRIM_SIMD_REAL =
       val addsub : t * t -> t
       val sqrt : t -> t
       val fromArray : elem array -> t
+(*
+ cast array to a word 8 array then
+ load from word8 array using Word8Array_subSimdReal *)
       val toArray : t -> elem array
       val fromScalar : e -> t 
       val toScalar : t -> e
