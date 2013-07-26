@@ -20,7 +20,6 @@ in
 end
 type realSize = RealSize.t
 type simdRealSize = SimdRealSize.t
-type simdRealSize = SimdRealSize.t
 type tycon = Tycon.t
 type wordSize = WordSize.t
 

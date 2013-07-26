@@ -277,7 +277,7 @@ fun toString (n: 'a t): string =
          cpointerGet ("Simd", concat [SimdRealSize.toStringSimd s,"_",
                                       "Real",SimdRealSize.toStringReal s])
        | CPointer_lt => "CPointer_lt"
-       | CPointer_Setcpointer => "CPointer_setCPointer"
+       | CPointer_setCPointer => "CPointer_setCPointer"
        | CPointer_setObjptr => "CPointer_setObjptr"
        | CPointer_setReal s => cpointerSet ("Real", RealSize.toString s)
        | CPointer_setSimdReal s => 
@@ -1054,8 +1054,8 @@ val kind: 'a t -> Kind.t =
        | Weak_new => Moveable
        | Word8Array_subWord _ => DependsOnState
        | Word8Array_updateWord _ => SideEffect
-       | Word8Array_subSimdReal_ => DependsOnState
-       | Word8Array_updateSimdReal_ => SideEffect
+       | Word8Array_subSimdReal _ => DependsOnState
+       | Word8Array_updateSimdReal _ => SideEffect
        | Word8Vector_subWord _ => Functional
        | Word8Vector_toString => Functional
        | WordVector_toIntInf => Functional
@@ -1412,9 +1412,9 @@ fun 'a checkApp (prim: 'a t,
       val smallIntInfWord = word (WordSize.smallIntInfWord ())
       val simdRealtoReal =
        fn SimdRealSize.V128R32 => RealSize.R32
-        | SimdRealSizeV128R64 => RealSize.R64
-        | SimdRealSizeV256R32 => RealSize.R32
-        | SimdRealSizeV256R64 => RealSize.R64
+        | SimdRealSize.V128R64 => RealSize.R64
+        | SimdRealSize.V256R32 => RealSize.R32
+        | SimdRealSize.V256R64 => RealSize.R64
       val word8 = word WordSize.word8
       val word32 = word WordSize.word32
       fun intInfBinary () =
@@ -1563,7 +1563,7 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_addsub s => simdRealBinary s
   (* simd comparisons can't just return a bool as they need to
    * compare multiple objects*)
-       | Simd_Real_cmp (s,c) => simdRealBinary s
+       | Simd_Real_cmp (s,_) => simdRealBinary s
 (*         noTargs (fn () => (threeArgs(simdReal s,simdReal s,
                                       word c),simdReal s))(*...?*)*)
 (*       | Simd_Real_cmpeq s => simdRealBinary s

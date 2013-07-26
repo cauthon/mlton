@@ -2712,7 +2712,7 @@ fun compute (program as Ssa.Program.T {datatypes, ...}) =
                                       ty = Type.objptr opt})
                            end)
                | Real s => nonObjptr (Type.real s)
-               | SimdReal s => Error.bug "unimplemented"(*nonObjptr (Type.simdReals)*)
+               | SimdReal _ => Error.bug "unimplemented"(*nonObjptr (Type.simdReals)*)
                | Thread =>
                     constant (Rep.T {rep = Rep.Objptr {endsIn00 = true},
                                      ty = Type.thread ()})

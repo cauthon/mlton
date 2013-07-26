@@ -617,7 +617,8 @@ fun checkPrimApp {args, prim, result} =
          val objptrCompare = make (fn _ => objptr) ()
       end
       fun realTernary s = done ([real s, real s, real s], SOME (real s))
-      fun simdRealTernary (s,w) = done([simdReal s, simdReal s, word w], SOME(simdReal s))
+      fun simdRealTernary s = done([simdReal s, simdReal s, word (WordSize.fromBits(Bits.fromInt 8))],
+                                       SOME(simdReal s))
       fun wordShift s = done ([wordOrBitsOrSeq s, shiftArg], SOME (wordOrBitsOrSeq s))
    in
       case Prim.name prim of
@@ -675,8 +676,8 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
-       | Simd_Real_cmp (s,w) => 
-         simdRealTernary (s,WordSize.fromBits(Bits.fromInt 8))
+       | Simd_Real_cmp (s,_) => 
+         simdRealTernary s
 (*       | Simd_Real_shuffle (s,w) => simdRealTernary (s,w)*)
 (*FIXME: TUCKER: This won't work as is*)
        | Simd_Real_toScalar s => 
