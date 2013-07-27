@@ -2571,6 +2571,17 @@ because 16 => XMMS or XMMD or XMMW and
                        Size.layout size,
                        Operand.layout src,
                        Operand.layout dst)
+             | SSE_IMOV {instr,src,dst,size}
+               => bin (sse_imov_layout instr,
+                         Operand.layout src,
+                         Operand.layout dst,
+                         Size.layout size)
+             | SSE_BLENDVP {src,dst,size}
+(*TUCKER: NOTE: need to fix blend to make it work with different sizes*)
+               => bin (str "blendvpd",
+                       Operand.layout src,
+                       Operand.layout dst,
+                       Size.layout size)
              | SSE_CMPFP {oper,src, dst, size, imm}
                => tert (sse_cmpfp_layout oper,
                         Size.layout size,
@@ -2801,6 +2812,8 @@ because 16 => XMMS or XMMD or XMMW and
            | SSE3_BinAP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_IBinAP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
+           | SSE_BLENDVP  {src,dst,...}
            => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_MOVS {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
@@ -3062,6 +3075,12 @@ because 16 => XMMS or XMMD or XMMW and
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_MOVS {src, dst, ...}
            => {srcs = SOME [src], dsts = SOME [dst]}
+           | SSE_MOVFP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE_IMOV {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE_BLENDVP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_CMPFP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_COMIS {src1, src2, ...}
@@ -3216,6 +3235,20 @@ because 16 => XMMS or XMMD or XMMW and
                          size = size}
            | SSE_MOVS {src, dst, size}
            => SSE_MOVS {src = replacer {use = true, def = false} src,
+                        dst = replacer {use = false, def = true} dst,
+                        size = size}
+           | SSE_IMOV {instr, src, dst, size}
+           => SSE_IMOV {instr = instr,
+                        src = replacer {use = true, def = false} src,
+                        dst = replacer {use = false, def = true} dst,
+                        size = size}
+           | SSE_BLENDVP {src, dst, size}
+           => SSE_BLENDVP {src = replacer {use = true, def = false} src,
+                           dst = replacer {use = false, def = true} dst,
+                           size = size}
+           | SSE_MOVFP {instr, src, dst, size}
+           => SSE_MOVFP {instr = instr,
+                        src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         size = size}
            | SSE_CMPFP {oper, src, dst, imm,  size}

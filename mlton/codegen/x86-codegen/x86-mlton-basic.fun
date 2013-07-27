@@ -315,7 +315,9 @@ struct
              | Word8 => w "8"
              | Word16 => w "16"
              | Word32 => w "32"
-             | Word64 => w "64")
+             | Word64 => w "64"
+             | _ => w "64")
+(*             | _ => Error.bug "X86 codegen, simd not implemented")*)
         end
   in
      val local_base = make "local"

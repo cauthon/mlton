@@ -822,6 +822,7 @@ fun cpointerGet ctype =
        | Simd128_Real64 => CPointer_getSimdReal (SimdRealSize.V128R64)
        | Simd256_Real32 => CPointer_getSimdReal (SimdRealSize.V256R32)
        | Simd256_Real64 => CPointer_getSimdReal (SimdRealSize.V256R64) 
+       | _ => Error.bug "prim.fun, Simd Word unimplemented"
 
    end
 val cpointerLt = CPointer_lt
@@ -845,6 +846,7 @@ fun cpointerSet ctype =
        | Simd128_Real64 => CPointer_setSimdReal (SimdRealSize.V128R64)
        | Simd256_Real32 => CPointer_setSimdReal (SimdRealSize.V256R32)
        | Simd256_Real64 => CPointer_setSimdReal (SimdRealSize.V256R64)       
+       | _ => Error.bug "prim.fun, Simd Word unimplemented"
    end
 val cpointerSub = CPointer_sub
 val cpointerToWord = CPointer_toWord

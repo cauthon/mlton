@@ -114,6 +114,8 @@ struct
              | Word16 => Vector.new1 WORD
              | Word32 => Vector.new1 LONG
              | Word64 => Vector.new2 (LONG, LONG)
+             | _ => Vector.new2 (LONG, LONG)
+(*             | _ => Error.bug "X86 codegen, simd not implemented"*)
       end
 
       val class
@@ -490,6 +492,8 @@ struct
              | Word16 => Two
              | Word32 => Four
              | Word64 => Eight
+             | _ => Eight
+(*             | _ => Error.bug "X86 codegen, simd not implemented"*)
       end
 
       fun eq(s1, s2) = s1 = s2
@@ -1257,6 +1261,8 @@ struct
                    | Word16 => w16
                    | Word32 => w32
                    | Word64 => w64
+                   | _ => w64
+(*                   | _ => Error.bug "X86 codegen, simd not implemented"*)
                end
       end
     end

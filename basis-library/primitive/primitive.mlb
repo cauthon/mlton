@@ -66,6 +66,8 @@ in
 
    prim-real.sml
 
+   prim-simd.sml          
+
    prim-pack-word.sml
    prim-pack-real.sml
 

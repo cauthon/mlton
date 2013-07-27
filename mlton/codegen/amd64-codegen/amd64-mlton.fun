@@ -1358,7 +1358,8 @@ struct
                    V128R32 => 
                    sse_binap (Instruction.SSE_ADDPS,Instruction.SSE_MOVUPS)
                  | V128R64 => 
-                   sse_binap(Instruction.SSE_ADDPD,Instruction.SSE_MOVUPD))
+                   sse_binap(Instruction.SSE_ADDPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
 (*avx ex.        | V256R32 =>
                    avx_binap(Instruction.AVX_ADDPS,Instruction.AVX_MOVUPS)
                  | V256R64 =>
@@ -1368,79 +1369,92 @@ struct
                    V128R32 => 
                    sse_binap (Instruction.SSE_SUBPS,Instruction.SSE_MOVUPS)
                  | V128R64 => 
-                   sse_binap (Instruction.SSE_SUBPD,Instruction.SSE_MOVUPD))
+                   sse_binap (Instruction.SSE_SUBPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_mul s => 
                (case s of
                    V128R32 => 
                    sse_binap (Instruction.SSE_MULPS,Instruction.SSE_MOVUPS)
                  | V128R64 => 
-                   sse_binap (Instruction.SSE_MULPD,Instruction.SSE_MOVUPD))
+                   sse_binap (Instruction.SSE_MULPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_div s => 
                (case s of
                    V128R32 => 
                    sse_binap (Instruction.SSE_DIVPS,Instruction.SSE_MOVUPS)
                  | V128R64 => 
-                   sse_binap (Instruction.SSE_DIVPD,Instruction.SSE_MOVUPD))
+                   sse_binap (Instruction.SSE_DIVPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_min s => 
                (case s of
                    V128R32 => 
                    sse_binap (Instruction.SSE_MINPS,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binap (Instruction.SSE_MINPD,Instruction.SSE_MOVUPD))
+                   sse_binap (Instruction.SSE_MINPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_max s => 
                (case s of
                    V128R32 =>
                    sse_binap (Instruction.SSE_MAXPS,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binap (Instruction.SSE_MAXPD,Instruction.SSE_MOVUPD))
+                   sse_binap (Instruction.SSE_MAXPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_sqrt s =>
                (case s of
                    V128R32 =>
                    sse_unap (Instruction.SSE_SQRTPS)
                  | V128R64 =>
-                   sse_unap (Instruction.SSE_SQRTPD))
+                   sse_unap (Instruction.SSE_SQRTPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_and s =>
                (case s of
                    V128R32 =>
                    sse_binlp (Instruction.SSE_ANDP,Instruction.SSE_MOVUPS)
                  | V128R64 => 
-                   sse_binlp (Instruction.SSE_ANDP,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_ANDP,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_andn s =>
                (case s of
                    V128R32 =>
                    sse_binlp (Instruction.SSE_ANDNP,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binlp (Instruction.SSE_ANDNP,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_ANDNP,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_or s => 
                (case s of
                    V128R32 =>
                    sse_binlp (Instruction.SSE_ORP,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binlp (Instruction.SSE_ORP,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_ORP,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_xor s =>
                (case s of
                    V128R32 =>
                    sse_binlp (Instruction.SSE_XORP,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_binlp (Instruction.SSE_XORP,Instruction.SSE_MOVUPD))
+                   sse_binlp (Instruction.SSE_XORP,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_hadd s => 
                (case s of
                    V128R32 =>
                    sse3_binap (Instruction.SSE_HADDPS,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse3_binap (Instruction.SSE_HADDPD,Instruction.SSE_MOVUPD))
+                   sse3_binap (Instruction.SSE_HADDPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_hsub s=> 
                (case s of
                    V128R32 =>
                    sse3_binap (Instruction.SSE_HSUBPS,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse3_binap (Instruction.SSE_HSUBPD,Instruction.SSE_MOVUPD))
+                   sse3_binap (Instruction.SSE_HSUBPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_addsub s => 
                (case s of
                    V128R32 =>
                    sse3_binap (Instruction.SSE_ADDSUBPS,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse3_binap (Instruction.SSE_ADDSUBPD,Instruction.SSE_MOVUPD))
+                   sse3_binap (Instruction.SSE_ADDSUBPD,Instruction.SSE_MOVUPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_cmp (s,i) =>
                (case s of
                    V128R32 =>
@@ -1451,7 +1465,8 @@ struct
                  | V128R64 =>
                    sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD,
                               Operand.immediate_int' ((SimdRealSize.cmp i),
-                                 WordSize.fromBits(Bits.fromInt 8))))
+                                 WordSize.fromBits(Bits.fromInt 8)))
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
 (*             | Simd_Real_cmpeq s => sse_cmpfp 0w0
              | Simd_Real_cmplt s => sse_cmpfp 0w1
              | Simd_Real_cmpgt s => sse_cmpfp 0w6 (*actually not less than or
@@ -1467,11 +1482,13 @@ struct
              | Simd_Real_toScalar s => 
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)
+                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_fromScalar s => 
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVSD)
+                 | V128R64 => sse_movfp Instruction.SSE_MOVSD
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()
