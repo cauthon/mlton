@@ -16,6 +16,7 @@ open Machine
 
 datatype z = datatype RealSize.t
 datatype z = datatype SimdRealSize.t
+(*datatype z = datatype SimdWordSize.t*)
 datatype z = datatype WordSize.prim
 
 local
@@ -199,6 +200,29 @@ fun implementsPrim (p: 'a Prim.t): bool =
        | Simd_Real_cmp _ => true
        | Simd_Real_toScalar _ => true
        | Simd_Real_fromScalar _ => true
+(*
+ | Simd_Word_add _ => true
+ | Simd_Word_adds _ => true
+ | Simd_Word_sub _ => true
+ | Simd_Word_subs _ => true
+ | Simd_Word_min _ => true
+ | Simd_Word_max _ => true
+ (*Ignore multiplication for now*)
+ | Simd_Word_hadd _ => true
+ | Simd_Word_hsub _ => true
+ | Simd_Word_abs _ => true
+ | Simd_Word_andb _ => true
+ | Simd_Word_orb _ => true
+ | Simd_Word_xorb _ => true
+ | Simd_Word_andnb _ => true
+ | Simd_Word_sar _ => true
+ | Simd_Word_sll _ => true
+ | Simd_Word_slr _ => true
+ | Simd_Word_cmpeq _ => true
+ | Simd_Word_cmpgt _ => true
+ | Simd_Word_fromScalar _ => true
+ | Simd_Word_toScalar _ => true
+*)
        | Word_add _ => true
        | Word_addCheck _ => true
        | Word_andb _ => true

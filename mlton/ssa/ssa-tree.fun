@@ -26,6 +26,7 @@ structure Type =
         | Real of RealSize.t
         | Ref of t
         | SimdReal of SimdRealSize.t
+        (* | SimdWord of SimdWordSize.t *)
         | Thread
         | Tuple of t vector
         | Vector of t
@@ -73,6 +74,7 @@ structure Type =
              | (Real s1, Real s2) => RealSize.equals (s1, s2)
              | (Ref t1, Ref t2) => equals (t1, t2)
              | (SimdReal s1, SimdReal s2) => SimdRealSize.equals (s1,s2)
+            (* | (SimdWord s1, SimdWord s2) => SimdWordSize.equals (s1,s2) *)
              | (Thread, Thread) => true
              | (Tuple ts1, Tuple ts2) => Vector.equals (ts1, ts2, equals)
              | (Vector t1, Vector t2) => equals (t1, t2)
@@ -127,8 +129,13 @@ structure Type =
 
       val real: RealSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.real s), Real s)
+
       val simdReal: SimdRealSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.simdReal s), SimdReal s)
+
+(*      val simdWord: SimdWordSize.t -> t =
+         fn s => lookup (Tycon.hash (Tycon.simdWord s), SimdWord s)*)
+
       val word: WordSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.word s), Word s)
 
@@ -183,6 +190,9 @@ structure Type =
                | SimdReal s => str (concat 
                                     ["Simd", SimdRealSize.toStringSimd s,"_",
                                      "Real", SimdRealSize.toStringReal s])
+(*               | SimdWord s => str (concat 
+                                    ["Simd", SimdWordSize.toStringSimd s,"_",
+                                     "Word", SimdWordSize.toStringWord s])*)
                | Thread => str "thread"
                | Tuple ts =>
                     if Vector.isEmpty ts
@@ -213,6 +223,7 @@ structure Type =
                             real = real,
                             reff = reff,
                             simdReal = simdReal,
+                            (* simdWord = simdWord, *)
                             thread = thread,
                             unit = unit,
                             vector = vector,
@@ -1768,6 +1779,7 @@ structure Program =
                         | Real _ => ()
                         | Ref t => countType t
                         | SimdReal _ => ()
+(*                      | SimdWord _ => ()*)
                         | Thread => ()
                         | Tuple ts => Vector.foreach (ts, countType)
                         | Vector t => countType t

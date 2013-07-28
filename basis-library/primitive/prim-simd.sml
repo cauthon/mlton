@@ -3,7 +3,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
+(*Note: need to ask about casting b/t real array and word8 array*)
 signature PRIM_SIMD_REAL =
    sig
       val vecSize : Primitive.Int32.int
@@ -85,7 +85,7 @@ structure Simd128_Real32 : PRIM_SIMD_REAL =
       val hsub = _prim "Simd128_Real32_hsub": simd * simd -> simd
       val addsub = _prim "Simd128_Real32_addsub": simd * simd -> simd
       val sqrt = _prim "Simd128_Real32_sqrt": simd -> simd
-      val fromArray = _prim "Simd128_Real32_fromArray": elt array -> simd
+      val fromArray = _prim "Word8Array_subSimd128_Real32": elt array -> simd
       val toArray = _prim "Simd128_Real32_toArray": simd -> elem array
       val fromScalar = _prim "Simd128_Real32_fromScalar": e -> simd
       val toScalar = _prim "Simd128_Real32_toScalar": simd -> e

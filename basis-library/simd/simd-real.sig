@@ -15,8 +15,8 @@ sig
 (*load/store*)
   val fromArray:elt array -> t
 (*  val fromArraySlice:elt slice -> t
-  val set:elt list -> t
-  val set1:elt -> t*)
+  val set:elt list -> t(*aka from list*)
+  val set1:elt -> t(*fill with duplicates of elt*)*)
   val fromScalar:elt -> t
   val toScalar:t -> elt(*e = lowest eltent in t*)
 (* because of toScalar we can get any element of a simd vector,

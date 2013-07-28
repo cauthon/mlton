@@ -27,6 +27,7 @@ structure Type =
         | Objptr of ObjptrTycon.t vector
         | Real of RealSize.t
         | SimdReal of SimdRealSize.t
+(*        | SimdReal of SimdRealSize.t*)
         | Seq of t vector
         | Word of WordSize.t
 
@@ -57,6 +58,11 @@ structure Type =
              | SimdReal s => str (concat 
                                     ["Simd", SimdRealSize.toStringSimd s,"_",
                                      "Real", SimdRealSize.toStringReal s])
+(*
+             | SimdWord s => str (concat 
+                                    ["Simd", SimdWordSize.toStringSimd s,"_",
+                                     "Word", SimdWordSize.toStringWord s])
+*)
              | Word s => str (concat ["Word", WordSize.toString s])
          end
 
@@ -75,6 +81,7 @@ structure Type =
            | (Real s, Real s') => RealSize.equals (s, s')
            | (Seq ts, Seq ts') => Vector.equals (ts, ts', equals)
            | (SimdReal s, SimdReal s') => SimdRealSize.equals (s, s')
+(*           | (SimdWord s, SimdWord s') => SimdWordSize.equals (s, s')*)
            | (Word s, Word s') => WordSize.equals (s, s')
            | _ => false)
 
@@ -106,6 +113,9 @@ structure Type =
       val simdReal: SimdRealSize.t -> t =
          fn s => T {node = SimdReal s, width = SimdRealSize.bits s}
 
+(*      val simdWord: SimdWordSize.t -> t =
+         fn s => T {node = SimdWord s, width = SimdWordSize.bits s}
+*)
       val word: WordSize.t -> t = 
          fn s => T {node = Word s, width = WordSize.bits s}
 
@@ -351,6 +361,11 @@ structure Type =
                         | SimdRealSize.V128R64 => C.Simd128_Real64
                         | SimdRealSize.V256R32 => C.Simd256_Real32
                         | SimdRealSize.V256R64 => C.Simd256_Real64)
+(*                | SimdWord s =>
+                     (case s of 
+                          SimdWordSize.V128WX => C.Simd128_WordX
+                        | SimdWordSize.V256WX => C.Simd256_WordX
+*)
                 | _ => C.fromBits (width t)
                          
          val name = C.name o toCType
@@ -580,6 +595,7 @@ fun checkPrimApp {args, prim, result} =
              of Seq _ => Bits.equals (width t, WordSize.bits s) 
            | _ => false)
       val simdReal = fn s => fn t => equals (t, simdReal s)
+(*      val simdWord = fn s => fn t => equals (t, simdWord s)*)
       val simdRealtoReal =
        (fn SimdRealSize.V128R32 => RealSize.R32
         | SimdRealSize.V128R64 => RealSize.R64
@@ -690,6 +706,30 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_fromArray s => 
          done ([seq (WordSize.fromBits(SimdRealSize.bits s))], 
                SOME (simdReal s))*)
+(*
+ | Simd_Word_add s => simdWordSize s
+ | Simd_Word_adds s => simdWordSize s
+ | Simd_Word_sub s => simdWordSize s
+ | Simd_Word_subs s => simdWordSize s
+ | Simd_Word_min s => simdWordSize s
+ | Simd_Word_max s => simdWordSize s
+ (*Ignore multiplication for now*)
+ | Simd_Word_hadd s => simdWordSize s
+ | Simd_Word_hsub s => simdWordSize s
+ | Simd_Word_abs s => simdWordSize s
+ | Simd_Word_andb s => simdWordSize s
+ | Simd_Word_orb s => simdWordSize s
+ | Simd_Word_xorb s => simdWordSize s
+ | Simd_Word_andnb s => simdWordSize s
+ | Simd_Word_sar s => simdWordSize s
+ | Simd_Word_sll s => simdWordSize s
+ | Simd_Word_slr s => simdWordSize s
+ | Simd_Word_cmpeq s => simdWordSize s
+ | Simd_Word_cmpgt s => simdWordSize s
+(*Needs to be changed*)
+ | Simd_Word_fromScalar s => simdWordSize s
+ | Simd_Word_toScalar s => simdWordSize s
+*)
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s
        | Word_addCheck (s, _) => wordBinary s
@@ -862,6 +902,7 @@ fun arrayOffsetIsOk {base, index, offset, tyconTy, result, scale} =
                    | Objptr _ => true (* for FFI export of indirect types *)
                    | Real _ => true
                    | SimdReal _ => true
+(*                   | SimdWord _ => true*)
                    | Word _ => true
 
                    | _ => false)

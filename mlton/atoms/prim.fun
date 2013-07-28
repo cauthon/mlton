@@ -169,7 +169,26 @@ datatype 'a t =
  | Simd_Real_toScalar of SimdRealSize.t
 (*
  | Simd_Word_add of SimdWordSize.t
+ | Simd_Word_adds of SimdWordSize.t * {signed: bool}
  | Simd_Word_sub of SimdWordSize.t
+ | Simd_Word_subs of SimdWordSize.t * {signed: bool}
+ | Simd_Word_min of SimdWordSize.t * {signed: bool}
+ | Simd_Word_max of SimdWordSize.t * {signed: bool}
+ (*Ignore multiplication for now*)
+ | Simd_Word_hadd of SimdWordSize.t
+ | Simd_Word_hsub of SimdWordSize.t
+ | Simd_Word_abs of SimdWordSize.t
+ | Simd_Word_andb of SimdWordSize.t
+ | Simd_Word_orb of SimdWordSize.t
+ | Simd_Word_xorb of SimdWordSize.t
+ | Simd_Word_andnb of SimdWordSize.t
+ | Simd_Word_sar of SimdWordSize.t
+ | Simd_Word_sll of SimdWordSize.t
+ | Simd_Word_slr of SimdWordSize.t
+ | Simd_Word_cmpeq of SimdWordSize.t
+ | Simd_Word_cmpgt of SimdWordSize.t
+ | Simd_Word_fromScalar of SimdWordSize.t
+ | Simd_Word_toScalar of SimdWordSize.t
 *)
  | String_toWord8Vector (* defunctorize *)
  | Thread_atomicBegin (* backend *)
@@ -221,6 +240,8 @@ datatype 'a t =
  | Word8Array_updateWord of WordSize.t  (* ssa to rssa *)
  | Word8Array_subSimdReal of SimdRealSize.t (* to be determined *)
  | Word8Array_updateSimdReal of SimdRealSize.t (* to be determined *)
+(* | Word8Array_subSimdWord of SimdWordSize.t (* to be determined *)
+ | Word8Array_updateSimdWord of SimdWordSize.t (* to be determined *)*)
  | Word8Vector_subWord of WordSize.t  (* ssa to rssa *)
  | Word8Vector_toString (* defunctorize *)
  | World_save (* ssa to rssa *)
@@ -237,6 +258,14 @@ fun toString (n: 'a t): string =
       fun simd_real (s: SimdRealSize.t,str: string): string =
             concat ["Simd", SimdRealSize.toStringSimd s, "_", "Real",
                     SimdRealSize.toStringReal s, "_", str]
+(*simd word function naming convention:
+NOT ACTUALLY SURE: what to do with signs...?
+  Simd<Size>_Word<Size>_Name
+  where sign is "" if signed and U if unsigned*)
+(*      fun simd_word (s: SimdWordSize.t,str: string,sign: bool): string =
+            concat ["Simd", SimdWordSize.toStringSimd s, "_", 
+                    (if sign then "" else "U"),"Word",
+                    SimdWordSize.toStringWord s,"_", str]*)
       fun sign {signed} = if signed then "WordS" else "WordU"
       fun word (s: WordSize.t, str: string): string =
          concat ["Word", WordSize.toString s, "_", str]
@@ -376,6 +405,29 @@ fun toString (n: 'a t): string =
        | Simd_Real_toScalar s => simd_real (s, "stores")
 (*       | Simd_Real_fromArray s => simd_real (s,"load")
        | Simd_Real_toArray s => simd_real (s,"store")*)
+ 
+(*     | Simd_Word_add w => simd_word (w,"add")
+       | Simd_Word_adds w => simd_word (w,"adds")
+       | Simd_Word_sub w => simd_word (w,"sub")
+       | Simd_Word_subs w => simd_word (w,"subs")
+       | Simd_Word_min w => simd_word (w,"min")
+       | Simd_Word_max w => simd_word (w,"max")
+       (*Ignore multiplication for now*)
+       | Simd_Word_hadd w => simd_word (w,"hadd")
+       | Simd_Word_hsub w => simd_word (w,"hsub")
+       | Simd_Word_abs w => simd_word (w,"abs")
+       | Simd_Word_andb w => simd_word (w,"andb")
+       | Simd_Word_orb w => simd_word (w,"orb")
+       | Simd_Word_xorb w => simd_word (w,"xorb")
+       | Simd_Word_andnb w => simd_word (w,"andnb")
+       | Simd_Word_sar w => simd_word (w,"sar")
+       | Simd_Word_sll w => simd_word (w,"sll")
+       | Simd_Word_slr w => simd_word (w,"slr")
+       | Simd_Word_cmpeq w => simd_word (w,"cmpeq")
+       | Simd_Word_cmpgt w => simd_word (w,"cmpgt")
+       | Simd_Word_fromScalar w => simd_word (w,"fromScalar")
+       | Simd_Word_toScalar w => simd_word (w,"toScalar")
+*)
        | String_toWord8Vector => "String_toWord8Vector"
        | Thread_atomicBegin => "Thread_atomicBegin"
        | Thread_atomicEnd => "Thread_atomicEnd"
@@ -556,6 +608,31 @@ val equals: 'a t * 'a t -> bool =
       SimdRealSize.equals (s,s')
     | (Simd_Real_toScalar s, Simd_Real_toScalar s') =>
       SimdRealSize.equals (s,s')
+(*
+    | (Simd_Word_add w, Simd_Word_add w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_adds w, Simd_Word_adds w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_sub w, Simd_Word_sub w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_subs w, Simd_Word_subs w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_min w, Simd_Word_min w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_max w, Simd_Word_max w') => SimdWordSize.equals(w,w')
+    (*Ignore multiplication for now*)
+    | (Simd_Word_hadd w, Simd_Word_hadd w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_hsub w, Simd_Word_hsub w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_abs w, Simd_Word_abs w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_andb w, Simd_Word_andb w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_orb w, Simd_Word_orb w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_xorb w, Simd_Word_xorb w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_andnb w, Simd_Word_andnb w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_sar w, Simd_Word_sar w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_sll w, Simd_Word_sll w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_slr w, Simd_Word_slr w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_cmpeq w, Simd_Word_cmpeq w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_cmpgt w, Simd_Word_cmpgt w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_fromScalar w, Simd_Word_fromScalar w') => 
+          SimdWordSize.equals(w,w')
+    | (Simd_Word_toScalar w, Simd_Word_toScalar w') => 
+          SimdWordSize.equals(w,w')
+*)
     | (String_toWord8Vector, String_toWord8Vector) => true
     | (Thread_atomicBegin, Thread_atomicBegin) => true
     | (Thread_atomicEnd, Thread_atomicEnd) => true
@@ -742,6 +819,29 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Real_toArray s => Simd_Real_toArray s*)
     | Simd_Real_fromScalar s => Simd_Real_fromScalar s
     | Simd_Real_toScalar s => Simd_Real_toScalar s
+(*
+    | Simd_Word_add w => Simd_Word_add w
+    | Simd_Word_adds w => Simd_Word_adds w
+    | Simd_Word_sub w => Simd_Word_sub w
+    | Simd_Word_subs w => Simd_Word_subs w
+    | Simd_Word_min w => Simd_Word_min w
+    | Simd_Word_max w => Simd_Word_max w
+    (*Ignore multiplication for now*)
+    | Simd_Word_hadd w => Simd_Word_hadd w
+    | Simd_Word_hsub w => Simd_Word_hsub w
+    | Simd_Word_abs w => Simd_Word_abs w
+    | Simd_Word_andb w => Simd_Word_andb w
+    | Simd_Word_orb w => Simd_Word_orb w
+    | Simd_Word_xorb w => Simd_Word_xorb w
+    | Simd_Word_andnb w => Simd_Word_andnb w
+    | Simd_Word_sar w => Simd_Word_sar w
+    | Simd_Word_sll w => Simd_Word_sll w
+    | Simd_Word_slr w => Simd_Word_slr w
+    | Simd_Word_cmpeq w => Simd_Word_cmpeq w
+    | Simd_Word_cmpgt w => Simd_Word_cmpgt w
+    | Simd_Word_fromScalar w => Simd_Word_fromScalar w
+    | Simd_Word_toScalar w => Simd_Word_toScalar w
+*)
     | String_toWord8Vector => String_toWord8Vector
     | Thread_atomicBegin => Thread_atomicBegin
     | Thread_atomicEnd => Thread_atomicEnd
@@ -1037,6 +1137,29 @@ val kind: 'a t -> Kind.t =
        | Simd_Real_toScalar _ => SideEffect
 (*       | Simd_Real_fromArray _ => SideEffect
        | Simd_Real_toArray _ => SideEffect*)
+(*
+ | Simd_Word_add _ => Functional
+ | Simd_Word_adds _ => Functional
+ | Simd_Word_sub _ => Functional
+ | Simd_Word_subs _ => Functional
+ | Simd_Word_min _ => Functional
+ | Simd_Word_max _ => Functional
+ (*Ignore multiplication for now*)
+ | Simd_Word_hadd _ => Functional
+ | Simd_Word_hsub _ => Functional
+ | Simd_Word_abs _ => Functional
+ | Simd_Word_andb _ => Functional
+ | Simd_Word_orb _ => Functional
+ | Simd_Word_xorb _ => Functional
+ | Simd_Word_andnb _ => Functional
+ | Simd_Word_sar _ => Functional
+ | Simd_Word_sll _ => Functional
+ | Simd_Word_slr _ => Functional
+ | Simd_Word_cmpeq _ => Functional
+ | Simd_Word_cmpgt _ => Functional
+ | Simd_Word_fromScalar _ => SideEffect
+ | Simd_Word_toScalar _ => SideEffect
+*)
        | String_toWord8Vector => Functional
        | Thread_atomicBegin => SideEffect
        | Thread_atomicEnd => SideEffect
@@ -1144,7 +1267,30 @@ local
 (*need to add to list, via some sort of mapping *)
    fun simdRealcmp (s: SimdRealSize.t,c: SimdRealSize.cmp) =
        [(Simd_Real_cmp (s,c))]
-
+(*
+   fun simdWords (s: SimdWordSize.t) =
+       [(Simd_Word_add s),
+       (Simd_Word_adds s),
+       (Simd_Word_sub s),
+       (Simd_Word_subs s),
+       (Simd_Word_min s),
+       (Simd_Word_max s),
+ (*Ignore multiplication for now*)
+       (Simd_Word_hadd s),
+       (Simd_Word_hsub s),
+       (Simd_Word_abs s),
+       (Simd_Word_andb s),
+       (Simd_Word_orb s),
+       (Simd_Word_xorb s),
+       (Simd_Word_andnb s),
+       (Simd_Word_sar s),
+       (Simd_Word_sll s),
+       (Simd_Word_slr s),
+       (Simd_Word_cmpeq s),
+       (Simd_Word_cmpgt s),
+       (Simd_Word_fromScalar s),
+       (Simd_Word_toScalar s)]
+*)
    fun wordSigns (s: WordSize.t, signed: bool) =
       let
          val sg = {signed = signed}
@@ -1346,6 +1492,7 @@ fun 'a checkApp (prim: 'a t,
                              real: RealSize.t -> 'a,
                              reff: 'a -> 'a,
                              simdReal: SimdRealSize.t -> 'a,
+                             (*simdWord: SimdWordSize.t -> 'a,*)
                              thread: 'a,
                              unit: 'a,
                              vector: 'a -> 'a,
@@ -1580,6 +1727,31 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => (oneArg (simdReal s), real (simdRealtoReal s)))
        | Simd_Real_fromScalar s =>
          noTargs (fn () => (oneArg (real (simdRealtoReal s)), simdReal s))
+(*
+ | Simd_Word_add s => simdWordBinary s
+ | Simd_Word_adds s => simdWordBinary s
+ | Simd_Word_sub s => simdWordBinary s
+ | Simd_Word_subs s => simdWordBinary s
+ | Simd_Word_min s => simdWordBinary s
+ | Simd_Word_max s => simdWordBinary s
+ (*Ignore multiplication for now*)
+ | Simd_Word_hadd s => simdWordBinary s
+ | Simd_Word_hsub s => simdWordBinary s
+ | Simd_Word_abs s => simdWordBinary s
+ | Simd_Word_andb s => simdWordBinary s
+ | Simd_Word_orb s => simdWordBinary s
+ | Simd_Word_xorb s => simdWordBinary s
+ | Simd_Word_andnb s => simdWordBinary s
+ | Simd_Word_sar s => simdWordBinary s
+ | Simd_Word_sll s => simdWordBinary s
+ | Simd_Word_slr s => simdWordBinary s
+ | Simd_Word_cmpeq s => simdWordBinary s
+ | Simd_Word_cmpgt s => simdWordBinary s
+ | Simd_Word_fromScalar (s w) =>
+   noTargs (fn () => (oneArg (word w, simdWord (s w)))
+ | Simd_Word_toScalar (s w) =>
+   noTargs (fn () => (oneArg (simdWord (s w), word w))
+*)
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))
        | Thread_atomicState => noTargs (fn () => (noArgs, word32))

@@ -28,6 +28,7 @@ in
    structure Runtime = Runtime
    structure Scale = Scale
    structure SimdRealSize = SimdRealSize
+(*   structure SimdWordSize = SimdWordSize*)
    structure Statement = Statement
    structure Switch = Switch
    structure Transfer = Transfer
@@ -2713,6 +2714,7 @@ fun compute (program as Ssa.Program.T {datatypes, ...}) =
                            end)
                | Real s => nonObjptr (Type.real s)
                | SimdReal _ => Error.bug "unimplemented"(*nonObjptr (Type.simdReals)*)
+(*               | SimdWord _ => Error.bug "unimplemented"(*nonObjptr (Type.simdWords)*)*)
                | Thread =>
                     constant (Rep.T {rep = Rep.Objptr {endsIn00 = true},
                                      ty = Type.thread ()})

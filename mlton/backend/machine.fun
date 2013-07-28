@@ -23,6 +23,7 @@ structure RepType = RepType (structure CFunction = CFunction
                              structure RealSize = RealSize
                              structure Runtime = Runtime
                              structure SimdRealSize = SimdRealSize
+(*                             structure SimdWordSize = SimdWordSize*)
                              structure Scale = Scale
                              structure WordSize = WordSize
                              structure WordX = WordX

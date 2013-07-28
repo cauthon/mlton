@@ -158,6 +158,29 @@ signature PRIM =
              | Simd_Real_toArray of SimdRealSize.t*)
              | Simd_Real_fromScalar of SimdRealSize.t
              | Simd_Real_toScalar of SimdRealSize.t
+(*
+ | Simd_Word_add of SimdWordSize.t
+ | Simd_Word_adds of SimdWordSize.t * {signed: bool}
+ | Simd_Word_sub of SimdWordSize.t
+ | Simd_Word_subs of SimdWordSize.t * {signed: bool}
+ | Simd_Word_min of SimdWordSize.t * {signed: bool}
+ | Simd_Word_max of SimdWordSize.t * {signed: bool}
+ (*Ignore multiplication for now*)
+ | Simd_Word_hadd of SimdWordSize.t
+ | Simd_Word_hsub of SimdWordSize.t
+ | Simd_Word_abs of SimdWordSize.t
+ | Simd_Word_andb of SimdWordSize.t
+ | Simd_Word_orb of SimdWordSize.t
+ | Simd_Word_xorb of SimdWordSize.t
+ | Simd_Word_andnb of SimdWordSize.t
+ | Simd_Word_sar of SimdWordSize.t
+ | Simd_Word_sll of SimdWordSize.t
+ | Simd_Word_slr of SimdWordSize.t
+ | Simd_Word_cmpeq of SimdWordSize.t
+ | Simd_Word_cmpgt of SimdWordSize.t
+ | Simd_Word_fromScalar of SimdWordSize.t
+ | Simd_Word_toScalar of SimdWordSize.t
+*)
              | String_toWord8Vector (* defunctorize *)
              | Thread_atomicBegin (* backend *)
              | Thread_atomicEnd (* backend *)

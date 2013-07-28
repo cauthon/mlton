@@ -334,6 +334,7 @@ fun transform (Program.T {datatypes, globals, functions, main}) =
                   end
              | Type.Ref _ => eq ()
              | Type.SimdReal s => Error.bug "ssa.poly-equal: SimdReal, Unimplemented"
+             (*    | Type.SimdWord s => Error.bug "ssa.poly-equal: SimdWord, Unimplemented"*)
              | Type.Thread => eq ()
              | Type.Tuple tys =>
                   let

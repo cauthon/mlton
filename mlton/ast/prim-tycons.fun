@@ -23,7 +23,7 @@ structure BindingStrength =
 
 datatype z = datatype RealSize.t
 datatype z = datatype SimdRealSize.t
-
+(*datatype z = datatype SimdWordSize.t*)
 type tycon = t
 
 local

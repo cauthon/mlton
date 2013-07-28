@@ -122,6 +122,7 @@ structure Type =
                      con: ObjectCon.t}
         | Real of RealSize.t
         | SimdReal of SimdRealSize.t
+        (* | SimdWord of SimdWordSize.t *)
         | Thread
         | Weak of t
         | Word of WordSize.t
@@ -166,6 +167,7 @@ structure Type =
                   andalso Prod.equals (a1, a2, equals)
              | (Real s1, Real s2) => RealSize.equals (s1, s2)
              | (SimdReal s1, SimdReal s2) => SimdRealSize.equals (s1,s2)
+          (* | (SimdWord s1, SimdWord s2) => SimdWordSize.equals (s1,s2) *)
              | (Thread, Thread) => true
              | (Weak t1, Weak t2) => equals (t1, t2)
              | (Word s1, Word s2) => WordSize.equals (s1, s2)
@@ -215,8 +217,13 @@ structure Type =
 
       val real: RealSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.real s), Real s)
+
       val simdReal: SimdRealSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.simdReal s), SimdReal s)
+
+(*      val simdWord: SimdWordSize.t -> t =
+         fn s => lookup (Tycon.hash (Tycon.simdWord s), SimdWord s)*)
+
       val word: WordSize.t -> t =
          fn s => lookup (Tycon.hash (Tycon.word s), Word s)
 
@@ -307,6 +314,9 @@ structure Type =
                | SimdReal s => str (concat 
                                     ["Simd", SimdRealSize.toStringSimd s,"_",
                                      "Real", SimdRealSize.toStringReal s])
+(*               | SimdWord s => str (concat 
+                                    ["Simd", SimdWordSize.toStringSimd s,"_",
+                                     "Word", SimdWordSize.toStringWord s])*)
                | Thread => str "thread"
                | Weak t => seq [layout t, str " weak"]
                | Word s => str (concat ["word", WordSize.toString s])))
@@ -343,6 +353,7 @@ structure Type =
                                real = real,
                                reff = fn _ => raise BadPrimApp,
                                simdReal = simdReal,
+(*                             simdWord = simdWord,*)
                                thread = thread,
                                unit = unit,
                                vector = vector1,
@@ -2002,6 +2013,7 @@ structure Program =
                         | Object {args, ...} => Prod.foreach (args, countType)
                         | Real _ => ()
                         | SimdReal _ => ()
+(*                      | SimdWord _ => () *)
                         | Thread => ()
                         | Weak t => countType t
                         | Word _ => ()

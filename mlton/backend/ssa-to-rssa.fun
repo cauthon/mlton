@@ -292,6 +292,7 @@ structure Name =
             val real = Type.real
             val word = Type.word
             val simdReal = Type.simdReal
+(*            val simdWord = Type.simdWord*)
             val vanilla = CFunction.vanilla
             fun wordCType (s, sg) = CType.word (s, sg)
             fun realCType s = CType.real s
@@ -477,6 +478,21 @@ structure Name =
                            prototype = (Vector.new3(t,t,CType.word),SOME t),
                            return = t}
                 end*)
+(*            local
+               fun make n s =
+                  let
+                     val t = simdWord s
+                     val ct = CType.simdWord s
+                  in
+                     vanilla {args = Vector.new (n, t),
+                              name = name,
+                              prototype = (Vector.new (n, ct), SOME ct),
+                              return = t}
+                  end
+            in
+               val simdWordBinary = make 2
+               val simdWordUnary = make 1
+            end*)
          in
             case n of
                IntInf_add => intInfBinary ()
@@ -565,6 +581,29 @@ structure Name =
              | Simd_Real_hsub s => simdRealBinary s
              | Simd_Real_addsub s => simdRealBinary s
 (*             | Simd_Real_cmp (s,_) => simdRealCompare s*)
+(*
+ | Simd_Word_add s => simdWordBinary s
+ | Simd_Word_adds s => simdWordBinary s
+ | Simd_Word_sub s => simdWordBinary s
+ | Simd_Word_subs s => simdWordBinary s
+ | Simd_Word_min s => simdWordBinary s
+ | Simd_Word_max s => simdWordBinary s
+ (*Ignore multiplication for now*)
+ | Simd_Word_hadd s => simdWordBinary s
+ | Simd_Word_hsub s => simdWordBinary s
+ | Simd_Word_abs s => simdWordBinary s
+ | Simd_Word_andb s => simdWordBinary s
+ | Simd_Word_orb s => simdWordBinary s
+ | Simd_Word_xorb s => simdWordBinary s
+ | Simd_Word_andnb s => simdWordBinary s
+ | Simd_Word_sar s => simdWordBinary s
+ | Simd_Word_sll s => simdWordBinary s
+ | Simd_Word_slr s => simdWordBinary s
+ | Simd_Word_cmpeq s => simdWordBinary s
+ | Simd_Word_cmpgt s => simdWordBinary s
+ | Simd_Word_fromScalar s => simdWordBinary s
+ | Simd_Word_toScalar s => simdWordBinary s
+*)
              | Thread_returnToC => CFunction.returnToC ()
              | Word_add s => wordBinary (s, {signed = false})
              | Word_addCheck (s, sg) => wordBinaryOverflows (s, sg)
@@ -1119,6 +1158,18 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                        scale = Type.scale ty,
                                                        ty = ty})
                                  end
+(*
+                              fun subSimdWord s =
+                                 let
+                                    val ty = Type.simdWord s
+                                 in
+                                    move (ArrayOffset {base = a 0,
+                                                       index = a 1,
+                                                       offset = Bytes.zero,
+                                                       scale = Type.scale ty,
+                                                       ty = ty})
+                                 end
+*)
                               fun dst () =
                                  case var of
                                     SOME x =>
@@ -1517,6 +1568,21 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                              ty = ty}),
                                                      src = a 2})
                                        end
+(*
+                               | Word8Array_subSimdWord s => subSimdWord s
+                               | Word8Array_updateSimdWord s =>
+                                       let
+                                          val ty = Type.simdWord s
+                                       in
+                                          add (Move {dst = (ArrayOffset
+                                                            {base = a 0,
+                                                             index = a 1,
+                                                             offset = Bytes.zero,
+                                                             scale = Type.scale ty,
+                                                             ty = ty}),
+                                                     src = a 2})
+                                       end
+*)
                                | Word8Vector_subWord s => subWord s
                                | World_save =>
                                     simpleCCallWithGCState
