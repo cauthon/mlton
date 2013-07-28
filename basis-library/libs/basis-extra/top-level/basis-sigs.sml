@@ -114,3 +114,7 @@ signature MLTON_WORD = MLTON_WORD
 signature MLTON_WORLD = MLTON_WORLD
 signature SML_OF_NJ = SML_OF_NJ
 signature UNSAFE = UNSAFE
+
+(*Simd Signatures*)
+signature SIMD_REAL = SIMD_REAL
+(*signature SIMD_WORD = SIMD_WORD*)

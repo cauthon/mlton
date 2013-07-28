@@ -248,6 +248,10 @@ signature BASIS_EXTRA =
       structure Real64ArraySlice : MONO_ARRAY_SLICE
       structure Real64Vector : MONO_VECTOR
       structure Real64VectorSlice : MONO_VECTOR_SLICE
+      structure Simd128_Real32 : SIMD_REAL
+      structure Simd128_Real64 : SIMD_REAL
+      structure Simd256_Real32 : SIMD_REAL
+      structure Simd256_Real64 : SIMD_REAL
       structure Socket : SOCKET
       structure SysWord : WORD
       structure Unix : UNIX
@@ -851,6 +855,10 @@ signature BASIS_EXTRA =
    where type IntInf.int = IntInf.int
    where type Real32.real = Real32.real
    where type Real64.real = Real64.real
+   where type Simd128_Real32.t = Simd128_Real32.t
+   where type Simd128_Real64.t = Simd128_Real64.t
+   where type Simd256_Real32.t = Simd256_Real32.t
+   where type Simd256_Real64.t = Simd256_Real64.t
    where type WideChar.char = WideChar.char
    where type WideString.string = WideString.string
    where type Word1.word = Word1.word

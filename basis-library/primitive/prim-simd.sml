@@ -1,9 +1,15 @@
+(* Copyright (C) 2013 Tucker DiNapoli
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
 signature PRIM_SIMD_REAL =
    sig
       val vecSize : Primitive.Int32.int
       val realSize : Primitive.Int32.int
-      type simd
-      type t = simd
+      type t 
+      type simd = t
       type elt
       val add : simd * simd -> simd
       val sub : simd * simd -> simd

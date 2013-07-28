@@ -137,15 +137,15 @@ static const char* mlTypesHStd[] = {
   "typedef __m128 Simd128_Real32_t;",
   "typedef __m128d Simd128_Real64;",
   "typedef __m128d Simd128_Real64_t;",
-  "typedef __m128i Simd128_WordX;",
-  "typedef __m128i Simd128_WordX_t;",
+  //  "typedef __m128i Simd128_WordX;",
+  //  "typedef __m128i Simd128_WordX_t;",
   "#ifdef __AVX__",
   "typedef __m256 Simd256_Real32;",
   "typedef __m256 Simd256_Real32_t;",
   "typedef __m256d Simd256_Real64;",
   "typedef __m256d Simd256_Real64_t;",
-  "typedef __m256i Simd256_WordX;",
-  "typedef __m256i Simd256_WordX_t;",
+  //  "typedef __m256i Simd256_WordX;",
+  //  "typedef __m256i Simd256_WordX_t;",
   "#endif",
   "",
   "typedef Int32_t Bool_t;",
@@ -396,12 +396,12 @@ int main (__attribute__ ((unused)) int argc,
   //  simdtype(t, st, bt, et, name)
   simdtype(__m128,  "Simd", "Real32", "SSEFloat");
   simdtype(__m128d, "Simd", "Real64", "SSEDouble");
-  simdtype(__m128i, "Simd", "WordX" , "SSEWord");
+  //  simdtype(__m128i, "Simd", "WordX" , "SSEWord");
 #ifdef __AVX__
   writeNewline (cTypesHFd);writeNewline (cTypesSMLFd);
   simdtype(__m256,  "Simd", "Real32", "AVXFloat");
   simdtype(__m256d, "Simd", "Real64", "AVXDouble");
-  simdtype(__m256i, "Simd", "WordX" , "AVXWord");
+  //  simdtype(__m256i, "Simd", "WordX" , "AVXWord");
 #endif
   writeNewline (cTypesHFd);writeNewline (cTypesSMLFd);
 #endif

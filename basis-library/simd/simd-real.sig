@@ -1,3 +1,9 @@
+(* Copyright (C) 2013 Tucker DiNapoli
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
 signature SIMD_REAL =
 sig
   val vecSize:Int32.int (*size of the simd vector 128 or 256,
@@ -8,9 +14,9 @@ sig
   type elt (* element type*)
 (*load/store*)
   val fromArray:elt array -> t
-  val fromArraySlice:elt slice -> t
+(*  val fromArraySlice:elt slice -> t
   val set:elt list -> t
-  val set1:elt -> t
+  val set1:elt -> t*)
   val fromScalar:elt -> t
   val toScalar:t -> elt(*e = lowest eltent in t*)
 (* because of toScalar we can get any element of a simd vector,
@@ -49,9 +55,9 @@ sig
   val vcvt2f:WordX.t->t
   val vcvt2i:t->WordX.t*)
 (*SSE has 8 float comparisons, AVX has 32 so we implement comparisons using
- *a datatype of possible comparisions*)
-  datatype cmp(*type of comparison predicates, its just an integer*)
-  val cmp: t*t*cmp->t
+( *a datatype of possible comparisions*)
+(*  datatype cmp(*type of comparison predicates, its just an integer*)
+  val cmp: t*t*cmp->t*)
 (*return true if any of the comparisons return true, uses maskmove
    fun cmpBool(s1,s2,cmp) =
       let
@@ -59,9 +65,9 @@ sig
       in op=(0.0,maskmove(s3)
    end
  *)
-  val cmpBool: t*t*cmp -> bool
+(*  val cmpBool: t*t*cmp -> bool
 (*return a list of booleans, one for each comparison*)
-  val cmpBools: t*t*cmp -> bool list
+  val cmpBools: t*t*cmp -> bool list*)
 (*(*unpack/shuffle/blend,etc*)
   val shuffle:t*t*word8.word->t
   val blend:t*t*t->t

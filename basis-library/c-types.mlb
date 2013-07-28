@@ -22,6 +22,7 @@ in
          config/c/word-to-bool.sml
          config/bind/int-top.sml 
          config/bind/real-top.sml 
+         config/bind/simd-real-top.sml
          config/bind/word-top.sml 
       in ann "forceUsed" in
          $(LIB_MLTON_DIR)/targets/$(TARGET)/sml/c-types.sml
