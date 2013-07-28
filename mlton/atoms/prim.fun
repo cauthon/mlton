@@ -1268,28 +1268,36 @@ local
    fun simdRealcmp (s: SimdRealSize.t,c: SimdRealSize.cmp) =
        [(Simd_Real_cmp (s,c))]
 (*
-   fun simdWords (s: SimdWordSize.t) =
-       [(Simd_Word_add s),
-       (Simd_Word_adds s),
-       (Simd_Word_sub s),
-       (Simd_Word_subs s),
-       (Simd_Word_min s),
-       (Simd_Word_max s),
+   fun simdWords ((s w): SimdWordSize.t) =
+       [(Simd_Word_add (s w)),
+       (Simd_Word_sub (s w)),
+       (Simd_Word_andb (s w)),
+       (Simd_Word_orb (s w)),
+       (Simd_Word_xorb (s w)),
+       (Simd_Word_andnb (s w))] @
  (*Ignore multiplication for now*)
-       (Simd_Word_hadd s),
-       (Simd_Word_hsub s),
-       (Simd_Word_abs s),
-       (Simd_Word_andb s),
-       (Simd_Word_orb s),
-       (Simd_Word_xorb s),
-       (Simd_Word_andnb s),
-       (Simd_Word_sar s),
-       (Simd_Word_sll s),
-       (Simd_Word_slr s),
-       (Simd_Word_cmpeq s),
-       (Simd_Word_cmpgt s),
-       (Simd_Word_fromScalar s),
-       (Simd_Word_toScalar s)]
+(case w of
+  W8 => [(Simd_Word_min ((s w),true)),
+         (Simd_Word_max ((s w),true)),
+         (Simd_Word_abs (s w)),
+(*sse4.1 only*)
+         (Simd_Word_min ((s w),false)),
+         (Simd_Word_max ((s w),false)),
+       (Simd_Word_max (s w)),
+       (Simd_Word_min (s w)),
+       (Simd_Word_adds (s w)),
+       (Simd_Word_subs (s w)),
+       (Simd_Word_hadd (s w)),
+       (Simd_Word_hsub (s w)),
+       (Simd_Word_abs (s w)),
+
+       (Simd_Word_sar (s w)),
+       (Simd_Word_sll (s w)),
+       (Simd_Word_slr (s w)),
+       (Simd_Word_cmpeq (s w)),
+       (Simd_Word_cmpgt (s w)),
+       (Simd_Word_fromScalar (s w)),
+       (Simd_Word_toScalar (s w))]
 *)
    fun wordSigns (s: WordSize.t, signed: bool) =
       let
@@ -1729,11 +1737,11 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => (oneArg (real (simdRealtoReal s)), simdReal s))
 (*
  | Simd_Word_add s => simdWordBinary s
- | Simd_Word_adds s => simdWordBinary s
+ | Simd_Word_adds (s,_) => simdWordBinary s
  | Simd_Word_sub s => simdWordBinary s
- | Simd_Word_subs s => simdWordBinary s
- | Simd_Word_min s => simdWordBinary s
- | Simd_Word_max s => simdWordBinary s
+ | Simd_Word_subs (s,_) => simdWordBinary s
+ | Simd_Word_min (s,_) => simdWordBinary s
+ | Simd_Word_max (s,_) => simdWordBinary s
  (*Ignore multiplication for now*)
  | Simd_Word_hadd s => simdWordBinary s
  | Simd_Word_hsub s => simdWordBinary s

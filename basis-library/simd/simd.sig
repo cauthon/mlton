@@ -95,9 +95,10 @@ signature SIMD_WORD = sig
   val mull:t*t->t (*multiply t*t and take higt bytes of t2 results*)
   val mulo:t*t->t2 (*multiply odd elements of t,t and return t2 result*)
   val mule:t*t->t2 (*shift arguments left element_size bytes and do vmulo*)
-  val hadd:t*t->t(*same convention as floating point hadd*)
-  val hsub:t*t->t
-  val abs:t->t
+  val hadd:t*t->t(*same convention as floating point hadd*) (* w d*)
+  val hsub:t*t->t (* w d *)
+(*also signed saturated hadd/hsub for w only*)
+  val abs:t->t (*b w d*)
 (*bitwise*)
   val andb:t*t->t
   val norb:t*t->t
@@ -106,9 +107,9 @@ signature SIMD_WORD = sig
   val andnb:t*t->t
   val notb:t->t(*vandn 0xff..ff*t->t*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
-  val sar:t*t->t
-  val slr:t*t->t
-  val sll:t*t->t
+  val sar:t*t->t (* w d *)
+  val slr:t*t->t (* w d q dq *)
+  val sll:t*t->t (* w d q dq *)
 (*we can also logically shift a full 128bit vector left/right*)
 (*Comparison*)
   (*this is all we get for builtin integer comparison*)
