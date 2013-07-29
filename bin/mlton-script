@@ -105,7 +105,7 @@ doit "$lib" \
         -target-as-opt x86 '-m32'                                \
         -target-cc-opt alpha                                     \
                 '-mieee -mbwx -mtune=ev6 -mfp-rounding-mode=d'   \
-        -target-cc-opt amd64 '-m64'                              \
+        -target-cc-opt amd64 '-m64 -march=native'                              \
         -target-cc-opt darwin                                    \
                 '-I/usr/local/include
                  -I/opt/local/include

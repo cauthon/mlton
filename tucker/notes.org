@@ -214,50 +214,228 @@ _import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
   end
 #+END_SRC
 
-* Compiler Warnings <2013-07-26 Fri>
 
-	 defunctorize finished in 1.13 + 1.20 (51% GC)
-	 xmlSimplify starting
-	    typeCheck starting
-	    typeCheck finished in 0.67 + 0.39 (37% GC)
-	    xmlShrink starting
-	    xmlShrink finished in 0.67 + 0.56 (46% GC)
-	    xmlSimplifyTypes starting
-	    xmlSimplifyTypes finished in 0.26 + 0.00 (0% GC)
-	    typeCheck starting
-	    typeCheck finished in 0.57 + 0.33 (37% GC)
-	 xmlSimplify finished in 2.16 + 1.28 (37% GC)
-	 monomorphise starting
-	 monomorphise finished in 0.98 + 0.92 (49% GC)
-	 sxmlSimplify starting
-	    typeCheck starting
-	    typeCheck finished in 0.67 + 0.48 (42% GC)
-	    sxmlShrink1 starting
-	    sxmlShrink1 finished in 1.00 + 2.92 (74% GC)
-	    implementSuffix starting
-	    implementSuffix finished in 0.04 + 0.00 (0% GC)
-	    sxmlShrink2 starting
-	    sxmlShrink2 finished in 0.75 + 0.00 (0% GC)
-	    implementExceptions starting
-	    implementExceptions finished in 0.11 + 0.28 (72% GC)
-	    sxmlShrink3 starting
-	    sxmlShrink3 finished in 0.76 + 0.00 (0% GC)
-	    polyvariance starting
-	       duplicate1 starting
-	       duplicate1 finished in 1.28 + 1.08 (46% GC)
-	       duplicate2 starting
-	       duplicate2 finished in 1.22 + 1.25 (51% GC)
-	    polyvariance finished in 2.50 + 2.33 (48% GC)
-	    sxmlShrink4 starting
-	    sxmlShrink4 finished in 1.00 + 1.10 (52% GC)
-	    typeCheck starting
-	    typeCheck finished in 0.40 + 0.54 (57% GC)
-	 sxmlSimplify finished in 7.23 + 7.65 (51% GC)
-	 closureConvert starting
-	    flow analysis starting
-	    flow analysis finished in 0.94 + 0.00 (0% GC)
-	    free variables starting
-	    free variables finished in 0.22 + 0.00 (0% GC)
-	    globalize starting
-	    globalize finished in 0.16 + 0.00 (0% GC)
-	    convert starting
+* gcc warnings from Simd.c <2013-07-29 Mon>
+In file included from basis/Simd/Simd.c:4:0:
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real32_loadu_ps’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:11:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(loadu_ps,32)
+ ^
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real64_loadu_pd’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:12:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(loadu_pd,64)
+ ^
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real32_load_ps’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:13:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(load_ps,32)
+ ^
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real64_load_pd’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:14:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(load_pd,64)
+ ^
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real32_loadr_ps’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:15:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(loadr_ps,32)
+ ^
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real64_loadr_pd’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:16:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(loadr_pd,64)
+ ^
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real32_load1_ps’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:17:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(load1_ps,32)
+ ^
+basis/Simd/Simd-opts.h:8:3: warning: no previous prototype for ‘Simd128_Real64_load1_pd’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode (Real##size##_t* r){   \
+   ^
+basis/Simd/Simd-opts.h:18:1: note: in expansion of macro ‘SimdLoadReal’
+ SimdLoadReal(load1_pd,64)
+ ^
+basis/Simd/Simd-opts.h:21:8: warning: no previous prototype for ‘Simd128_Real32_store_ps’ [-Wmissing-prototypes]
+   void Simd128_Real##size##_##opcode                                    \
+        ^
+basis/Simd/Simd-opts.h:25:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(store_ps,32)
+ ^
+basis/Simd/Simd-opts.h: In function ‘Simd128_Real32_store_ps’:
+basis/Simd/Simd-opts.h:23:5: warning: ISO C forbids ‘return’ with expression, in function returning void [-Wpedantic]
+     return _mm_##opcode (r,s);                                          \
+     ^
+basis/Simd/Simd-opts.h:25:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(store_ps,32)
+ ^
+basis/Simd/Simd-opts.h: At top level:
+basis/Simd/Simd-opts.h:21:8: warning: no previous prototype for ‘Simd128_Real64_store_pd’ [-Wmissing-prototypes]
+   void Simd128_Real##size##_##opcode                                    \
+        ^
+basis/Simd/Simd-opts.h:26:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(store_pd,64)
+ ^
+basis/Simd/Simd-opts.h: In function ‘Simd128_Real64_store_pd’:
+basis/Simd/Simd-opts.h:23:5: warning: ISO C forbids ‘return’ with expression, in function returning void [-Wpedantic]
+     return _mm_##opcode (r,s);                                          \
+     ^
+basis/Simd/Simd-opts.h:26:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(store_pd,64)
+ ^
+basis/Simd/Simd-opts.h: At top level:
+basis/Simd/Simd-opts.h:21:8: warning: no previous prototype for ‘Simd128_Real32_storeu_ps’ [-Wmissing-prototypes]
+   void Simd128_Real##size##_##opcode                                    \
+        ^
+basis/Simd/Simd-opts.h:27:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storeu_ps,32)
+ ^
+basis/Simd/Simd-opts.h: In function ‘Simd128_Real32_storeu_ps’:
+basis/Simd/Simd-opts.h:23:5: warning: ISO C forbids ‘return’ with expression, in function returning void [-Wpedantic]
+     return _mm_##opcode (r,s);                                          \
+     ^
+basis/Simd/Simd-opts.h:27:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storeu_ps,32)
+ ^
+basis/Simd/Simd-opts.h: At top level:
+basis/Simd/Simd-opts.h:21:8: warning: no previous prototype for ‘Simd128_Real64_storeu_pd’ [-Wmissing-prototypes]
+   void Simd128_Real##size##_##opcode                                    \
+        ^
+basis/Simd/Simd-opts.h:28:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storeu_pd,64)
+ ^
+basis/Simd/Simd-opts.h: In function ‘Simd128_Real64_storeu_pd’:
+basis/Simd/Simd-opts.h:23:5: warning: ISO C forbids ‘return’ with expression, in function returning void [-Wpedantic]
+     return _mm_##opcode (r,s);                                          \
+     ^
+basis/Simd/Simd-opts.h:28:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storeu_pd,64)
+ ^
+basis/Simd/Simd-opts.h: At top level:
+basis/Simd/Simd-opts.h:21:8: warning: no previous prototype for ‘Simd128_Real32_storer_ps’ [-Wmissing-prototypes]
+   void Simd128_Real##size##_##opcode                                    \
+        ^
+basis/Simd/Simd-opts.h:29:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storer_ps,32)
+ ^
+basis/Simd/Simd-opts.h: In function ‘Simd128_Real32_storer_ps’:
+basis/Simd/Simd-opts.h:23:5: warning: ISO C forbids ‘return’ with expression, in function returning void [-Wpedantic]
+     return _mm_##opcode (r,s);                                          \
+     ^
+basis/Simd/Simd-opts.h:29:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storer_ps,32)
+ ^
+basis/Simd/Simd-opts.h: At top level:
+basis/Simd/Simd-opts.h:21:8: warning: no previous prototype for ‘Simd128_Real64_storer_pd’ [-Wmissing-prototypes]
+   void Simd128_Real##size##_##opcode                                    \
+        ^
+basis/Simd/Simd-opts.h:30:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storer_pd,64)
+ ^
+basis/Simd/Simd-opts.h: In function ‘Simd128_Real64_storer_pd’:
+basis/Simd/Simd-opts.h:23:5: warning: ISO C forbids ‘return’ with expression, in function returning void [-Wpedantic]
+     return _mm_##opcode (r,s);                                          \
+     ^
+basis/Simd/Simd-opts.h:30:1: note: in expansion of macro ‘SimdStoreReal’
+ SimdStoreReal(storer_pd,64)
+ ^
+basis/Simd/Simd-opts.h: At top level:
+basis/Simd/Simd-opts.h:33:18: warning: no previous prototype for ‘Simd128_Real32_set_ps’ [-Wmissing-prototypes]
+ Simd128_Real32_t Simd128_Real32_##opcode                \
+                  ^
+basis/Simd/Simd-opts.h:37:1: note: in expansion of macro ‘SimdSetFloat4’
+ SimdSetFloat4(set_ps)
+ ^
+basis/Simd/Simd-opts.h:33:18: warning: no previous prototype for ‘Simd128_Real32_setr_ps’ [-Wmissing-prototypes]
+ Simd128_Real32_t Simd128_Real32_##opcode                \
+                  ^
+basis/Simd/Simd-opts.h:38:1: note: in expansion of macro ‘SimdSetFloat4’
+ SimdSetFloat4(setr_ps)
+ ^
+basis/Simd/Simd-opts.h:49:18: warning: no previous prototype for ‘Simd128_Real64_set_pd’ [-Wmissing-prototypes]
+ Simd128_Real64_t Simd128_Real64_##opcode                \
+                  ^
+basis/Simd/Simd-opts.h:53:1: note: in expansion of macro ‘SimdSetDouble2’
+ SimdSetDouble2(set_pd)
+ ^
+basis/Simd/Simd-opts.h:49:18: warning: no previous prototype for ‘Simd128_Real64_setr_pd’ [-Wmissing-prototypes]
+ Simd128_Real64_t Simd128_Real64_##opcode                \
+                  ^
+basis/Simd/Simd-opts.h:54:1: note: in expansion of macro ‘SimdSetDouble2’
+ SimdSetDouble2(setr_pd)
+ ^
+basis/Simd/Simd-opts.h:43:3: warning: no previous prototype for ‘Simd128_Real_set1_ps’ [-Wmissing-prototypes]
+   Simd128_Real_set1_##id (Real##size##_t r1) {                  \
+   ^
+basis/Simd/Simd-opts.h:55:1: note: in expansion of macro ‘SimdSetReal1’
+ SimdSetReal1(32,ps)
+ ^
+basis/Simd/Simd-opts.h:43:3: warning: no previous prototype for ‘Simd128_Real_set1_pd’ [-Wmissing-prototypes]
+   Simd128_Real_set1_##id (Real##size##_t r1) {                  \
+   ^
+basis/Simd/Simd-opts.h:56:1: note: in expansion of macro ‘SimdSetReal1’
+ SimdSetReal1(64,pd)
+ ^
+basis/Simd/Simd-opts.h:77:3: warning: no previous prototype for ‘Simd128_Real32_hadd’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode  /*function name*/                      \
+   ^
+basis/Simd/Simd-opts.h:84:3: note: in expansion of macro ‘binarySimdReal’
+   binarySimdReal(opcode,ps,32)                    \
+   ^
+basis/Simd/Simd-opts.h:107:1: note: in expansion of macro ‘both’
+ both(hadd)
+ ^
+basis/Simd/Simd-opts.h:77:3: warning: no previous prototype for ‘Simd128_Real64_hadd’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode  /*function name*/                      \
+   ^
+basis/Simd/Simd-opts.h:85:3: note: in expansion of macro ‘binarySimdReal’
+   binarySimdReal(opcode,pd,64)
+   ^
+basis/Simd/Simd-opts.h:107:1: note: in expansion of macro ‘both’
+ both(hadd)
+ ^
+basis/Simd/Simd-opts.h:77:3: warning: no previous prototype for ‘Simd128_Real32_hsub’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode  /*function name*/                      \
+   ^
+basis/Simd/Simd-opts.h:84:3: note: in expansion of macro ‘binarySimdReal’
+   binarySimdReal(opcode,ps,32)                    \
+   ^
+basis/Simd/Simd-opts.h:108:1: note: in expansion of macro ‘both’
+ both(hsub)
+ ^
+basis/Simd/Simd-opts.h:77:3: warning: no previous prototype for ‘Simd128_Real64_hsub’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode  /*function name*/                      \
+   ^
+basis/Simd/Simd-opts.h:85:3: note: in expansion of macro ‘binarySimdReal’
+   binarySimdReal(opcode,pd,64)
+   ^
+basis/Simd/Simd-opts.h:108:1: note: in expansion of macro ‘both’
+ both(hsub)
+ ^
+basis/Simd/Simd-opts.h:77:3: warning: no previous prototype for ‘Simd128_Real32_addsub’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode  /*function name*/                      \
+   ^
+basis/Simd/Simd-opts.h:84:3: note: in expansion of macro ‘binarySimdReal’
+   binarySimdReal(opcode,ps,32)                    \
+   ^
+basis/Simd/Simd-opts.h:109:1: note: in expansion of macro ‘both’
+ both(addsub)
+ ^
+basis/Simd/Simd-opts.h:77:3: warning: no previous prototype for ‘Simd128_Real64_addsub’ [-Wmissing-prototypes]
+   Simd128_Real##size##_##opcode  /*function name*/                      \
+   ^
+basis/Simd/Simd-opts.h:85:3: note: in expansion of macro ‘binarySimdReal’
+   binarySimdReal(opcode,pd,64)
+   ^
+basis/Simd/Simd-opts.h:109:1: note: in expansion of macro ‘both’
+ both(addsub)
+

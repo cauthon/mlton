@@ -37,7 +37,7 @@ CPPFLAGS :=
 CFLAGS :=
 
 WARNXCFLAGS :=
-WARNXCFLAGS += -pedantic -Wall
+WARNXCFLAGS += -Wall
 ifeq ($(findstring $(GCC_MAJOR_VERSION), 3),$(GCC_MAJOR_VERSION))
 WARNXCFLAGS += -W
 endif
