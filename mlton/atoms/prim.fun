@@ -183,8 +183,14 @@ datatype 'a t =
  | Simd_Word_xorb of SimdWordSize.t
  | Simd_Word_andnb of SimdWordSize.t
  | Simd_Word_sar of SimdWordSize.t
+ | Simd_Word_sari of SimdWordSize.t
  | Simd_Word_sll of SimdWordSize.t
+ | Simd_Word_slli of SimdWordSize.t
  | Simd_Word_slr of SimdWordSize.t
+ | Simd_Word_slri of SimdWordSize.t
+ | Simd_Word_mulhi of {signed: bool}
+ | Simd_Word_mullo
+ | Simd_Word_mul32
  | Simd_Word_cmpeq of SimdWordSize.t
  | Simd_Word_cmpgt of SimdWordSize.t
  | Simd_Word_fromScalar of SimdWordSize.t
@@ -1294,6 +1300,9 @@ local
        (Simd_Word_sar (s w)),
        (Simd_Word_sll (s w)),
        (Simd_Word_slr (s w)),
+       (Simd_Word_sari (s w)),
+       (Simd_Word_slli (s w)),
+       (Simd_Word_slri (s w)),
        (Simd_Word_cmpeq (s w)),
        (Simd_Word_cmpgt (s w)),
        (Simd_Word_fromScalar (s w)),
@@ -1751,12 +1760,18 @@ fun 'a checkApp (prim: 'a t,
  | Simd_Word_xorb s => simdWordBinary s
  | Simd_Word_andnb s => simdWordBinary s
  | Simd_Word_sar s => simdWordBinary s
+ | Simd_Word_sari s => noTargs (fn () => 
+     (twoArgs (simdWord s, word8), simdWord s)
  | Simd_Word_sll s => simdWordBinary s
+ | Simd_Word_slli s => noTargs (fn () => 
+     (twoArgs (simdWord s, word8), simdWord s)
  | Simd_Word_slr s => simdWordBinary s
+ | Simd_Word_slri s => noTargs (fn () => 
+     (twoArgs (simdWord s, word8), simdWord s)
  | Simd_Word_cmpeq s => simdWordBinary s
  | Simd_Word_cmpgt s => simdWordBinary s
  | Simd_Word_fromScalar (s w) =>
-   noTargs (fn () => (oneArg (word w, simdWord (s w)))
+   noTargs (fn () => (oneArg (word w), simdWord (s w)))
  | Simd_Word_toScalar (s w) =>
    noTargs (fn () => (oneArg (simdWord (s w), word w))
 *)

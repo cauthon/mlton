@@ -185,11 +185,11 @@ fun simdReal (s: SimdRealSize.t) =
          | 64 => Simd256_Real64
          | _ =>Error.bug "CType.simdReal")
     | _ => Error.bug "CType.simdReal"
-fun simdWord (s: SimdWordSize.t) =
+(*fun simdWord (s: SimdWordSize.t) =
    case Bits.toInt (SimdWordSize.bits s) of
       128 => Simd128_WordX
     | 256 => Simd256_WordX
-    | _ => Error.bug "CType.simdWord"
+    | _ => Error.bug "CType.simdWord"*)
 
 val cint =
    Promise.lazy

@@ -432,7 +432,7 @@ structure Type =
    struct
       structure Overload =
          struct
-            datatype t = Char | Int | Real | Word
+            datatype t = Char | Int | Real | Word 
 
             val equals: t * t -> bool = op =
 

@@ -16,6 +16,18 @@ SimdLoadReal(loadr_ps,32)
 SimdLoadReal(loadr_pd,64)
 SimdLoadReal(load1_ps,32)
 SimdLoadReal(load1_pd,64)
+#define SimdStoreReal(opcode,size)                                      \
+  MLTON_CODEGEN_STATIC_INLINE                                           \
+  void Simd128_Real##size##_##opcode                                    \
+  (Real##size##_t* r,Simd128_Real##size##_t s){                         \
+    return _mm_##opcode (r,s);                                          \
+  }
+SimdStoreReal(store_ps,32)
+SimdStoreReal(store_pd,64)
+SimdStoreReal(storeu_ps,32)
+SimdStoreReal(storeu_pd,64)
+SimdStoreReal(storer_ps,32)
+SimdStoreReal(storer_pd,64)
 #define SimdSetFloat4(opcode)                           \
   MLTON_CODEGEN_STATIC_INLINE                           \
 Simd128_Real32_t Simd128_Real32_##opcode                \
@@ -127,7 +139,7 @@ _mm_set1_epi8 (char __A)*/
 
 /*#define SimdWordImm(opcode,sign,size)                               \
 MLTON_CODEGEN_STATIC_INLINE                                           \
-  void Simd_Word_##opcode##_##sign##size                            \
+  void Simd128_Word_##opcode##_##sign##size                            \
   (__m128i* arg1,__m128i* retval,unsigned char imm){                      \
 __m128i x = _mm_loadu_si128(arg1);                       \
  _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}

@@ -5,7 +5,6 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  */
-//TUCKER: You need to add simd types to this file
 #include "cenv.h"
 #include "util.h"
 
@@ -34,6 +33,10 @@ static const char* mlTypesHPrefix[] = {
   "#include <sys/int_types.h>",
   "#else",
   "#include <stdint.h>",
+  "#endif",
+  "",
+  "#ifdef _x86_64__",
+  "#include <x86intrin.h>",
   "#endif",
   "",
   NULL
@@ -139,14 +142,14 @@ static const char* mlTypesHStd[] = {
   "typedef __m128d Simd128_Real64_t;",
   //  "typedef __m128i Simd128_WordX;",
   //  "typedef __m128i Simd128_WordX_t;",
-  "#ifdef __AVX__",
+  //  "#ifdef __AVX__",
   "typedef __m256 Simd256_Real32;",
   "typedef __m256 Simd256_Real32_t;",
   "typedef __m256d Simd256_Real64;",
   "typedef __m256d Simd256_Real64_t;",
   //  "typedef __m256i Simd256_WordX;",
   //  "typedef __m256i Simd256_WordX_t;",
-  "#endif",
+  //  "#endif",
   "",
   "typedef Int32_t Bool_t;",
   "typedef Int32_t Bool;",
@@ -226,6 +229,8 @@ static const char* mlTypesHStd[] = {
   writeUintmaxU (cTypesSMLFd, CHAR_BIT * sizeof(t));    \
   writeString (cTypesSMLFd, "_");                       \
   writeString (cTypesSMLFd, st);                        \
+  writeString (cTypesSMLFd, " type t = ");              \
+  writeString (cTypesSMLFd, "simd");                    \
   writeString (cTypesSMLFd, " end");                    \
   writeNewline (cTypesSMLFd);                           \
   } while(0);

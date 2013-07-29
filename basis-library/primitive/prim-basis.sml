@@ -431,6 +431,27 @@ structure Word64 =
       type word = t
    end
 
+structure Simd128_Real32 =
+   struct
+      type t = Simd128_Real32
+      type simd = t
+   end
+structure Simd128_Real64 =
+   struct
+      type t = Simd128_Real64
+      type simd = t
+   end
+structure Simd256_Real32 =
+   struct
+      type t = Simd256_Real32
+      type simd = t
+   end
+structure Simd256_Real64 =
+   struct
+      type t = Simd256_Real64
+      type simd = t
+   end
+
 (* Primitive Basis (MLton Extensions) *)
 structure Pointer =
    struct

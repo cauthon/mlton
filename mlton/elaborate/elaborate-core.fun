@@ -93,6 +93,7 @@ in
    structure Prim = Prim
    structure RealSize = RealSize
    structure RealX = RealX
+   structure SimdRealSize = SimdRealSize
    structure SourceInfo = SourceInfo
    structure Tycon = Tycon
    structure Tyvar = Tyvar
@@ -813,6 +814,14 @@ structure Type =
                      in
                         [Word8, Word16, Word32, Word64]
                      end)
+            @ [("Simd128_Real32", CType.simdReal SimdRealSize.V128R32,
+                Tycon.simdReal SimdRealSize.V128R32),
+               ("Simd128_Real64", CType.simdReal SimdRealSize.V128R64,
+                Tycon.simdReal SimdRealSize.V128R64),
+               ("Simd256_Real32", CType.simdReal SimdRealSize.V256R32,
+                Tycon.simdReal SimdRealSize.V256R32),
+               ("Simd256_Real64", CType.simdReal SimdRealSize.V256R64,
+                Tycon.simdReal SimdRealSize.V256R64)]
          end
 
       val nullary =

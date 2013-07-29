@@ -865,6 +865,9 @@ MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_orb(Simd128_Real32_t
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_set(Real32_t,Real32_t,Real32_t,Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_setr(Real32_t,Real32_t,Real32_t,Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_sqrt(Simd128_Real32_t);
+MLTON_CODEGEN_STATIC_INLINE void Simd128_Real32_store(Array(Real32_t),Simd128_Real32_t);
+MLTON_CODEGEN_STATIC_INLINE void Simd128_Real32_storer(Array(Real32_t),Simd128_Real32_t);
+MLTON_CODEGEN_STATIC_INLINE void Simd128_Real32_storeu(Array(Real32_t),Simd128_Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_sub(Simd128_Real32_t,Simd128_Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real32_t Simd128_Real32_xorb(Simd128_Real32_t,Simd128_Real32_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real64_t Simd128_Real64_add(Simd128_Real64_t,Simd128_Real64_t);
@@ -882,6 +885,9 @@ MLTON_CODEGEN_STATIC_INLINE Simd128_Real64_t Simd128_Real64_orb(Simd128_Real64_t
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real64_t Simd128_Real64_set(Real64_t,Real64_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real64_t Simd128_Real64_setr(Real64_t,Real64_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real64_t Simd128_Real64_sqrt(Simd128_Real64_t);
+MLTON_CODEGEN_STATIC_INLINE void Simd128_Real64_store(Array(Real64_t),Simd128_Real64_t);
+MLTON_CODEGEN_STATIC_INLINE void Simd128_Real64_storer(Array(Real64_t),Simd128_Real64_t);
+MLTON_CODEGEN_STATIC_INLINE void Simd128_Real64_storeu(Array(Real64_t),Simd128_Real64_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real64_t Simd128_Real64_sub(Simd128_Real64_t,Simd128_Real64_t);
 MLTON_CODEGEN_STATIC_INLINE Simd128_Real64_t Simd128_Real64_xorb(Simd128_Real64_t,Simd128_Real64_t);
 PRIVATE C_Errno_t(C_Int_t) Socket_accept(C_Sock_t,Array(Word8_t),Ref(C_Socklen_t));

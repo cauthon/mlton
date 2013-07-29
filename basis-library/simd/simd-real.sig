@@ -14,9 +14,10 @@ sig
   type elt (* element type*)
 (*load/store*)
   val fromArray:elt array -> t
-(*  val fromArraySlice:elt slice -> t
-  val set:elt list -> t(*aka from list*)
-  val set1:elt -> t(*fill with duplicates of elt*)*)
+  val toArray:elt array * t -> unit
+(*  val fromArraySlice:elt slice -> t (*non primtive*)
+  val set:elt list -> t(*aka from list*) (*non primtive*)
+  val set1:elt -> t(*fill with duplicates of elt*) (*non primtive*)*)
   val fromScalar:elt -> t
   val toScalar:t -> elt(*e = lowest eltent in t*)
 (* because of toScalar we can get any element of a simd vector,
@@ -41,7 +42,7 @@ sig
   val xorb:t*t->t
   val orb: t*t->t
   val andnb:t*t->t
-  val notb:t->t (*0xff..ff and opperand = ! opperand*)
+(*  val notb:t->t (*0xff..ff and opperand = ! opperand*)(*non primtive*)*)
 (*(*Round/Convert*)
   val vroundp:t*t*word8.word->wordx.t(*actual round instruction*)
   (*Need to implement these myself,all are just round with a different imm*)
@@ -72,6 +73,7 @@ sig
   val shuffle:t*t*word8.word->t
   val blend:t*t*t->t
   val extract:t*word8.word -> e*)
+  val toString: t -> string
 end
 signature SIMD_AVAILABLE =
 sig

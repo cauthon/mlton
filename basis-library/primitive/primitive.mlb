@@ -29,6 +29,7 @@ in
       ../config/bind/real-prim.sml 
       ../config/bind/string-prim.sml 
       ../config/bind/word-prim.sml 
+      ../config/bind/simd-prim.sml
    in ann "forceUsed" in
       ../config/choose-char.sml
       ../config/choose-int.sml
@@ -47,6 +48,7 @@ in
       ../config/bind/pointer-prim.sml
       ../config/bind/real-prim.sml 
       ../config/bind/word-prim.sml 
+      ../config/bind/simd-prim.sml
    in ann "forceUsed" in
       ../config/objptr/objptr-$(OBJPTR_REP).sml
       ../config/header/header-$(HEADER_WORD).sml

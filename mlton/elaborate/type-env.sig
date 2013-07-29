@@ -76,6 +76,7 @@ signature TYPE_ENV =
 (*      sharing type Type.intSize = IntSize.t *)
       sharing type Type.realSize = RealSize.t
       sharing type Type.wordSize = WordSize.t
+      sharing type Type.simdRealSize = SimdRealSize.t
       sharing type Type.tycon = Tycon.t
       structure Scheme:
          sig

@@ -136,6 +136,7 @@ in
                                name = name,
                                tycon = tycon})
       val simdReals = Vector.map (all, fn {tycon, size, ...} => (tycon, size))
+      (*fun isSimdRealX t = Vector.exists (all, fn {tycon = t', ...} => equals (t, t'))*)
       end
 (*
    local

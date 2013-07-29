@@ -66,6 +66,7 @@ signature PRIM_TYCONS =
       val isCPointer: tycon -> bool
       val isIntX: tycon -> bool
       val isRealX: tycon -> bool
+(*      val isSimdRealX: tycon -> bool*)
       val isWordX: tycon -> bool
       val layoutApp:
          tycon * (Layout.t * ({isChar: bool} * BindingStrength.t)) vector
