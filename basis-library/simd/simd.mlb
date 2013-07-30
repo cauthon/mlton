@@ -1,0 +1,17 @@
+ann
+  "allowFFI true"
+in
+   local
+     ../default.mlb
+     ../primitive/primitive.mlb
+   in
+      local
+        simd-real.sig
+        simd-real.sml
+      in
+      signature SIMD_REAL
+      structure Simd128_Real32
+      structure Simd128_Real64
+      structure Simd256_Real32
+      structure Simd256_Real64
+end end end

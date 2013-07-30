@@ -27,7 +27,7 @@ sig
   val sub:t*t->t
   val mul:t*t->t
   val div:t*t->t
-  val sqrt:t*t->t
+  val sqrt:t->t
   val min:t*t->t
   val max:t*t->t
 (*HADD(HSUB follows same pattern

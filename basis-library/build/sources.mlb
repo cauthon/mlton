@@ -213,8 +213,13 @@ in
    ../real/pack-real.sig
    ../real/pack-real.sml
 (*simd here*)
-   ../simd/simd-real.sig
-   ../simd/simd-real.sml
+   local
+   ../sml-nj/unsafe.sig
+   ../sml-nj/unsafe.sml
+   in
+      ../simd/simd-real.sig
+      ../simd/simd-real.sml
+   end
    local 
       ../config/bind/int-top.sml 
       ../config/bind/pointer-prim.sml

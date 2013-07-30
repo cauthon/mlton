@@ -3,7 +3,7 @@ signature PRIM_SIMD_WORD =
       val vecSize : Primitive.Int32.int
       val wordSize : Primitive.Int32.int
       type t 
-      type simd = t
+      type simd
       type elt
       val add : simd * simd -> simd
       val sub : simd * simd -> simd

@@ -9,7 +9,7 @@ signature PRIM_SIMD_REAL =
       val vecSize : Primitive.Int32.int
       val realSize : Primitive.Int32.int
       type t 
-      type simd = t
+      type simd(* = t*)
       type elt
       val add : simd * simd -> simd
       val sub : simd * simd -> simd
@@ -19,6 +19,7 @@ signature PRIM_SIMD_REAL =
       val max : simd * simd -> simd
       val andb : simd * simd -> simd
       val orb : simd * simd -> simd
+      val xorb : simd * simd -> simd
       val andnb : simd * simd -> simd
       val hadd : simd * simd -> simd
       val hsub : simd * simd -> simd
@@ -75,7 +76,7 @@ structure Simd128_Real32 : PRIM_SIMD_REAL =
     val realSize : Int32.int = 32
 
     type elt = Real32.real
-    type simd = t
+(*    type simd = t*)
 
       val add = _prim "Simd128_Real32_add": simd * simd -> simd ;
       val sub = _prim "Simd128_Real32_sub": simd * simd -> simd ;
@@ -85,6 +86,7 @@ structure Simd128_Real32 : PRIM_SIMD_REAL =
       val max = _prim "Simd128_Real32_max": simd * simd -> simd ;
       val andb = _prim "Simd128_Real32_andb": simd * simd -> simd ;
       val orb = _prim "Simd128_Real32_orb": simd * simd -> simd ;
+      val xorb = _prim "Simd128_Real32_xorb": simd * simd -> simd ;
       val andnb = _prim "Simd128_Real32_andnotb": simd * simd -> simd ;
       val hadd = _prim "Simd128_Real32_hadd": simd * simd -> simd ;
       val hsub = _prim "Simd128_Real32_hsub": simd * simd -> simd ;
@@ -103,7 +105,7 @@ structure Simd128_Real64 : PRIM_SIMD_REAL =
     val realSize : Int32.int = 64
 
     type elt = Real64.real
-    type simd = t
+(*    type simd = t*)
 
       val add = _prim "Simd128_Real64_add": simd * simd -> simd ;
       val sub = _prim "Simd128_Real64_sub": simd * simd -> simd ;
@@ -113,6 +115,7 @@ structure Simd128_Real64 : PRIM_SIMD_REAL =
       val max = _prim "Simd128_Real64_max": simd * simd -> simd ;
       val andb = _prim "Simd128_Real64_andb": simd * simd -> simd ;
       val orb = _prim "Simd128_Real64_orb": simd * simd -> simd ;
+      val xorb = _prim "Simd128_Real64_xorb": simd * simd -> simd ;
       val andnb = _prim "Simd128_Real64_andnotb": simd * simd -> simd ;
       val hadd = _prim "Simd128_Real64_hadd": simd * simd -> simd ;
       val hsub = _prim "Simd128_Real64_hsub": simd * simd -> simd ;
@@ -131,7 +134,7 @@ structure Simd256_Real32 : PRIM_SIMD_REAL =
     val realSize : Int32.int = 32
 
     type elt = Real32.real
-    type simd = t
+(*    type simd = t*)
 
       val add = _prim "Simd256_Real32_add": simd * simd -> simd ;
       val sub = _prim "Simd256_Real32_sub": simd * simd -> simd ;
@@ -141,6 +144,7 @@ structure Simd256_Real32 : PRIM_SIMD_REAL =
       val max = _prim "Simd256_Real32_max": simd * simd -> simd ;
       val andb = _prim "Simd256_Real32_andb": simd * simd -> simd ;
       val orb = _prim "Simd256_Real32_orb": simd * simd -> simd ;
+      val xorb = _prim "Simd256_Real32_xorb": simd * simd -> simd ;
       val andnb = _prim "Simd256_Real32_andnotb": simd * simd -> simd ;
       val hadd = _prim "Simd256_Real32_hadd": simd * simd -> simd ;
       val hsub = _prim "Simd256_Real32_hsub": simd * simd -> simd ;
@@ -159,7 +163,7 @@ structure Simd256_Real64 : PRIM_SIMD_REAL =
     val realSize : Int32.int = 64
 
     type elt = Real64.real
-    type simd = t
+(*    type simd = t*)
 
       val add = _prim "Simd256_Real64_add": simd * simd -> simd ;
       val sub = _prim "Simd256_Real64_sub": simd * simd -> simd ;
@@ -169,6 +173,7 @@ structure Simd256_Real64 : PRIM_SIMD_REAL =
       val max = _prim "Simd256_Real64_max": simd * simd -> simd ;
       val andb = _prim "Simd256_Real64_andb": simd * simd -> simd ;
       val orb = _prim "Simd256_Real64_orb": simd * simd -> simd ;
+      val xorb = _prim "Simd256_Real64_xorb": simd * simd -> simd ;
       val andnb = _prim "Simd256_Real64_andnotb": simd * simd -> simd ;
       val hadd = _prim "Simd256_Real64_hadd": simd * simd -> simd ;
       val hsub = _prim "Simd256_Real64_hsub": simd * simd -> simd ;
