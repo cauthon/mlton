@@ -2,58 +2,65 @@
  *write in a few more uses of the word macros*/
 /*all of these are unaligned, but its fairly simple to make them aligned*/
 
-#define SimdLoadReal(opcode,size)                   \
+#define SimdLoadReal(opcode,size,suffix,type)           \
   MLTON_CODEGEN_STATIC_INLINE                       \
   Simd128_Real##size##_t                            \
-  Simd128_Real##size##_##opcode (Real##size##_t* r){   \
-    return _mm_##opcode (r);                            \
+  Simd128_Real##size##_##opcode (Array(Real##size##_t) r){           \
+    return _mm_##opcode##_##suffix ((type*)r);                       \
   }
-SimdLoadReal(loadu_ps,32)
-SimdLoadReal(loadu_pd,64)
-SimdLoadReal(load_ps,32)
-SimdLoadReal(load_pd,64)
-SimdLoadReal(loadr_ps,32)
-SimdLoadReal(loadr_pd,64)
-SimdLoadReal(load1_ps,32)
-SimdLoadReal(load1_pd,64)
-#define SimdStoreReal(opcode,size)                                      \
+SimdLoadReal(loadu,32,ps,float)
+SimdLoadReal(loadu,64,pd,double)
+SimdLoadReal(load,32,ps,float)
+SimdLoadReal(load,64,pd,double)
+SimdLoadReal(loadr,32,ps,float)
+SimdLoadReal(loadr,64,pd,double)
+#define SimdLoad1Real(opcode,size,suffix)                       \
+  MLTON_CODEGEN_STATIC_INLINE                                        \
+  Simd128_Real##size##_t                                             \
+  Simd128_Real##size##_##opcode (Real##size##_t r){                  \
+    return _mm_##opcode##_##suffix (&r);                       \
+  }
+SimdLoad1Real(load1,32,ps)
+SimdLoad1Real(load1,64,pd)
+
+#define SimdStoreReal(opcode,size,suffix,type)                          \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   void Simd128_Real##size##_##opcode                                    \
-  (Real##size##_t* r,Simd128_Real##size##_t s){                         \
-    return _mm_##opcode (r,s);                                          \
+  (Array(Real##size##_t) r,Simd128_Real##size##_t s){                         \
+    return _mm_##opcode##_##suffix ((type*)r,s);                        \
   }
-SimdStoreReal(store_ps,32)
-SimdStoreReal(store_pd,64)
-SimdStoreReal(storeu_ps,32)
-SimdStoreReal(storeu_pd,64)
-SimdStoreReal(storer_ps,32)
-SimdStoreReal(storer_pd,64)
-#define SimdSetFloat4(opcode)                           \
+SimdStoreReal(store,32,ps,float)
+SimdStoreReal(store,64,pd,double)
+SimdStoreReal(storeu,32,ps,float)
+SimdStoreReal(storeu,64,pd,double)
+SimdStoreReal(storer,32,ps,float)
+SimdStoreReal(storer,64,pd,double)
+#define SimdSetFloat4(opcode,suffix)                    \
   MLTON_CODEGEN_STATIC_INLINE                           \
 Simd128_Real32_t Simd128_Real32_##opcode                \
 (Real32_t r1, Real32_t r2, Real32_t r3, Real32_t r4){   \
-  return  _mm_##opcode (r1,r2,r3,r4);                   \
+  return  _mm_##opcode##_##suffix (r1,r2,r3,r4);        \
 }
-SimdSetFloat4(set_ps)
-SimdSetFloat4(setr_ps)
+SimdSetFloat4(set,ps)
+SimdSetFloat4(setr,ps)
 
-#define SimdSetReal1(size,id)                                   \
-  MLTON_CODEGEN_STATIC_INLINE                                   \
-  Simd128_Real##size##_t                                        \
-  Simd128_Real_set1_##id (Real##size##_t r1) {                  \
-    return  _mm_set1_##id(r1);                                  \
+#define SimdSetReal1(size,opcode,id)                                   \
+  MLTON_CODEGEN_STATIC_INLINE                                          \
+  Simd128_Real##size##_t                                               \
+  Simd128_Real##size##_##opcode (Real##size##_t r1) {                  \
+    return  _mm_##opcode##_##id(r1);                                     \
 }
 
-#define SimdSetDouble2(opcode)                          \
+#define SimdSetDouble2(opcode,suffix)                   \
   MLTON_CODEGEN_STATIC_INLINE                           \
 Simd128_Real64_t Simd128_Real64_##opcode                \
   (Real64_t r1, Real64_t r2){                           \
-  return  _mm_##opcode (r1,r2);                         \
+  return  _mm_##opcode##_##suffix (r1,r2);              \
 }
-SimdSetDouble2(set_pd)
-SimdSetDouble2(setr_pd)
-SimdSetReal1(32,ps)
-SimdSetReal1(64,pd)
+SimdSetDouble2(set,pd)
+SimdSetDouble2(setr,pd)
+SimdSetReal1(32,set1,ps)
+SimdSetReal1(64,set1,pd)
   /*macro to define unary simd real functions
  *being as there reall is only one its called like this
  *unaryReal(sqrt,double*,double*,__m128d,pd) and this
