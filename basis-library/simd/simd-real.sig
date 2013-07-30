@@ -75,7 +75,7 @@ sig
   val extract:t*word8.word -> e*)
   val toString: t -> string
 end
-signature SIMD_AVAILABLE =
+(*signature SIMD_AVAILABLE =
 sig
   val sse3:bool
   val ssse3:bool
@@ -83,4 +83,4 @@ sig
   val sse4.2:bool
   val avx:bool
   val avx2:bool
-end
+end*)

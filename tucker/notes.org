@@ -78,6 +78,10 @@
 Word8_subSIMD of SimdRealSize.t
 val Word8_subSIMD_f32v4 : Word8.word array * ArraySeqInt.t -> f32v4
 _import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
+* google hangout <2013-07-29 Mon>
+  -stuck on elaborate, actually a problem with the basis libary
+  -where else do I need to add module/structure/etc.. information
+  -go to basis libary
 * Low level details
 ** Immediate opperands
 *** Compairson

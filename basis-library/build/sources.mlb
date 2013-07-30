@@ -11,6 +11,7 @@ ann
    "sequenceNonUnit warn"
    "nonexhaustiveMatch warn" "redundantMatch warn"
    "warnUnused false" "forceUsed"
+   "allowFFI true"
 in
    ../primitive/primitive.mlb
    ../top-level/infixes.sml

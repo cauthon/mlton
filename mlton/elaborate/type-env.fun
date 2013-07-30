@@ -430,6 +430,7 @@ end
 
 structure Type =
    struct
+(*TUCKER: Do I need to add simd types here*)
       structure Overload =
          struct
             datatype t = Char | Int | Real | Word 

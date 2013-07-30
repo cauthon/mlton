@@ -52,11 +52,11 @@ while true;do
         -r|--ram)ram_slop="$2";shift 2;;
         -m) case "$2" in
               avx2|fma|aes) declare "$2"=1;;
-              avx) avx=1;&
-              sse4.1) sse4_1=1;&
-              sse4.2) sse4_2=1;&
-              ssse3) ssse3=1;&
-              sse3) sse3=1;&
+              avx) X86_64_CC_OPTS='-mavx';;
+              sse4.1) X86_64_CC_OPTS='-msse4.1';;
+              sse4.2) X86_64_CC_OPTS='-msse4.2';;
+              ssse3) X86_64_CC_OPTS='-mssse3';;
+              sse3) X86_64_CC_OPTS=sse3='-msse3';;
             esac; simd=1; shift 2;;
         --) shift ; break;;
         *) echo "Internal error!, remaining args: $@"; exit 1 ;;

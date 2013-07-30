@@ -397,6 +397,7 @@ int main (__attribute__ ((unused)) int argc,
   // ptrtype(uintptr_t, "Pointer");
   ptrtype(char*, "String");
   ptrtype(char**, "StringArray");
+  /*
 #ifdef __x86_64__
   //  simdtype(t, st, bt, et, name)
   simdtype(__m128,  "Simd", "Real32", "SSEFloat");
@@ -410,6 +411,7 @@ int main (__attribute__ ((unused)) int argc,
 #endif
   writeNewline (cTypesHFd);writeNewline (cTypesSMLFd);
 #endif
+  */
   writeNewline (cTypesHFd);writeNewline (cTypesSMLFd);
   writeStringWithNewline (cTypesHFd, "/* Generic integers */");
   writeStringWithNewline (cTypesSMLFd, "(* Generic integers *)");
