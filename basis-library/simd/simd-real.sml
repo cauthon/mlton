@@ -10,8 +10,10 @@ local
   type real = Real32.real
 in
   open Primitive.Simd128_Real32
-      val fromArray = _import "Simd128_Real32_loadr" private : (real) array -> simd;
-      val toArray = _import "Simd128_Real32_storer" private : (real) array * simd -> unit;
+      val fromArray = _import "Simd128_Real32_loadr" private :
+                      (real) array -> simdReal;
+      val toArray = _import "Simd128_Real32_storer" private :
+                    (real) array * simdReal -> unit;
       fun toString s = let
         val temp = Unsafe.Array.create (4,0.0:real)
         val _ = toArray (temp,s)
@@ -30,8 +32,10 @@ local
   type real = Real64.real
 in
   open Primitive.Simd128_Real64
-      val fromArray = _import "Simd128_Real64_loadr" private : (real) array -> simd;
-      val toArray = _import "Simd128_Real64_storer" private : (real) array * simd -> unit;
+      val fromArray = _import "Simd128_Real64_loadr" private :
+                      (real) array -> simdReal;
+      val toArray = _import "Simd128_Real64_storer" private :
+                    (real) array * simdReal -> unit;
       fun toString s = let
         val temp = Unsafe.Array.create (2,0.0:real)
         val _ = toArray (temp,s)
@@ -50,8 +54,10 @@ local
   type real = Real32.real
 in
    open Primitive.Simd256_Real32
-      val fromArray = _import "Simd256_Real32_loadr" private : (Real32.real) array -> simd;
-      val toArray = _import "Simd256_Real32_storer" private : (Real32.real) array * simd -> unit;
+      val fromArray = _import "Simd256_Real32_loadr" private :
+                      (Real32.real) array -> simdReal;
+      val toArray = _import "Simd256_Real32_storer" private :
+                    (Real32.real) array * simdReal -> unit;
       fun toString s = let
         val temp = Unsafe.Array.create (4,0.0:real)
         val _ = toArray (temp,s)
@@ -71,8 +77,10 @@ local
   type real = Real64.real
 in
    open Primitive.Simd256_Real64
-      val fromArray = _import "Simd256_Real64_loadr" private : (real) array -> simd;
-      val toArray = _import "Simd256_Real64_storer" private : (real) array * simd -> unit;
+      val fromArray = _import "Simd256_Real64_loadr" private :
+                      (real) array -> simdReal;
+      val toArray = _import "Simd256_Real64_storer" private :
+                    (real) array * simdReal -> unit;
       fun toString s = let
         val temp = Unsafe.Array.create (2,0.0:real)
         val _ = toArray (temp,s)

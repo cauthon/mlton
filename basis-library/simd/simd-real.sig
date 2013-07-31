@@ -9,8 +9,8 @@ sig
   val vecSize:Int32.int (*size of the simd vector 128 or 256,
                           *hopefully later any multiple of 128*)
   val realSize:Int32.int (*size of real, 32/64*)
-  type simd (* high level type *)
-  type t = simd
+  type simdReal (* high level type *)
+  type t = simdReal
   type elt (* element type*)
 (*load/store*)
   val fromArray:elt array -> t
