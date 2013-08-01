@@ -333,7 +333,7 @@ fun transform (Program.T {datatypes, globals, functions, main}) =
                      Dexp.wordEqual (toWord dx1, toWord dx2, ws)
                   end
              | Type.Ref _ => eq ()
-             | Type.SimdReal s => Error.bug "ssa.poly-equal: SimdReal, Unimplemented"
+             | Type.SimdReal _ => Error.bug "ssa.poly-equal: SimdReal, Unimplemented"
              (*    | Type.SimdWord s => Error.bug "ssa.poly-equal: SimdWord, Unimplemented"*)
              | Type.Thread => eq ()
              | Type.Tuple tys =>

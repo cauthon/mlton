@@ -35,7 +35,7 @@ static const char* mlTypesHPrefix[] = {
   "#include <stdint.h>",
   "#endif",
   "",
-  "#ifdef _x86_64__",
+  "#ifdef __x86_64__",
   "#include <x86intrin.h>",
   "#endif",
   "",

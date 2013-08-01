@@ -93,8 +93,6 @@ cpuid(unsigned info,unsigned *eax,unsigned *ebx,unsigned *ecx,unsigned *edx){
 void features(){}
 void flags(){}
 #endif
-
-
   if (getopt(argc,argv,"m") == 'm'){
     mflags();
   } else {

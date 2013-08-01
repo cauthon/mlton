@@ -17,7 +17,7 @@ in
       fun toString s = let
         val temp = Unsafe.Array.create (4,0.0:real)
         val _ = toArray (temp,s)
-        val elements = Int32.div(vecSize,realSize)-1
+        val elements = 3
         fun make (s:string list,n:int) =
             if n = 0 then
               concat ("("::Real32.toString(Array.sub(temp,n))::s)

@@ -134,5 +134,6 @@ cpuid(){
     if [ $HOST_ARCH != amd64 ]; then
         echo "cpuid only available on amd64 architecture" && exit 1
     fi
-    for i in $($(basename $0)/cpuid-mlton);do declare $i;done
+#    for i in $($(basename $0)/cpuid-mlton);do declare $i;done
+    echo $($(basename $0)/cpuid-mlton -m)
 }

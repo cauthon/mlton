@@ -56,6 +56,7 @@ signature PRIM_TYCONS =
       val defaultWord: unit -> tycon
       val deIntX: tycon -> IntSize.t option
       val deRealX: tycon -> RealSize.t
+      val deSimdRealX: tycon -> SimdRealSize.t
       val deWordX: tycon -> WordSize.t
       val exn: tycon
       val int: IntSize.t -> tycon
@@ -66,7 +67,7 @@ signature PRIM_TYCONS =
       val isCPointer: tycon -> bool
       val isIntX: tycon -> bool
       val isRealX: tycon -> bool
-(*      val isSimdRealX: tycon -> bool*)
+      val isSimdRealX: tycon -> bool
       val isWordX: tycon -> bool
       val layoutApp:
          tycon * (Layout.t * ({isChar: bool} * BindingStrength.t)) vector

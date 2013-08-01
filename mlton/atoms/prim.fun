@@ -163,8 +163,8 @@ datatype 'a t =
  | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
  | Simd_Real_cmp of SimdRealSize.t * SimdRealSize.cmp
 (* | Simd_Real_shuffle of SimdRealSize.t * Word8.word*)
-(* | Simd_Real_fromArray of SimdRealSize.t
- | Simd_Real_toArray of SimdRealSize.t*)
+ | Simd_Real_fromArray of SimdRealSize.t
+ | Simd_Real_toArray of SimdRealSize.t
  | Simd_Real_fromScalar of SimdRealSize.t
  | Simd_Real_toScalar of SimdRealSize.t
 (*
@@ -409,9 +409,8 @@ NOT ACTUALLY SURE: what to do with signs...?
        | Simd_Real_cmp (s,c) => simd_real (s,SimdRealSize.cmpString c)
        | Simd_Real_fromScalar s => simd_real (s,"loads")
        | Simd_Real_toScalar s => simd_real (s, "stores")
-(*       | Simd_Real_fromArray s => simd_real (s,"load")
-       | Simd_Real_toArray s => simd_real (s,"store")*)
- 
+       | Simd_Real_fromArray s => simd_real (s,"loadr")
+       | Simd_Real_toArray s => simd_real (s,"storer")
 (*     | Simd_Word_add w => simd_word (w,"add")
        | Simd_Word_adds w => simd_word (w,"adds")
        | Simd_Word_sub w => simd_word (w,"sub")
@@ -606,10 +605,10 @@ val equals: 'a t * 'a t -> bool =
     | (Simd_Real_cmpgt s, Simd_Real_cmpgt s') => SimdRealSize.equals (s,s')*)
     | (Simd_Real_cmp (s,c),Simd_Real_cmp (s',c')) => SimdRealSize.equals(s,s')
                                              andalso op=(c,c')
-(*    | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
+    | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
       SimdRealSize.equals (s,s')
     | (Simd_Real_toArray s, Simd_Real_toArray s') =>
-      SimdRealSize.equals (s,s')*)
+      SimdRealSize.equals (s,s')
     | (Simd_Real_fromScalar s, Simd_Real_fromScalar s') =>
       SimdRealSize.equals (s,s')
     | (Simd_Real_toScalar s, Simd_Real_toScalar s') =>
@@ -821,8 +820,8 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Real_cmplt s => Simd_Real_cmplt s
     | Simd_Real_cmpgt s => Simd_Real_cmpgt s*)
     | Simd_Real_cmp (s,c) => Simd_Real_cmp (s,c)
-(*    | Simd_Real_fromArray s => Simd_Real_fromArray s
-    | Simd_Real_toArray s => Simd_Real_toArray s*)
+    | Simd_Real_fromArray s => Simd_Real_fromArray s
+    | Simd_Real_toArray s => Simd_Real_toArray s
     | Simd_Real_fromScalar s => Simd_Real_fromScalar s
     | Simd_Real_toScalar s => Simd_Real_toScalar s
 (*

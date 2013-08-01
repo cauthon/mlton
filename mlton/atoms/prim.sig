@@ -154,8 +154,8 @@ signature PRIM =
              | Simd_Real_cmplt of SimdRealSize.t (* codegen *)
              | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
              | Simd_Real_cmp of SimdRealSize.t*SimdRealSize.cmp
-(*             | Simd_Real_fromArray of SimdRealSize.t
-             | Simd_Real_toArray of SimdRealSize.t*)
+             | Simd_Real_fromArray of SimdRealSize.t
+             | Simd_Real_toArray of SimdRealSize.t
              | Simd_Real_fromScalar of SimdRealSize.t
              | Simd_Real_toScalar of SimdRealSize.t
 (*

@@ -109,24 +109,25 @@ in
       in
          make ("word", all, bits, equals, memoize, Sometimes)
       end
-
    local
-      open SimdRealSize
+     val all =
+         Vector.fromListMap
+           (SimdRealSize.all, fn s => let
+                   val name = concat ["Simd", Bits.toString 
+                                                (SimdRealSize.bits s),
+                                      "_","Real",Bits.toString 
+                                                   (SimdRealSize.realBits s)]
+                 in
+                   {name = name,
+                    size = s,
+                    tycon = fromString name}
+                 end)
    in
-      val all =
-          Vector.fromListMap
-            (all, fn s => let
-                    val name = concat ["Simd", Bits.toString (bits s),
-                                       "_","Real",Bits.toString (realBits s)]
-                  in
-                    {name = name,
-                     size = s,
-                     tycon = fromString name}
-                  end)
       val simdReal =
-          memoize
+          SimdRealSize.memoize
             (fn s =>
-             case Vector.peek (all, fn {size = s', ...} => equals (s, s')) of
+             case Vector.peek (all, fn {size = s', ...} => 
+                                       SimdRealSize.equals (s, s')) of
                  NONE => Error.bug "PrimTycons.make.fromSize"
                | SOME {tycon, ...} => tycon)
       val primSimdReals =
@@ -136,8 +137,12 @@ in
                                name = name,
                                tycon = tycon})
       val simdReals = Vector.map (all, fn {tycon, size, ...} => (tycon, size))
-      (*fun isSimdRealX t = Vector.exists (all, fn {tycon = t', ...} => equals (t, t'))*)
-      end
+      fun isSimdRealX t = Vector.exists (all, fn {tycon = t', ...} => equals (t, t'))
+      fun deSimdRealX t = 
+          case Vector.peek (all, fn {tycon = t', ...} => equals (t, t')) of
+              NONE => Error.bug "PrimTycons.make.de"
+            | SOME {size, ...} => size
+   end
 (*
    local
       open SimdWordSize

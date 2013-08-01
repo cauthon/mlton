@@ -6,25 +6,33 @@
 #TODO Add option -m InstructionSet to decide to use specific instructions
 help(){  
   echo -e "usage: gen-mlton.sh [options]\nOptions:"
-    echo -e "\t-h|--help print this help and exit"
-    echo -e "\t-v|--version print version information"
-    echo -e "\t-d|--default generate script using default options"
-    echo -e "\t--default-opts OPTS, additional default options for mlton"
-    echo -e "\t--prefix DIR:prefix for mlton & mlton libs [/usr/local]"
-    echo -e "\t--libdir DIR:location of mlton libs [prefix/lib]"
-    echo -e "\t-f|--file FILE: name of mlton script to generate
-\t\t[prefix/bin/mlton], if host=mingw append .exe"
-    echo -e "\t-a|--arch ARCH: generate script for architecture ARCH
-\t\tdefault determined by current architecture"
-    echo -e "\t-m NAME for amd64 set available simd functions"
-    echo -e "\tNAME is the desired feature, one of sse3,ssse3,sse4.1,sse4.1,avx,fma,aes,avx2"
-    echo -e "\tsse3-avx implictly include earlier features [detected based on current machine]"
     echo -e "\t -c|--cc FILE: name of default c compiler [gcc]"
     echo -e "\t -o|--os OS: generate script for operating system OS
 \t\tdefault deturmined by current os"
     echo -e "\t -r|--ram NUM: Default ram usage of mlton
 \t\tgiven as a number from 0-1 as a % of total ram [0.25]"
+    echo -e "\t--default generate script using default options"
+    echo -e "\t--default-opts OPTS, additional default options for mlton"
+    echo -e "\t--libdir DIR:location of mlton libs [prefix/lib]"
+    echo -e "\t--prefix DIR:prefix for mlton & mlton libs [/usr/local]"
+    echo -e "\t-a|--arch ARCH: generate script for architecture ARCH
+\t\tdefault determined by current architecture"
+    echo -e "\t-f|--file FILE: name of mlton script to generate
+\t\t[prefix/bin/mlton], if host=mingw append .exe"
+    echo -e "\t-h|--help print this help and exit"
+    echo -e "\t-m NAME latest amd64 instruction set available
+\t\t use --help-simd for more information, default autodetected"
+    echo -e "\t-v|--version print version information"
     exit 0
+}
+simd-help(){
+    echo -e "-m specifies The default native simd features used by mlton."
+    echo -e "\tFor any x86_64 computer sse and sse2 features are included by default."
+    echo -e "\tFurther features are used if specified, or detected on the target machine"
+    echo -e "\tpossible values are sse2,sse3,ssse3,sse4.1,sse4.1,avx,fma,aes,avx2 or native"
+    echo -e "\tif left unspecified features are determined when mlton is compiled"
+    echo -e "\tIf native is specified features are determined by the c compiler"
+    echo -e "\t\twhen mlton is run"
 }
 source $(dirname "$0")/gen-mlton-funs #functions to get host-os & host-arch
 #also for x86_64 runs cpuid to determin features
@@ -32,7 +40,8 @@ VERSION="0.02"
 [[ $# = 0 ]] && help
 #run getopt on args
 TEMP=$(getopt -o a:,c:,f:,h,o:,v,d \
--l prefix:,libdir:,file:,os:,arch:,cc:,help,version,default,default-opts: \
+-l default,default-opts:,help-simd:,\
+prefix:,libdir:,file:,os:,arch:,cc:,help,version \
 -n 'gen-mlton.sh' -- "$@")
 if [ $? != 0 ] ; then echo "Getopt failed, error $?" >&2 ; exit 1 ; fi
 
@@ -40,24 +49,26 @@ eval set -- "$TEMP"
 #parse args
 while true;do
     case "$1" in
-        -h|--help) help;;
-        -v|--version) echo "mlton.sh version $VERSION"; exit 0;;
-        --prefix) prefix="$2";shift 2;;
-        --libdir) libdir="$2";shift 2;;
         --default-opts) default_opts="$2";shift 2;;
-        -o|--os) HOST_OS="$2";shift 2;;
+        --libdir) libdir="$2";shift 2;;
+        --prefix) prefix="$2";shift 2;;
         -a|--arch) HOST_ARCH="$2";shift 2;;
-        -f|--file) script="$2";shift 2;;
         -c|--cc) CC="$2";shift 2;;
-        -r|--ram)ram_slop="$2";shift 2;;
+        -f|--file) script="$2";shift 2;;
+        -h|--help) help;;
+        --help-simd) simd-help;;
         -m) case "$2" in
-              avx2|fma|aes) declare "$2"=1;;
+              native) X86_64_CC_OPTS='-march=native';;
+              avx2|fma|aes) X86_64_CC_OPTS='-mavx2 -mavx';;
               avx) X86_64_CC_OPTS='-mavx';;
               sse4.1) X86_64_CC_OPTS='-msse4.1';;
               sse4.2) X86_64_CC_OPTS='-msse4.2';;
               ssse3) X86_64_CC_OPTS='-mssse3';;
               sse3) X86_64_CC_OPTS=sse3='-msse3';;
             esac; simd=1; shift 2;;
+        -o|--os) HOST_OS="$2";shift 2;;
+        -r|--ram)ram_slop="$2";shift 2;;
+        -v|--version) echo "mlton.sh version $VERSION"; exit 0;;
         --) shift ; break;;
         *) echo "Internal error!, remaining args: $@"; exit 1 ;;
     esac
@@ -66,19 +77,18 @@ done
 #I could do something like var=${var:-default},but I think this looks cleaner
 [[ -z "$prefix" ]] && prefix=/usr/local
 [[ -z "$libdir" ]] && libdir=$prefix/lib
-[[ -z "$bindir" ]] && bindir=$prefix/bin
 [[ -z "$HOST_ARCH" ]] && HOST_ARCH=$(get_arch)
 [[ -z "$HOST_OS" ]] && HOST_OS=$(get_os)
 [[ -z "$CC" ]] && CC=gcc
 [[ -z "$ram_slop" ]] && ram_slop=0.25
 if [[ $HOST_ARCH = amd64 ]] && [[ -z "$simd" ]]; then
-    cpuid();
+    X86_64_CC_OPTS=cpuid();
 fi
     
 #os specific options
 case "$HOST_OS" in
     mingw)
-        [[ -z "$script" ]] && script=$bindir/mlton.exe
+        [[ -z "$script" ]] && script=$prefix/bin/mlton.exe
         mlton_compile="$libdir/mlton-compile.exe"
         mlton_polyml="$libdir/mlton-polyml.exe"
         ;;
@@ -87,7 +97,7 @@ case "$HOST_OS" in
 esac
 #set excutable name for non windows platforms
 if [ "$HOST_OS" != "mingw" ]; then
-    [[ -z "$script" ]] && script=$bindir/mlton
+    [[ -z "$script" ]] && script=$prefix/bin/mlton
     mlton_compile="$libdir/mlton-compile"
     mlton_polyml="$libdir/mlton-polyml"
 fi
@@ -149,7 +159,7 @@ case "$HOST_ARCH" in
     amd64)
         ASFLAGS="-m64"
         LDFLAGS="$LDFLAGS -m64"
-        CFLAGS="$CFLAGS -m64"
+        CFLAGS="$CFLAGS -m64 $X86_64_CC_OPTS"
         ;;
     ia64)
         LDFLAGS="$LDFLAGS $ia64hpux"
