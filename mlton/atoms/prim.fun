@@ -162,11 +162,11 @@ datatype 'a t =
  | Simd_Real_cmplt of SimdRealSize.t (* codegen *)
  | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
  | Simd_Real_cmp of SimdRealSize.t * SimdRealSize.cmp
-(* | Simd_Real_shuffle of SimdRealSize.t * Word8.word*)
  | Simd_Real_fromArray of SimdRealSize.t
  | Simd_Real_toArray of SimdRealSize.t
  | Simd_Real_fromScalar of SimdRealSize.t
  | Simd_Real_toScalar of SimdRealSize.t
+ | Simd_Real_shuffle of SimdRealSize.t
 (*
  | Simd_Word_add of SimdWordSize.t
  | Simd_Word_adds of SimdWordSize.t * {signed: bool}
@@ -1843,8 +1843,6 @@ val checkApp =
    fn z =>
    Trace.trace ("Prim.check", layout o #1, Layout.ignore) checkApp z
 
-(*Should probably define some new functions here & add 
- *In simd stuff, because you can extract stuff from simd vectors*)
 fun ('a, 'b) extractTargs (prim: 'b t,
                            {args: 'a vector,
                             result: 'a,

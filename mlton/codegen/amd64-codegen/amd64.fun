@@ -2346,6 +2346,11 @@ because 16 => XMMS or XMMD or XMMW and
         | SSE_BLENDVP  of {src: Operand.t,
                            dst: Operand.t,
                            size: Size.t}
+        | SSE_SHUFFP of {oper: sse_shuffp,
+                         src: Operand.t,
+                         dst: Operand.t,
+                         imm: Operand.t,
+                         dstsize: Size.t}
         (* Scalar SSE move data instruction.
          *)
         | SSE_MOVD of {src: Operand.t,

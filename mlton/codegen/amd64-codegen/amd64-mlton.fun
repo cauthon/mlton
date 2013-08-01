@@ -22,10 +22,12 @@ struct
      structure RealSize = RealSize
      structure Prim = Prim
      structure SimdRealSize = SimdRealSize
+     (* structure SimdWordSize = SimdWordSize *)
      structure WordSize = WordSize
      datatype z = datatype RealSize.t
      datatype z = datatype WordSize.prim
      datatype z = datatype SimdRealSize.t
+(*   datatype z = datatype SimdWordSize.t*)
   end
 
   type transInfo = {addData : amd64.Assembly.t list -> unit,
@@ -39,6 +41,7 @@ struct
         datatype z = datatype RealSize.t
         datatype z = datatype WordSize.prim
         datatype z = datatype SimdRealSize.t
+        (* datatype z = datatype SimdWordSize.t *)
         fun w32168 s =
            case WordSize.prim s of
               W8 => true
@@ -85,20 +88,21 @@ struct
          | Real_round _ => false
          | Real_sub _ => true
          | Simd_Real_add  _ => true
-         | Simd_Real_sub  _ => true
-         | Simd_Real_mul  _ => true
-         | Simd_Real_div  _ => true
-         | Simd_Real_min  _ => true
-         | Simd_Real_max  _ => true
-         | Simd_Real_sqrt  _ => true
+         | Simd_Real_addsub _ => true
          | Simd_Real_and  _ => true
          | Simd_Real_andn  _ => true
-         | Simd_Real_or  _ => true
-         | Simd_Real_xor  _ => true
+         | Simd_Real_cmp _ => true
+         | Simd_Real_div  _ => true
          | Simd_Real_hadd  _ => true
          | Simd_Real_hsub  _ => true
-         | Simd_Real_addsub _ => true
-         | Simd_Real_cmp _ => true
+         | Simd_Real_max  _ => true
+         | Simd_Real_min  _ => true
+         | Simd_Real_mul  _ => true
+         | Simd_Real_or  _ => true
+         | Simd_Real_shuffle _ => true
+         | Simd_Real_sqrt  _ => true
+         | Simd_Real_sub  _ => true
+         | Simd_Real_xor  _ => true
 (*         | Simd_Real_cmpeq _ => true
          | Simd_Real_cmplt _ => true
          | Simd_Real_cmpgt _ => true*)
@@ -826,6 +830,39 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
+        fun sse_shuffp (oper,imm)
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc3 ()
+              val (dst,dstsize) = getDst1 ()
+              val _
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize andalso
+                            src3size = dstsize)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movs
+                   {dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_sse_shuffp
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
+                    size = dstsize},
+                   Assembly.instruction_sse_binas
+                   {oper = oper,
+                    dst = dst,
+                    src = src3,
+                    size = dstsize}],
+                transfer = NONE}]
+            end
+
 
         fun sse_unas oper
           = let
@@ -974,8 +1011,6 @@ struct
         AppendList.appends
         [comment_begin,
          (case Prim.name prim of
-(*TUCKER: These are the primitives, I need to decide what simd operations
- *(maybe all of them?) I should make primitives*)
                CPointer_add => binal Instruction.ADD
              | CPointer_diff => binal Instruction.SUB
              | CPointer_equal => cmp Instruction.E
