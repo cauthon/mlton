@@ -23,6 +23,9 @@ in
               concat ("("::Real32.toString(Array.sub(temp,n))::s)
             else make((", "::Real32.toString(Array.sub(temp,n))::s),(n-1))
       in make ([")"],elements) end
+      fun toStringScalar s = let
+        val temp = toScalar s
+      in (Real32.toString temp) end
 end
 end
 
@@ -45,6 +48,9 @@ in
               concat ("("::Real64.toString(Array.sub(temp,n))::s)
             else make((", "::Real64.toString(Array.sub(temp,n))::s),(n-1))
       in make ([")"],elements) end
+      fun toStringScalar s = let
+        val temp = toScalar s
+      in (Real64.toString temp) end
 end
 end
 
@@ -67,6 +73,9 @@ in
               concat ("("::Real32.toString(Array.sub(temp,n))::s)
             else make((", "::Real32.toString(Array.sub(temp,n))::s),(n-1))
       in make ([")"],elements) end
+      fun toStringScalar s = let
+        val temp = toScalar s
+      in (Real32.toString temp) end
 end
 end
 
@@ -90,6 +99,9 @@ in
               concat ("("::Real64.toString(Array.sub(temp,n))::s)
             else make((", "::Real64.toString(Array.sub(temp,n))::s),(n-1))
       in make ([")"],elements) end
+      fun toStringScalar s = let
+        val temp = toScalar s
+      in (Real64.toString temp) end
 end
 end
 

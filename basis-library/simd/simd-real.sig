@@ -74,6 +74,7 @@ sig
   val blend:t*t*t->t
   val extract:t*word8.word -> e*)
   val toString: t -> string
+  val toStringScalar: t -> string
 end
 (*signature SIMD_AVAILABLE =
 sig
