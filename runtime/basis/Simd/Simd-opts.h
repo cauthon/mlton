@@ -1,7 +1,13 @@
 /*TUCKER: TODO: still need to write all avx macros and still need to
  *write in a few more uses of the word macros*/
 /*all of these are unaligned, but its fairly simple to make them aligned*/
-
+#define fromArray(size,suffix,opcode,type)                  \
+  Simd128_Real##size Simd128_Real##size##_fromArray         \
+  (Array(Real##size##_t) r,int i){                      \
+    return _mm_##opcode##_##suffix((type*)r[i]);        \
+  }
+fromArray(32,ps,loadu,float)
+fromArray(64,pd,loadu,double)
 #define SimdLoadReal(opcode,size,suffix,type)           \
   MLTON_CODEGEN_STATIC_INLINE                       \
   Simd128_Real##size##_t                            \

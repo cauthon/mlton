@@ -918,6 +918,8 @@ structure IntInf =
                   case MLton.Align.align of (* alignment *)
                      MLton.Align.Align4 => 0w3
                    | MLton.Align.Align8 => 0w7
+                   | MLton.Align.Align16 => 0w15
+                   | MLton.Align.Align32 => 0w31
             ))))
       end
 
@@ -1244,7 +1246,9 @@ structure IntInf =
                              Sz.+ (0w1 (* sign *),
                                    case MLton.Align.align of (* alignment *)
                                       MLton.Align.Align4 => 0w3
-                                    | MLton.Align.Align8 => 0w7)),
+                                    | MLton.Align.Align8 => 0w7
+                                    | MLton.Align.Align16 => 0w15
+                                    | MLton.Align.Align32 => 0w31)),
                              Sz.* (Sz.zextdFromInt32 dpl, 
                                    Sz.zextdFromSeqIndex (numLimbs arg)))
                  in

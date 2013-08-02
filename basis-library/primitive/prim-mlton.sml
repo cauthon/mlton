@@ -36,12 +36,14 @@ structure GCState =
 
 structure Align =
    struct
-      datatype t = Align4 | Align8
+      datatype t = Align4 | Align8 | Align16 | Align32
 
       val align =
          case _build_const "MLton_Align_align": Int32.int; of
             4 => Align4
           | 8 => Align8
+          | 16 => Align16
+          | 32 => Align32
           | _ => raise Primitive.Exn.Fail8 "MLton_Align_align"
    end
 

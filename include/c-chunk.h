@@ -217,6 +217,7 @@ MLTON_CODEGEN_MEMCPY(void * memcpy(void *, const void*, size_t);)
 #include "basis/cpointer.h"
 #include "basis/Real/Real-ops.h"
 #include "basis/Real/Math-fns.h"
+#include "basis/Simd/Simd-opts.h"
 #include "basis/Word/Word-ops.h"
 #include "basis/Word/Word-consts.h"
 #include "basis/Word/Word-check.h"
