@@ -166,7 +166,7 @@ datatype 'a t =
  | Simd_Real_toArray of SimdRealSize.t
  | Simd_Real_fromScalar of SimdRealSize.t
  | Simd_Real_toScalar of SimdRealSize.t
- | Simd_Real_shuffle of SimdRealSize.t
+(* | Simd_Real_shuffle of SimdRealSize.t*)
 (*
  | Simd_Word_add of SimdWordSize.t
  | Simd_Word_adds of SimdWordSize.t * {signed: bool}

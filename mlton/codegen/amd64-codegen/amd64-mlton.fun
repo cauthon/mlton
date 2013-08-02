@@ -99,7 +99,7 @@ struct
          | Simd_Real_min  _ => true
          | Simd_Real_mul  _ => true
          | Simd_Real_or  _ => true
-         | Simd_Real_shuffle _ => true
+(*         | Simd_Real_shuffle _ => true*)
          | Simd_Real_sqrt  _ => true
          | Simd_Real_sub  _ => true
          | Simd_Real_xor  _ => true
@@ -830,7 +830,7 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun sse_shuffp (oper,imm)
+(*        fun sse_shuffp (oper,imm)
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc3 ()
@@ -861,7 +861,7 @@ struct
                     src = src3,
                     size = dstsize}],
                 transfer = NONE}]
-            end
+            end*)
 
 
         fun sse_unas oper
