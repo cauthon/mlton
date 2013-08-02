@@ -52,7 +52,7 @@ print_control(hsub)
 print_control(addsub)
 #endif
 
-/*int main() {
+int main() {
   simple1.m128f = _mm_load_ps(simple1_temp);
   simple2.m128f = _mm_load_ps(simple2_temp);
   rand1.m128f = _mm_load_ps(rand1_temp);
@@ -69,4 +69,4 @@ print_control(addsub)
   print_control_sub();
   print_control_mul();
   print_control_div();
-}*/
+}

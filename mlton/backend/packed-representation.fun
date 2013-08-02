@@ -812,10 +812,18 @@ structure ObjptrRep =
             val padBytes: Bytes.t =
                if isVector
                   then let
+(*double check the simd option stuff*)
                           val alignWidth =
                              case !Control.align of
                                 Control.Align4 => width
                               | Control.Align8 =>
+                                   if (Vector.exists
+                                       (components, fn {component = c, ...} =>
+                                        (case Type.deSimdReal (Component.ty c) of
+                                             NONE => false
+                                           | SOME s => true)))
+                                   then Bytes.alignWord128 width
+                                   else
                                    if (Vector.exists
                                        (components, fn {component = c, ...} =>
                                         (case Type.deReal (Component.ty c) of
@@ -837,40 +845,14 @@ structure ObjptrRep =
                               | Control.Align16 => 
                                    if (Vector.exists
                                        (components, fn {component = c, ...} =>
-                                        (case Type.deReal (Component.ty c) of
+                                        (case Type.deSimdReal (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
-                                               RealSize.equals (s, RealSize.R64))))
-(*                                        orelse
-                                        (case Type.deWord (Component.ty c) of
-                                            NONE => false
-                                          | SOME s =>
-                                               WordSize.equals (s, WordSize.word128))
-                                        orelse
-                                        (Type.isObjptr (Component.ty c)
-                                         andalso WordSize.equals (WordSize.objptr (),
-                                                                  WordSize.word128)))*)
-                                      then Bytes.alignWord128 width
-                                   else width
-                              | Control.Align32 => 
-                                   if (Vector.exists
-                                       (components, fn {component = c, ...} =>
-                                        (case Type.deReal (Component.ty c) of
-                                            NONE => false
-                                          | SOME s =>
-                                               RealSize.equals (s, RealSize.R64))))
-(*                                        orelse
-                                        (case Type.deWord (Component.ty c) of
-                                            NONE => false
-                                          | SOME s =>
-                                               WordSize.equals (s, WordSize.word256))
-                                        orelse
-                                        (Type.isObjptr (Component.ty c)
-                                         andalso WordSize.equals (WordSize.objptr (),
-                                                                  WordSize.word256))))*)
+                                               SimdRealSize.equalsSimd (s, SimdRealSize.V256R32))))
                                       then Bytes.alignWord256 width
-                                   else width
-
+                                   else Bytes.alignWord128 width
+                              | Control.Align32 => 
+                                Bytes.alignWord256 width
                        in
                           Bytes.- (alignWidth, width)
                        end
@@ -2713,7 +2695,7 @@ fun compute (program as Ssa.Program.T {datatypes, ...}) =
                                       ty = Type.objptr opt})
                            end)
                | Real s => nonObjptr (Type.real s)
-               | SimdReal _ => Error.bug "unimplemented"(*nonObjptr (Type.simdReals)*)
+               | SimdReal s => nonObjptr (Type.simdReal s)
 (*               | SimdWord _ => Error.bug "unimplemented"(*nonObjptr (Type.simdWords)*)*)
                | Thread =>
                     constant (Rep.T {rep = Rep.Objptr {endsIn00 = true},

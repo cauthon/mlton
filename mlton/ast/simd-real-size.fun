@@ -23,6 +23,8 @@ val bits = Bytes.toBits o bytes
 val realBits = Bytes.toBits o realBytes
 fun allBits s = (bits s,realBits s)
 fun equals (s,s') = op=(bits s,bits s') andalso op=(realBits s,realBits s')
+fun equalsSimd (s,s') = op=(bits s,bits s')
+fun equalsReal (s,s') = op=(realBits s,realBits s')
 val toStringSimd =
  fn V128R32 => "128"
   | V128R64 => "128"

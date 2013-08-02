@@ -296,12 +296,17 @@ structure Name =
             val vanilla = CFunction.vanilla
             fun wordCType (s, sg) = CType.word (s, sg)
             fun realCType s = CType.real s
-(*            fun simdRealCType s = CType.simdReal s*)
+            fun simdRealCType s = CType.simdReal s
             fun coerce (t1, ct1, t2, ct2) =
                vanilla {args = Vector.new1 t1,
                         name = name,
                         prototype = (Vector.new1 ct1, SOME ct2),
                         return = t2}
+            val simdRealtoReal =
+             fn SimdRealSize.V128R32 => RealSize.R32
+              | SimdRealSize.V128R64 => RealSize.R64
+              | SimdRealSize.V256R32 => RealSize.R32
+              | SimdRealSize.V256R64 => RealSize.R64
             fun amAllocationProfiling () =
                Control.ProfileAlloc = !Control.profile
             val intInfBinary = fn () =>
@@ -580,6 +585,32 @@ structure Name =
              | Simd_Real_hadd s => simdRealBinary s
              | Simd_Real_hsub s => simdRealBinary s
              | Simd_Real_addsub s => simdRealBinary s
+             | Simd_Real_toScalar s =>
+                  let
+                    val t1 = simdReal s
+                    val ct1 = CType.simdReal s
+                    val temp = simdRealtoReal s
+                    val t2 = real temp
+                    val ct2 = CType.real temp
+                  in
+                    vanilla {args = Vector.new1 t1,
+                        name = name,
+                        prototype = (Vector.new1 ct1, SOME ct2),
+                        return = t2}
+                  end
+             | Simd_Real_fromScalar s => 
+                  let
+                    val t2 = simdReal s
+                    val ct2 = CType.simdReal s
+                    val temp = simdRealtoReal s
+                    val t1 = real temp
+                    val ct1 = CType.real temp
+                  in
+                    vanilla {args = Vector.new1 t1,
+                        name = name,
+                        prototype = (Vector.new1 ct1, SOME ct2),
+                        return = t2}
+                  end
 (*             | Simd_Real_cmp (s,_) => simdRealCompare s*)
 (*
  | Simd_Word_add s => simdWordBinary s

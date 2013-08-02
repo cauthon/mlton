@@ -1517,7 +1517,7 @@ struct
              | Simd_Real_toScalar s => 
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD
+                 | V128R64 => sse_movfp Instruction.SSE_MOVSD
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_fromScalar s => 
                (case s of

@@ -250,12 +250,11 @@ structure Type =
             Real s => SOME s
           | _ => NONE
 (*Do I need this ??*)
-(*      val deSimdReal: t -> RealSize.t option =
+      val deSimdReal: t -> SimdRealSize.t option =
          fn t =>
          case node t of
             SimdReal s => SOME s
-          | _ => NONE          | _ => NONE*)
-      
+          | _ => NONE      
       val deSeq: t -> t vector option =
          fn t =>
          case node t of

@@ -68,6 +68,7 @@ signature REP_TYPE =
       val deObjptr: t -> ObjptrTycon.t option
       val deReal: t -> RealSize.t option
       val deSeq: t -> t vector option
+      val deSimdReal: t -> SimdRealSize.t option
       val deWord: t -> WordSize.t option
       val equals: t * t -> bool
       val exnStack: unit -> t

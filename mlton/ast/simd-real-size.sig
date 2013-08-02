@@ -10,6 +10,8 @@ sig
   val bits: t -> Bits.t
   val bytes: t -> Bytes.t
   val equals: t*t -> bool
+  val equalsSimd: t*t -> bool
+  val equalsReal: t*t -> bool
   val memoize: (t -> 'a) -> t -> 'a
   val realBits: t -> Bits.t
   val realBytes: t -> Bytes.t

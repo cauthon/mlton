@@ -1,5 +1,13 @@
 #include <x86intrin.h>
 #include <stdio.h>
+__m128 hsubps(__m128 x, __m128 y){
+  __m128 tempx=x,tempy=y;
+  tempx=_mm_shuffle_ps(tempx,x,_MM_SHUFFLE(2,3,0,1));
+  tempy=_mm_shuffle_ps(tempy,y,_MM_SHUFFLE(2,3,0,1));
+  tempx=_mm_sub_ps(x,tempx);
+  tempy=_mm_sub_ps(y,tempy);
+  return _mm_shuffle_ps(tempx,tempy,_MM_SHUFFLE(3,1,3,1));
+}
 __m128 haddps(__m128 x, __m128 y){
   __m128 tempx=x,tempy=y;
   tempx=_mm_shuffle_ps(tempx,x,_MM_SHUFFLE(2,3,0,1));
@@ -14,6 +22,7 @@ __m128 addsubps(__m128 x, __m128 y){
   a=_mm_shuffle_ps(a,b,_MM_SHUFFLE(0,2,1,3));
   return _mm_shuffle_ps(a,a,_MM_SHUFFLE());
 }
+__m128 blendps(
 int main(){
   typedef union{
     __m128 m128;

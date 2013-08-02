@@ -26,7 +26,7 @@ SimdLoad1Real(load1,64,pd)
 #define SimdStoreReal(opcode,size,suffix,type)                          \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   void Simd128_Real##size##_##opcode                                    \
-  (Array(Real##size##_t) r,Simd128_Real##size##_t s){                         \
+  (Array(Real##size##_t) r,Simd128_Real##size##_t s){                   \
     return _mm_##opcode##_##suffix ((type*)r,s);                        \
   }
 SimdStoreReal(store,32,ps,float)
@@ -35,6 +35,27 @@ SimdStoreReal(storeu,32,ps,float)
 SimdStoreReal(storeu,64,pd,double)
 SimdStoreReal(storer,32,ps,float)
 SimdStoreReal(storer,64,pd,double)
+#define SimdLoadScalar(size,suffix,type)                   \
+  MLTON_CODEGEN_STATIC_INLINE                                     \
+  Simd128_Real##size##_t Simd128_Real##size##_loads               \
+  (Real##size##_t r){                                             \
+    return _mm_load_##suffix (&r);                                 \
+  }
+SimdLoadScalar(32,ss,float)
+SimdLoadScalar(64,sd,double)
+
+MLTON_CODEGEN_STATIC_INLINE
+Real32_t Simd128_Real32_stores (Simd128_Real32_t x){
+  float temp;
+  asm ("movss %0,%1" : "=x" (temp) : "x" (x));
+  return temp;
+}
+MLTON_CODEGEN_STATIC_INLINE
+Real64_t Simd128_Real64_stores (Simd128_Real64_t x){
+  double temp;
+  asm ("movsd %0,%1" : "=x" (temp) : "x" (x));
+  return temp;
+}
 #define SimdSetFloat4(opcode,suffix)                    \
   MLTON_CODEGEN_STATIC_INLINE                           \
 Simd128_Real32_t Simd128_Real32_##opcode                \
