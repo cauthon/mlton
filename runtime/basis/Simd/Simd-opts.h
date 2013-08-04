@@ -123,7 +123,16 @@ both(mul)
 both(div)
 both(min)
 both(max)
-#define logicalSimdReal(opcode,id,size)                                  \
+#define shuffleReal(id,size)                                            \
+  MLTON_COGEGEN_STATIC_INLINE                                           \
+  Simd128_Real##size##_t                                                \
+  Simd128_Real##size##_##opcode                                         \
+  (Simd128_Real##size##_t s1,Simd128_Real##size##_t s2,unsigned char imm){ \
+    return _mm_shuffle_##id (s1,s2,imm);                                \
+  }
+shuffleReal(ps,32)
+shuffleReal(ps,64)
+#define logicalSimdReal(opcode,id,size)                                 \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   Simd128_Real##size##_t    /*return type*/                             \
   Simd128_Real##size##opcode##b  /*function name*/                      \
@@ -147,11 +156,20 @@ both(addsub)
 #undef unarySimdReal
 #undef binarySimdReal
 #undef logicalSimdReal
+#unedf shuffleReal
 #ifdef __AVX__
-/*avx macros*/
+/*avx macros, just redefine above to take a simdSize parameter and 
+ call them with it set to 128 above and 256 for avx*/
 #endif
 #ifdef __AVX2__
 #endif
+#define binarySimdWord(id,opcode,size)                                  \
+  MLTON_CODEGEN_STATIC_INLINE                                           \
+  Simd128_Word##size##_t    /*return type*/                             \
+  Simd128_Word##size##_##opcode  /*function name*/                      \
+  (Simd128_Word##size##_t s1, Simd128_Word##size##_t s2){               \
+    return _mm_##opcode##_##id (s1,s2);                                  \
+  }
 /*
 _mm_set_epi64 (long long __q1, long long __q0)
 _mm_set_epi32 (int __q3, int __q2, int __q1, int __q0)
