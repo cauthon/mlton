@@ -20,7 +20,7 @@ structure Kind = TyconKind ()
 structure RealSize = RealSize ()
 structure WordSize = WordSize ()
 structure SimdRealSize = SimdRealSize ()
-(*structure SimdWordSize = SimdWordSize ()*)
+structure SimdWordSize = SimdWordSize ()
 structure Field = Record.Field
 
 structure Tycon =
@@ -36,7 +36,7 @@ structure Tycon =
                      structure RealSize = RealSize
                      structure WordSize = WordSize
                      structure SimdRealSize = SimdRealSize
-                     (*structure SimdWordSize = SimdWordSize*)
+                     structure SimdWordSize = SimdWordSize
                      open Id
                      fun fromString s =
                         Id.fromSymbol (Symbol.fromString s, Region.bogus))

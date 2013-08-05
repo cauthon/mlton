@@ -58,7 +58,7 @@ signature SSA_TREE2 =
                           con: ObjectCon.t}
              | Real of RealSize.t
              | SimdReal of SimdRealSize.t
-(*           | SimdWord of SimdWordSize.t*)
+             | SimdWord of SimdWordSize.t
              | Thread
              | Weak of t
              | Word of WordSize.t
@@ -83,7 +83,7 @@ signature SSA_TREE2 =
             val real: RealSize.t -> t
             val reff1: t -> t
             val simdReal: SimdRealSize.t -> t
-(*           val simdWord: SimdWordSize.t -> t*)
+            val simdWord: SimdWordSize.t -> t
             val thread: t
             val tuple: t Prod.t -> t
             val vector: t Prod.t -> t

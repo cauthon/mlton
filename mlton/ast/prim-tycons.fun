@@ -23,7 +23,7 @@ structure BindingStrength =
 
 datatype z = datatype RealSize.t
 datatype z = datatype SimdRealSize.t
-(*datatype z = datatype SimdWordSize.t*)
+datatype z = datatype SimdWordSize.t
 type tycon = t
 
 local
@@ -143,34 +143,42 @@ in
               NONE => Error.bug "PrimTycons.make.de"
             | SOME {size, ...} => size
    end
-(*
+
    local
-      open SimdWordSize
+     val all =
+         Vector.fromListMap
+           (SimdWordSize.all, fn s => let
+                   val name = concat ["Simd", Bits.toString 
+                                                (SimdWordSize.bits s),
+                                      "_","Word",Bits.toString 
+                                                   (SimdWordSize.wordBits s)]
+                 in
+                   {name = name,
+                    size = s,
+                    tycon = fromString name}
+                 end)
    in
-      val all =
-          Vector.fromListMap
-            (all, fn s => let
-                    val name = concat ["Simd", Bits.toString (bits s),
-                                       "_","Word",Bits.toString (wordBits s)]
-                  in
-                    {name = name,
-                     size = s,
-                     tycon = fromString name}
-                  end)
       val simdWord =
-          memoize
+          SimdWordSize.memoize
             (fn s =>
-             case Vector.peek (all, fn {size = s', ...} => equals (s, s')) of
+             case Vector.peek (all, fn {size = s', ...} => 
+                                       SimdWordSize.equals (s, s')) of
                  NONE => Error.bug "PrimTycons.make.fromSize"
                | SOME {tycon, ...} => tycon)
       val primSimdWords =
           Vector.toListMap (all, fn {name, tycon, ...} =>
-                              {admitsEquality = Never(*sometimes?*),
+                              {admitsEquality = Sometimes
                                kind = Arity 0,
                                name = name,
                                tycon = tycon})
       val simdWords = Vector.map (all, fn {tycon, size, ...} => (tycon, size))
-      end*)
+      fun isSimdWordX t = Vector.exists (all, fn {tycon = t', ...} => equals (t, t'))
+      fun deSimdWordX t = 
+          case Vector.peek (all, fn {tycon = t', ...} => equals (t, t')) of
+              NONE => Error.bug "PrimTycons.make.de"
+            | SOME {size, ...} => size
+   end
+
 end
 
 val prims =
@@ -192,7 +200,7 @@ val prims =
               name = name,
               tycon = tycon})
    @ primChars @ primInts @ primReals @ primWords
-   @ primSimdReals
+   @ primSimdReals @ primSimdWords
 val array = #2 array
 val arrow = #2 arrow
 val bool = #2 bool

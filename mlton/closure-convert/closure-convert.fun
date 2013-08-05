@@ -452,6 +452,7 @@ fun closureConvert
                @ Vector.toListMap (Tycon.reals, fn (t, s) => (t, nullary (Type.real s)))
                @ Vector.toListMap (Tycon.words, fn (t, s) => (t, nullary (Type.word s)))
                @ Vector.toListMap (Tycon.simdReals, fn (t, s) => (t, nullary (Type.simdReal s)))
+               @ Vector.toListMap (Tycon.simdWords, fn (t, s) => (t, nullary (Type.simdWord s)))
 
             val _ = List.foreach (tycons, fn (tycon, f) => set (tycon, SOME f))
 

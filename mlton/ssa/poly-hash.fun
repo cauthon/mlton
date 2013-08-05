@@ -594,7 +594,7 @@ fun transform (Program.T {datatypes, globals, functions, main}) =
  *Because I cant use wordBytes without writing a function to
  *cast to word, and andding word128/256 types*)
                 | Type.SimdReal _ => stateful ()
-(*                | Type.SimdWord _ => stateful ()*)
+                | Type.SimdWord _ => stateful ()
                 | Type.Thread => stateful ()
                 | Type.Tuple tys =>
                      let

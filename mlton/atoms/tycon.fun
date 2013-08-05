@@ -24,7 +24,7 @@ structure P = PrimTycons (structure AdmitsEquality = AdmitsEquality
                           structure RealSize = RealSize
                           structure WordSize = WordSize
                           structure SimdRealSize = SimdRealSize
-(*                          structure SimdWordSize = SimdWordSize*)
+                          structure SimdWordSize = SimdWordSize
                           open Id)
 open P
 

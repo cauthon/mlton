@@ -17,8 +17,8 @@ sig
   val realBytes: t -> Bytes.t
   val toStringReal: t -> string
   val toStringSimd: t -> string
-  datatype cmp = cmpeq | cmplt | cmple | cmpunord
+(*  datatype cmp = cmpeq | cmplt | cmple | cmpunord
                | cmpneq | cmpnlt | cmpnle | cmpord
   val cmp:cmp -> int
-  val cmpString: cmp -> string
+  val cmpString: cmp -> string*)
 end

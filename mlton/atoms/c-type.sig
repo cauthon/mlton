@@ -10,7 +10,7 @@ signature C_TYPE_STRUCTS =
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
       structure SimdRealSize: SIMD_REAL_SIZE
-(*      structure SimdWordSize: SIMD_WORD_SIZE*)
+      structure SimdWordSize: SIMD_WORD_SIZE
    end
 
 signature C_TYPE = 
@@ -54,7 +54,7 @@ signature C_TYPE =
       val seqIndex: unit -> t
       val shiftArg: t
       val simdReal: SimdRealSize.t -> t
-(*    val simdWord: SimdWordSize.t -> t*)
+      val simdWord: SimdWordSize.t -> t
       val size: t -> Bytes.t
       val thread: t
       val toString: t -> string

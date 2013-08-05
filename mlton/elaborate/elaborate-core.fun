@@ -94,6 +94,7 @@ in
    structure RealSize = RealSize
    structure RealX = RealX
    structure SimdRealSize = SimdRealSize
+   structure SimdWordSize = SimdWordSize
    structure SourceInfo = SourceInfo
    structure Tycon = Tycon
    structure Tyvar = Tyvar
@@ -822,6 +823,11 @@ structure Type =
                 Tycon.simdReal SimdRealSize.V256R32),
                ("Simd256_Real64", CType.simdReal SimdRealSize.V256R64,
                 Tycon.simdReal SimdRealSize.V256R64)]
+            @ [("Simd128_WordX", CType.simdWord SimdWordSize.V128WX,
+                Tycon.simdWord SimdWordSize.V128WX),
+               ("Simd256_WordX", CType.simdWord SimdWordSize.V256WX,
+                Tycon.simdWord SimdWordSize.V256WX)]
+               
          end
 
       val nullary =

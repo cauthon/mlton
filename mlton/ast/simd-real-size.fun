@@ -48,7 +48,7 @@ val memoize: (t -> 'a) -> t -> 'a =
        | V256R32 => v256r32
        | V256R64 => v256r64
    end
-datatype cmp = cmpeq | cmplt | cmple | cmpunord
+(*datatype cmp = cmpeq | cmplt | cmple | cmpunord
                | cmpneq | cmpnlt | cmpnle | cmpord
 fun cmp (c:cmp) =
     case c of
@@ -80,5 +80,5 @@ fun cmpFromInt (i:int) =
       | 5 => cmpnlt
       | 6 => cmpnle
       | 7 => cmpord
-      | _ => Error.bug "SimdRealSize.cmp"
+      | _ => Error.bug "SimdRealSize.cmp"*)
    end

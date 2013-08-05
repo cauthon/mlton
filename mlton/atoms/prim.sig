@@ -16,7 +16,7 @@ signature PRIM_STRUCTS =
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
       structure SimdRealSize: SIMD_REAL_SIZE
-(*    structure SimdWordSize: SIMD_WORD_SIZE *)
+      structure SimdWordSize: SIMD_WORD_SIZE 
       sharing RealSize = Const.RealX.RealSize
       sharing WordSize = Const.WordX.WordSize
    end
@@ -136,51 +136,56 @@ signature PRIM =
              | Ref_assign (* ssa to ssa2 *)
              | Ref_deref (* ssa to ssa2 *)
              | Ref_ref (* ssa to ssa2 *)
-             | Simd_Real_add of SimdRealSize.t (* codegen *)
-             | Simd_Real_sub of SimdRealSize.t (* codegen *)
-             | Simd_Real_mul of SimdRealSize.t (* codegen *)
-             | Simd_Real_div of SimdRealSize.t (* codegen *)
-             | Simd_Real_min of SimdRealSize.t (* codegen *)
-             | Simd_Real_max of SimdRealSize.t (* codegen *)
-             | Simd_Real_sqrt of SimdRealSize.t (* codegen *)
-             | Simd_Real_and of SimdRealSize.t (* codegen *)
-             | Simd_Real_andn of SimdRealSize.t (* codegen *)
-             | Simd_Real_or of SimdRealSize.t (* codegen *)
-             | Simd_Real_xor of SimdRealSize.t (* codegen *)
-             | Simd_Real_hadd of SimdRealSize.t (* codegen *)
-             | Simd_Real_hsub of SimdRealSize.t (* codegen *)
-             | Simd_Real_addsub of SimdRealSize.t (* codegen *)
-(*             | Simd_Real_cmpeq of SimdRealSize.t (* codegen *)
-             | Simd_Real_cmplt of SimdRealSize.t (* codegen *)
-             | Simd_Real_cmpgt of SimdRealSize.t (* codegen *)*)
-             | Simd_Real_cmp of SimdRealSize.t*SimdRealSize.cmp
-(*             | Simd_Real_fromArray of SimdRealSize.t
-             | Simd_Real_toArray of SimdRealSize.t*)
+             (* All simd opts are codegen *)
+             | Simd_Real_add of SimdRealSize.t 
+             | Simd_Real_addsub of SimdRealSize.t 
+             | Simd_Real_and of SimdRealSize.t 
+             | Simd_Real_andn of SimdRealSize.t 
+             | Simd_Real_cmp of SimdRealSize.t
+             | Simd_Real_div of SimdRealSize.t 
+             | Simd_Real_fromArray of SimdRealSize.t
              | Simd_Real_fromScalar of SimdRealSize.t
+             | Simd_Real_hadd of SimdRealSize.t 
+             | Simd_Real_hsub of SimdRealSize.t 
+             | Simd_Real_max of SimdRealSize.t 
+             | Simd_Real_min of SimdRealSize.t 
+             | Simd_Real_mul of SimdRealSize.t 
+             | Simd_Real_or of SimdRealSize.t 
+             | Simd_Real_shuffle of SimdRealSize.t
+             | Simd_Real_sqrt of SimdRealSize.t 
+             | Simd_Real_sub of SimdRealSize.t 
+             | Simd_Real_toArray of SimdRealSize.t
              | Simd_Real_toScalar of SimdRealSize.t
-(*
- | Simd_Word_add of SimdWordSize.t
- | Simd_Word_adds of SimdWordSize.t * {signed: bool}
- | Simd_Word_sub of SimdWordSize.t
- | Simd_Word_subs of SimdWordSize.t * {signed: bool}
- | Simd_Word_min of SimdWordSize.t * {signed: bool}
- | Simd_Word_max of SimdWordSize.t * {signed: bool}
- (*Ignore multiplication for now*)
- | Simd_Word_hadd of SimdWordSize.t
- | Simd_Word_hsub of SimdWordSize.t
- | Simd_Word_abs of SimdWordSize.t
- | Simd_Word_andb of SimdWordSize.t
- | Simd_Word_orb of SimdWordSize.t
- | Simd_Word_xorb of SimdWordSize.t
- | Simd_Word_andnb of SimdWordSize.t
- | Simd_Word_sar of SimdWordSize.t
- | Simd_Word_sll of SimdWordSize.t
- | Simd_Word_slr of SimdWordSize.t
- | Simd_Word_cmpeq of SimdWordSize.t
- | Simd_Word_cmpgt of SimdWordSize.t
- | Simd_Word_fromScalar of SimdWordSize.t
- | Simd_Word_toScalar of SimdWordSize.t
-*)
+             | Simd_Real_xor of SimdRealSize.t 
+             | Simd_Word_abs of SimdWordSize.t
+             | Simd_Word_add of SimdWordSize.t
+             | Simd_Word_adds of SimdWordSize.t * {signed: bool}
+             | Simd_Word_andb of SimdWordSize.t
+             | Simd_Word_andnb of SimdWordSize.t
+             | Simd_Word_cmpeq of SimdWordSize.t
+             | Simd_Word_cmpgt of SimdWordSize.t
+             | Simd_Word_fromArray of SimdWordSize.t
+             | Simd_Word_fromScalar of SimdWordSize.t
+             | Simd_Word_hadd of SimdWordSize.t
+             | Simd_Word_hsub of SimdWordSize.t
+             | Simd_Word_max of SimdWordSize.t * {signed: bool}
+             | Simd_Word_min of SimdWordSize.t * {signed: bool}
+             | Simd_Word_mul32 of SimdWordSize.t
+             | Simd_Word_mulhi of SimdWordSize.t * {signed: bool}
+             | Simd_Word_mullo of SimdWordSize.t
+             | Simd_Word_orb of SimdWordSize.t
+             | Simd_Word_sar of SimdWordSize.t
+             | Simd_Word_sari of SimdWordSize.t
+             | Simd_Word_shuffle of SimdWordSize.t
+             | Simd_Word_sll of SimdWordSize.t
+             | Simd_Word_slli of SimdWordSize.t
+             | Simd_Word_slr of SimdWordSize.t
+             | Simd_Word_slri of SimdWordSize.t
+             | Simd_Word_sub of SimdWordSize.t
+             | Simd_Word_subs of SimdWordSize.t * {signed: bool}
+             | Simd_Word_toArray of SimdWordSize.t
+             | Simd_Word_toScalar of SimdWordSize.t
+             | Simd_Word_xorb of SimdWordSize.t
              | String_toWord8Vector (* defunctorize *)
              | Thread_atomicBegin (* backend *)
              | Thread_atomicEnd (* backend *)
@@ -283,6 +288,7 @@ signature PRIM =
                                       real: RealSize.t -> 'a,
                                       reff: 'a -> 'a,
                                       simdReal: SimdRealSize.t -> 'a,
+                                      simdWord: SimdWordSize.t -> 'a,
                                       thread: 'a,
                                       unit: 'a,
                                       vector: 'a -> 'a,

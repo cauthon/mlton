@@ -70,6 +70,7 @@ fun checkScopes (program as
                   | Real _ => ()
                   | Ref ty => loopType ty
                   | SimdReal _ => ()
+                  | SimdWord _ => ()
                   | Thread => ()
                   | Tuple tys => Vector.foreach (tys, loopType)
                   | Vector ty => loopType ty

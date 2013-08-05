@@ -163,14 +163,65 @@ both(addsub)
 #endif
 #ifdef __AVX2__
 #endif
-#define binarySimdWord(id,opcode,size)                                  \
+#define binarySimdWord(id,opcode,size,sign)                             \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   Simd128_Word##size##_t    /*return type*/                             \
-  Simd128_Word##size##_##opcode  /*function name*/                      \
+  Simd128_Word##size##_##opcode##sign  /*function name*/                \
   (Simd128_Word##size##_t s1, Simd128_Word##size##_t s2){               \
-    return _mm_##opcode##_##id (s1,s2);                                  \
+    return _mm_##opcode##_##id##size (s1,s2);                           \
   }
-/*
+#define allBinaryWords(opcode,sign)             \
+  binarySimdWord(epi,opcode,8,sign)             \
+  binarySimdWord(epi,opcode,16,sign)            \
+  binarySimdWord(epi,opcode,32,sign)            \
+  binarySimdWord(epi,opcode,64,sign)
+#define binaryWords8and16(id,opcode,sign)       \
+  binarySimdWord(id,opcode,8,sign)             \
+  binarySimdWord(id,opcode,16,sign)
+#define binaryWords16and32(id,opcode,sign)       \
+  binarySimdWord(id,opcode,16,sign)             \
+  binarySimdWord(id,opcode,32,sign)
+#define binaryWords8and16and32(id,opcode,sign)       \
+  binarySimdWord(id,opcode,8,sign)             \
+  binarySimdWord(id,opcode,16,sign)             \
+  binarySimdWord(id,opcode,32,sign)
+#define binaryWords16and32and64(id,opcode,sign)       \
+  binarySimdWord(id,opcode,16,sign)             \
+  binarySimdWord(id,opcode,32,sign)             \
+  binarySimdWord(id,opcode,64,sign)             
+allBinaryWords(add,)
+allBinaryWords(sub,)
+binaryWords8and16(epi,adds,s)
+binaryWords8and16(epu,adds,u)
+binaryWords8and16(epi,subs,s)
+binaryWords8and16(epu,subs,u)
+binaryWords8and16(epu,avg,)
+binarySimdWord(epi,mulhi,16,s)
+binarySimdWord(epu,mulhi,16,u)
+binarySimdWord(epi,mullo,16,s)
+binarySimdWord(epu,mul,32,32)
+binaryWords8and16and32(epi,cmpgt,)
+binaryWords8and16and32(epi,cmpeq,)
+binaryWords16and32and64(epi,sll,)
+binaryWords16and32and64(epi,srl,)
+binaryWords16and32(epi,sra,)
+/* SimdWord instruction names
+       | Simd_Word_min (w,s) => simd_word (w,"min", SOME s)
+       | Simd_Word_max (w,s) => simd_word (w,"max", SOME s)
+       | Simd_Word_hadd w => simd_word (w,"hadd", NONE)
+       | Simd_Word_hsub w => simd_word (w,"hsub", NONE)
+       | Simd_Word_abs w => simd_word (w,"abs", NONE)
+       | Simd_Word_andb w => simd_word (w,"andb", NONE)
+       | Simd_Word_orb w => simd_word (w,"orb", NONE)
+       | Simd_Word_xorb w => simd_word (w,"xorb", NONE)
+       | Simd_Word_andnb w => simd_word (w,"andnb", NONE)
+       | Simd_Word_sar w => simd_word (w,"sar", NONE)
+       | Simd_Word_sll w => simd_word (w,"sll", NONE)
+       | Simd_Word_slr w => simd_word (w,"slr", NONE)
+       | Simd_Word_fromScalar w => simd_word (w,"loads", NONE)
+       | Simd_Word_toScalar w => simd_word (w,"stores", NONE)
+       | Simd_Word_fromArray w => simd_word (w,"loadu", NONE)
+       | Simd_Word_toArray w => simd_word (w,"storeu", NONE)
 _mm_set_epi64 (long long __q1, long long __q0)
 _mm_set_epi32 (int __q3, int __q2, int __q1, int __q0)
 _mm_set_epi16 (short __q7, short __q6, short __q5, short __q4,

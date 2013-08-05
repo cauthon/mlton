@@ -15,7 +15,7 @@ signature PRIM_TYCONS_SUBSTRUCTS =
       structure RealSize: REAL_SIZE
       structure WordSize: WORD_SIZE
       structure SimdRealSize: SIMD_REAL_SIZE 
-   (* structure SimdWordSize: SIMD_WORD_SIZE*)
+      structure SimdWordSize: SIMD_WORD_SIZE
    end
 
 signature PRIM_TYCONS_STRUCTS =
@@ -57,6 +57,7 @@ signature PRIM_TYCONS =
       val deIntX: tycon -> IntSize.t option
       val deRealX: tycon -> RealSize.t
       val deSimdRealX: tycon -> SimdRealSize.t
+      val deSimdWordX: tycon -> SimdWordSize.t
       val deWordX: tycon -> WordSize.t
       val exn: tycon
       val int: IntSize.t -> tycon
@@ -68,6 +69,7 @@ signature PRIM_TYCONS =
       val isIntX: tycon -> bool
       val isRealX: tycon -> bool
       val isSimdRealX: tycon -> bool
+      val isSimdWordX: tycon -> bool
       val isWordX: tycon -> bool
       val layoutApp:
          tycon * (Layout.t * ({isChar: bool} * BindingStrength.t)) vector
@@ -81,8 +83,8 @@ signature PRIM_TYCONS =
       val reals: (tycon * RealSize.t) vector
       val simdReal: SimdRealSize.t -> tycon
       val simdReals: (tycon * SimdRealSize.t) vector
-(*    val simdWord: SimdWordSize.t -> tycon
-      val simdWords: (tycon * SimdWordSize.t) vector *)
+      val simdWord: SimdWordSize.t -> tycon
+      val simdWords: (tycon * SimdWordSize.t) vector 
       val reff: tycon
       val thread: tycon
       val tuple: tycon

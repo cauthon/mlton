@@ -65,7 +65,7 @@ signature SSA_TREE =
              | Real of RealSize.t
              | Ref of t
              | SimdReal of SimdRealSize.t
-(*           | SimdWord of SimdWordSize.t*)
+             | SimdWord of SimdWordSize.t
              | Thread
              | Tuple of t vector
              | Vector of t
@@ -99,7 +99,7 @@ signature SSA_TREE =
             val real: RealSize.t -> t
             val reff: t -> t
             val simdReal: SimdRealSize.t -> t
-            (* val simdWord: SimdWordSize.t -> t *)
+            val simdWord: SimdWordSize.t -> t
             val thread: t
             val tuple: t vector -> t
             val vector: t -> t
