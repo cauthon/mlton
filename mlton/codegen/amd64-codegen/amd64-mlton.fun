@@ -1139,7 +1139,7 @@ struct
                          src = src,
                          dst = dst,
                          size = dstsize}],
-                     transfer = NONE}]n
+                     transfer = NONE}]
 
                 end
              | Real_add _ => sse_binas Instruction.SSE_ADDS

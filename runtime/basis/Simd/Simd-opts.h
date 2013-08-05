@@ -1,13 +1,13 @@
 /*TUCKER: TODO: still need to write all avx macros and still need to
  *write in a few more uses of the word macros*/
 /*all of these are unaligned, but its fairly simple to make them aligned*/
-#define fromArray(size,suffix,opcode,type)                  \
+/*#define fromArray(size,suffix,opcode,type)                \
   Simd128_Real##size Simd128_Real##size##_fromArray         \
   (Array(Real##size##_t) r,int i){                      \
     return _mm_##opcode##_##suffix((type*)r[i]);        \
   }
 fromArray(32,ps,loadu,float)
-fromArray(64,pd,loadu,double)
+fromArray(64,pd,loadu,double)*/
 #define SimdLoadReal(opcode,size,suffix,type)           \
   MLTON_CODEGEN_STATIC_INLINE                       \
   Simd128_Real##size##_t                            \
@@ -123,7 +123,7 @@ both(mul)
 both(div)
 both(min)
 both(max)
-#define shuffleReal(id,size)                                            \
+/*#define shuffleReal(id,size)                                            \
   MLTON_COGEGEN_STATIC_INLINE                                           \
   Simd128_Real##size##_t                                                \
   Simd128_Real##size##_##opcode                                         \
@@ -131,7 +131,7 @@ both(max)
     return _mm_shuffle_##id (s1,s2,imm);                                \
   }
 shuffleReal(ps,32)
-shuffleReal(ps,64)
+shuffleReal(ps,64)*/
 #define logicalSimdReal(opcode,id,size)                                 \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   Simd128_Real##size##_t    /*return type*/                             \
@@ -156,7 +156,7 @@ both(addsub)
 #undef unarySimdReal
 #undef binarySimdReal
 #undef logicalSimdReal
-#unedf shuffleReal
+#undef shuffleReal
 #ifdef __AVX__
 /*avx macros, just redefine above to take a simdSize parameter and 
  call them with it set to 128 above and 256 for avx*/
