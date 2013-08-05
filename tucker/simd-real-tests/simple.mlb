@@ -1,8 +1,0 @@
-ann
-   "allowFFI true"
-in
-  $(SML_LIB)/basis/basis.mlb
-  $(SML_LIB)/basis/mlton.mlb
-   /home/tucker/gsoc/mlton/basis-library/simd/simd.mlb
-  simple.sml
-end
