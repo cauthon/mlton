@@ -27,7 +27,7 @@ structure Type =
         | Objptr of ObjptrTycon.t vector
         | Real of RealSize.t
         | SimdReal of SimdRealSize.t
-(*        | SimdReal of SimdRealSize.t*)
+        | SimdWord of SimdWordSize.t
         | Seq of t vector
         | Word of WordSize.t
 
@@ -58,11 +58,9 @@ structure Type =
              | SimdReal s => str (concat 
                                     ["Simd", SimdRealSize.toStringSimd s,"_",
                                      "Real", SimdRealSize.toStringReal s])
-(*
              | SimdWord s => str (concat 
                                     ["Simd", SimdWordSize.toStringSimd s,"_",
                                      "Word", SimdWordSize.toStringWord s])
-*)
              | Word s => str (concat ["Word", WordSize.toString s])
          end
 
@@ -81,7 +79,7 @@ structure Type =
            | (Real s, Real s') => RealSize.equals (s, s')
            | (Seq ts, Seq ts') => Vector.equals (ts, ts', equals)
            | (SimdReal s, SimdReal s') => SimdRealSize.equals (s, s')
-(*           | (SimdWord s, SimdWord s') => SimdWordSize.equals (s, s')*)
+           | (SimdWord s, SimdWord s') => SimdWordSize.equals (s, s')
            | (Word s, Word s') => WordSize.equals (s, s')
            | _ => false)
 
@@ -113,9 +111,9 @@ structure Type =
       val simdReal: SimdRealSize.t -> t =
          fn s => T {node = SimdReal s, width = SimdRealSize.bits s}
 
-(*      val simdWord: SimdWordSize.t -> t =
+      val simdWord: SimdWordSize.t -> t =
          fn s => T {node = SimdWord s, width = SimdWordSize.bits s}
-*)
+
       val word: WordSize.t -> t = 
          fn s => T {node = Word s, width = WordSize.bits s}
 
@@ -360,11 +358,11 @@ structure Type =
                         | SimdRealSize.V128R64 => C.Simd128_Real64
                         | SimdRealSize.V256R32 => C.Simd256_Real32
                         | SimdRealSize.V256R64 => C.Simd256_Real64)
-(*                | SimdWord s =>
+                | SimdWord s =>
                      (case s of 
                           SimdWordSize.V128WX => C.Simd128_WordX
                         | SimdWordSize.V256WX => C.Simd256_WordX
-*)
+
                 | _ => C.fromBits (width t)
                          
          val name = C.name o toCType
@@ -594,7 +592,7 @@ fun checkPrimApp {args, prim, result} =
              of Seq _ => Bits.equals (width t, WordSize.bits s) 
            | _ => false)
       val simdReal = fn s => fn t => equals (t, simdReal s)
-(*      val simdWord = fn s => fn t => equals (t, simdWord s)*)
+      val simdWord = fn s => fn t => equals (t, simdWord s)
       val simdRealtoReal =
        (fn SimdRealSize.V128R32 => RealSize.R32
         | SimdRealSize.V128R64 => RealSize.R64
@@ -622,6 +620,7 @@ fun checkPrimApp {args, prim, result} =
       in
          val realBinary = make real
          val simdRealBinary = make simdReal
+         val simdWordBinary = make simdWord
          val wordBinary = make wordOrBitsOrSeq
       end
       local
@@ -634,6 +633,8 @@ fun checkPrimApp {args, prim, result} =
       fun realTernary s = done ([real s, real s, real s], SOME (real s))
       fun simdRealTernary s = done([simdReal s, simdReal s, word (WordSize.fromBits(Bits.fromInt 8))],
                                        SOME(simdReal s))
+      fun simdWordTernary s = done([simdWord s, simdWord s, word (WordSize.fromBits(Bits.fromInt 8))],
+                                       SOME(simdWord s))
       fun wordShift s = done ([wordOrBitsOrSeq s, shiftArg], SOME (wordOrBitsOrSeq s))
    in
       case Prim.name prim of
@@ -691,44 +692,55 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
-       | Simd_Real_cmp (s,_) => 
+       | Simd_Real_shuffle s => simdRealBinary s
+       | Simd_Real_cmp s => 
          simdRealTernary s
-(*       | Simd_Real_shuffle (s,w) => simdRealTernary (s,w)*)
-(*FIXME: TUCKER: This won't work as is*)
+(*TUCKER: This won't work as is
+ *Will it now?*)
        | Simd_Real_toScalar s => 
          done ([simdReal s], SOME (real (simdRealtoReal s)))
        | Simd_Real_fromScalar s => 
          done ([real (simdRealtoReal s)], SOME (simdReal s))
-(*       | Simd_Real_toArray s => 
+       | Simd_Real_toArray s => 
          done ([simdReal s], 
-               SOME (seq (WordSize.fromBits(SimdRealSize.bits s))))
+               SOME (seq (WordSize.fromBits(SimdRealSize.realBits s))))
        | Simd_Real_fromArray s => 
-         done ([seq (WordSize.fromBits(SimdRealSize.bits s))], 
-               SOME (simdReal s))*)
-(*
- | Simd_Word_add s => simdWordSize s
- | Simd_Word_adds s => simdWordSize s
- | Simd_Word_sub s => simdWordSize s
- | Simd_Word_subs s => simdWordSize s
- | Simd_Word_min s => simdWordSize s
- | Simd_Word_max s => simdWordSize s
- (*Ignore multiplication for now*)
- | Simd_Word_hadd s => simdWordSize s
- | Simd_Word_hsub s => simdWordSize s
- | Simd_Word_abs s => simdWordSize s
- | Simd_Word_andb s => simdWordSize s
- | Simd_Word_orb s => simdWordSize s
- | Simd_Word_xorb s => simdWordSize s
- | Simd_Word_andnb s => simdWordSize s
- | Simd_Word_sar s => simdWordSize s
- | Simd_Word_sll s => simdWordSize s
- | Simd_Word_slr s => simdWordSize s
- | Simd_Word_cmpeq s => simdWordSize s
- | Simd_Word_cmpgt s => simdWordSize s
-(*Needs to be changed*)
- | Simd_Word_fromScalar s => simdWordSize s
- | Simd_Word_toScalar s => simdWordSize s
-*)
+         done ([seq (WordSize.fromBits(SimdRealSize.realBits s))], 
+               SOME (simdReal s))
+       | Simd_Word_add s => simdWordBinary s
+       | Simd_Word_adds (s,_) => simdWordBinary s
+       | Simd_Word_sub s => simdWordBinary s
+       | Simd_Word_subs (s,_) => simdWordBinary s
+       | Simd_Word_min (s,_) => simdWordBinary s
+       | Simd_Word_max (s,_) => simdWordBinary s
+       | Simd_Word_mul32 s => simdWordBinary s
+       | Simd_Word_mulhi (s,_) => simdWordBinary s
+       | Simd_Word_hadd s => simdWordBinary s
+       | Simd_Word_hsub s => simdWordBinary s
+       | Simd_Word_abs s => simdWordBinary s
+       | Simd_Word_andb s => simdWordBinary s
+       | Simd_Word_orb s => simdWordBinary s
+       | Simd_Word_xorb s => simdWordBinary s
+       | Simd_Word_andnb s => simdWordBinary s
+       | Simd_Word_sar s => simdWordBinary s
+       | Simd_Word_sll s => simdWordBinary s
+       | Simd_Word_slr s => simdWordBinary s
+       | Simd_Word_sari s => simdWordBinary s
+       | Simd_Word_slli s => simdWordBinary s
+       | Simd_Word_slri s => simdWordBinary s
+       | Simd_Word_cmpeq s => simdWordBinary s
+       | Simd_Word_cmpgt s => simdWordBinary s
+       | Simd_Word_shuffle s => simdWordBinary s
+       | Simd_Word_toScalar (s w) => 
+         done ([simdWord (s w)], SOME (word w))
+       | Simd_Word_fromScalar (s w) => 
+         done ([word w], SOME (simdWord (s w)))
+       | Simd_Word_toArray s => 
+         done ([simdWord s], 
+               SOME (seq (WordSize.fromBits(SimdWordSize.wordBits s))))
+       | Simd_Word_fromArray s => 
+         done ([seq (WordSize.fromBits(SimdWordSize.wordBits s))], 
+               SOME (simdWord s))
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s
        | Word_addCheck (s, _) => wordBinary s
@@ -901,7 +913,7 @@ fun arrayOffsetIsOk {base, index, offset, tyconTy, result, scale} =
                    | Objptr _ => true (* for FFI export of indirect types *)
                    | Real _ => true
                    | SimdReal _ => true
-(*                   | SimdWord _ => true*)
+                   | SimdWord _ => true
                    | Word _ => true
 
                    | _ => false)

@@ -47,15 +47,15 @@ datatype 'a t =
  | CPointer_getCPointer (* ssa to rssa *)
  | CPointer_getObjptr (* ssa to rssa *)
  | CPointer_getReal of RealSize.t (* ssa to rssa *)
- | CPointer_getSimdReal of SimdRealSize.t (* ssa to rssa *)
- | CPointer_getSimdWord of SimdWordSize.t (* ssa to rssa *)
+(* | CPointer_getSimdReal of SimdRealSize.t (* ssa to rssa *)
+ | CPointer_getSimdWord of SimdWordSize.t (* ssa to rssa *)*)
  | CPointer_getWord of WordSize.t (* ssa to rssa *)
  | CPointer_lt (* codegen *)
  | CPointer_setCPointer (* ssa to rssa *)
  | CPointer_setObjptr (* ssa to rssa *)
  | CPointer_setReal of RealSize.t (* ssa to rssa *)
- | CPointer_setSimdReal of SimdRealSize.t (* ssa to rssa *)
- | CPointer_setSimdWord of SimdWordSize.t (* ssa to rssa *)
+(* | CPointer_setSimdReal of SimdRealSize.t (* ssa to rssa *)
+ | CPointer_setSimdWord of SimdWordSize.t (* ssa to rssa *)*)
  | CPointer_setWord of WordSize.t (* ssa to rssa *)
  | CPointer_sub (* codegen *)
  | CPointer_toWord (* codegen *)
@@ -311,22 +311,22 @@ fun toString (n: 'a t): string =
        | CPointer_getObjptr => "CPointer_getObjptr"
        | CPointer_getReal s => cpointerGet ("Real", RealSize.toString s)
        | CPointer_getWord s => cpointerGet ("Word", WordSize.toString s)
-       | CPointer_getSimdReal s =>
+(*       | CPointer_getSimdReal s =>
          cpointerGet ("Simd", concat [SimdRealSize.toStringSimd s,"_",
                                       "Real",SimdRealSize.toStringReal s])
        | CPointer_getSimdWord s =>
          cpointerGet ("Simd", concat [SimdWordSize.toStringSimd s,"_",
-                                      "Word",SimdWordSize.toStringWord s])
+                                      "Word",SimdWordSize.toStringWord s])*)
        | CPointer_lt => "CPointer_lt"
        | CPointer_setCPointer => "CPointer_setCPointer"
        | CPointer_setObjptr => "CPointer_setObjptr"
        | CPointer_setReal s => cpointerSet ("Real", RealSize.toString s)
-       | CPointer_setSimdReal s =>
+(*       | CPointer_setSimdReal s =>
          cpointerSet ("Simd", concat [SimdRealSize.toStringSimd s,"_",
                                       "Real",SimdRealSize.toStringReal s])
        | CPointer_setSimdWord s =>
          cpointerSet ("Simd", concat [SimdWordSize.toStringSimd s,"_",
-                                      "Word",SimdWordSize.toStringWord s])
+                                      "Word",SimdWordSize.toStringWord s])*)
        | CPointer_setWord s => cpointerSet ("Word", WordSize.toString s)
        | CPointer_sub => "CPointer_sub"
        | CPointer_toWord => "CPointer_toWord"
@@ -513,19 +513,19 @@ val equals: 'a t * 'a t -> bool =
     | (CPointer_getCPointer, CPointer_getCPointer) => true
     | (CPointer_getObjptr, CPointer_getObjptr) => true
     | (CPointer_getReal s, CPointer_getReal s') => RealSize.equals (s, s')
-    | (CPointer_getSimdReal s, CPointer_getSimdReal s') =>
+(*    | (CPointer_getSimdReal s, CPointer_getSimdReal s') =>
       SimdRealSize.equals (s, s')
     | (CPointer_getSimdWord s, CPointer_getSimdWord s') =>
-      SimdWordSize.equals (s, s')
+      SimdWordSize.equals (s, s')*)
     | (CPointer_getWord s, CPointer_getWord s') => WordSize.equals (s, s')
     | (CPointer_lt, CPointer_lt) => true
     | (CPointer_setCPointer, CPointer_setCPointer) => true
     | (CPointer_setObjptr, CPointer_setObjptr) => true
     | (CPointer_setReal s, CPointer_setReal s') => RealSize.equals (s, s')
-    | (CPointer_setSimdReal s, CPointer_setSimdReal s') =>
+(*    | (CPointer_setSimdReal s, CPointer_setSimdReal s') =>
       SimdRealSize.equals (s, s')
     | (CPointer_setSimdWord s, CPointer_setSimdWord s') =>
-      SimdWordSize.equals (s, s')
+      SimdWordSize.equals (s, s')*)
     | (CPointer_setWord s, CPointer_setWord s') => WordSize.equals (s, s')
     | (CPointer_sub, CPointer_sub) => true
     | (CPointer_toWord, CPointer_toWord) => true
@@ -746,13 +746,15 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | CPointer_getCPointer => CPointer_getCPointer
     | CPointer_getObjptr => CPointer_getObjptr
     | CPointer_getReal z => CPointer_getReal z
-    | CPointer_getSimdReal z => CPointer_getSimdReal z
+(*  | CPointer_getSimdReal z => CPointer_getSimdReal z
+    | CPointer_getSimdWord z => CPointer_getSimdWord z*)
     | CPointer_getWord z => CPointer_getWord z
     | CPointer_lt => CPointer_lt
     | CPointer_setCPointer => CPointer_setCPointer
     | CPointer_setObjptr => CPointer_setObjptr
     | CPointer_setReal z => CPointer_setReal z
-    | CPointer_setSimdReal z => CPointer_setSimdReal z
+(*    | CPointer_setSimdReal z => CPointer_setSimdReal z
+    | CPointer_setSimdWord z => CPointer_setSimdWord z*)
     | CPointer_setWord z => CPointer_setWord z
     | CPointer_sub => CPointer_sub
     | CPointer_toWord => CPointer_toWord
@@ -948,12 +950,13 @@ fun cpointerGet ctype =
        | Word16 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_getWord (WordSize.fromBits (Bits.fromInt 64))
-       | Simd128_Real32 => CPointer_getSimdReal (SimdRealSize.V128R32)
+       | _ => Error.bug "Simd types not accessable via CPointers"
+(*       | Simd128_Real32 => CPointer_getSimdReal (SimdRealSize.V128R32)
        | Simd128_Real64 => CPointer_getSimdReal (SimdRealSize.V128R64)
        | Simd256_Real32 => CPointer_getSimdReal (SimdRealSize.V256R32)
        | Simd256_Real64 => CPointer_getSimdReal (SimdRealSize.V256R64)
        | Simd128_WordX => CPointer_getSimdWord (SimdWordSize.V128WX)
-       | Simd256_WordX => CPointer_getSimdWord (SimdWordSize.V256WX)
+       | Simd256_WordX => CPointer_getSimdWord (SimdWordSize.V256WX)*)
 
    end
 val cpointerLt = CPointer_lt
@@ -973,12 +976,13 @@ fun cpointerSet ctype =
        | Word16 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 16))
        | Word32 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 32))
        | Word64 => CPointer_setWord (WordSize.fromBits (Bits.fromInt 64))
-       | Simd128_Real32 => CPointer_setSimdReal (SimdRealSize.V128R32)
+       | _ => Error.bug "Simd types not accessable via CPointers"
+(*       | Simd128_Real32 => CPointer_setSimdReal (SimdRealSize.V128R32)
        | Simd128_Real64 => CPointer_setSimdReal (SimdRealSize.V128R64)
        | Simd256_Real32 => CPointer_setSimdReal (SimdRealSize.V256R32)
        | Simd256_Real64 => CPointer_setSimdReal (SimdRealSize.V256R64)
        | Simd128_WordX => CPointer_setSimdWord (SimdWordSize.V128WX)
-       | Simd256_WordX => CPointer_setSimdWord (SimdWordSize.V256WX)
+       | Simd256_WordX => CPointer_setSimdWord (SimdWordSize.V256WX)*)
    end
 val cpointerSub = CPointer_sub
 val cpointerToWord = CPointer_toWord
@@ -1068,15 +1072,15 @@ val kind: 'a t -> Kind.t =
        | CPointer_getCPointer => DependsOnState
        | CPointer_getObjptr => DependsOnState
        | CPointer_getReal _ => DependsOnState
-       | CPointer_getSimdReal _ => DependsOnState
-       | CPointer_getSimdWord _ => DependsOnState
+(*       | CPointer_getSimdReal _ => DependsOnState
+       | CPointer_getSimdWord _ => DependsOnState*)
        | CPointer_getWord _ => DependsOnState
        | CPointer_lt => Functional
        | CPointer_setCPointer => SideEffect
        | CPointer_setObjptr => SideEffect
        | CPointer_setReal _ => SideEffect
-       | CPointer_setSimdReal _ => SideEffect
-       | CPointer_setSimdWord _ => SideEffect
+(*       | CPointer_setSimdReal _ => SideEffect
+       | CPointer_setSimdWord _ => SideEffect*)
        | CPointer_setWord _ => SideEffect
        | CPointer_sub => Functional
        | CPointer_toWord => Functional
@@ -1499,11 +1503,11 @@ in
        in
           List.concat
             [doit (RealSize.all, CPointer_getReal, CPointer_setReal),
-             doit (WordSize.prims, CPointer_getWord, CPointer_setWord),
-             doit (SimdRealSize.all, CPointer_getSimdReal,
+             doit (WordSize.prims, CPointer_getWord, CPointer_setWord)]
+(*             doit (SimdRealSize.all, CPointer_getSimdReal,
                    CPointer_setSimdReal),
              doit (SimdWordSize.all, CPointer_getSimdWord,
-                   CPointer_setSimdWord)]
+                   CPointer_setSimdWord)]*)
        end
 end
 
@@ -1660,10 +1664,10 @@ fun 'a checkApp (prim: 'a t,
             oneTarg (fn t => (twoArgs (cpointer, cptrdiff), t))
        | CPointer_getReal s =>
             noTargs (fn () => (twoArgs (cpointer, cptrdiff), real s))
-       | CPointer_getSimdReal s =>
+(*       | CPointer_getSimdReal s =>
             noTargs (fn () => (twoArgs (cpointer, cptrdiff), simdReal s))
        | CPointer_getSimdWord s =>
-            noTargs (fn () => (twoArgs (cpointer, cptrdiff), simdWord s))
+            noTargs (fn () => (twoArgs (cpointer, cptrdiff), simdWord s))*)
        | CPointer_getWord s =>
             noTargs (fn () => (twoArgs (cpointer, cptrdiff), word s))
        | CPointer_lt =>
@@ -1675,10 +1679,10 @@ fun 'a checkApp (prim: 'a t,
             oneTarg (fn t => (threeArgs (cpointer, cptrdiff, t), unit))
        | CPointer_setReal s =>
             noTargs (fn () => (threeArgs (cpointer, cptrdiff, real s), unit))
-       | CPointer_setSimdReal s =>
+(*       | CPointer_setSimdReal s =>
             noTargs (fn () => (threeArgs (cpointer, cptrdiff, simdReal s),unit))
        | CPointer_setSimdWord s =>
-            noTargs (fn () => (threeArgs (cpointer, cptrdiff, simdWord s),unit))
+            noTargs (fn () => (threeArgs (cpointer, cptrdiff, simdWord s),unit))*)
        | CPointer_setWord s =>
             noTargs (fn () => (threeArgs (cpointer, cptrdiff, word s), unit))
        | CPointer_sub =>

@@ -14,6 +14,7 @@ signature REPRESENTATION_STRUCTS =
       sharing Rssa.RealSize = Ssa.RealSize
       sharing Rssa.WordSize = Ssa.WordSize
       sharing Rssa.SimdRealSize = Ssa.SimdRealSize
+      sharing Rssa.SimdWordSize = Ssa.SimdWordSize
    end
 
 signature REPRESENTATION = 

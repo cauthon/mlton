@@ -25,6 +25,8 @@ signature PRIM_SIMD_REAL =
       val hadd : simdReal * simdReal -> simdReal
       val hsub : simdReal * simdReal -> simdReal
       val addsub : simdReal * simdReal -> simdReal
+      val shuffle : simdReal * simdReal -> simdReal
+      val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val sqrt : simdReal -> simdReal
 (*      val fromArray : elt array -> simd
 (*
@@ -33,6 +35,35 @@ signature PRIM_SIMD_REAL =
       val toArray : elt array * simd -> unit*)
       val fromScalar : elt -> simdReal
       val toScalar : simdReal -> elt
+   end
+signature PRIM_SIMD_WORD =
+   sig
+      val vecSize : Primitive.Int32.int
+      val wordSize : Primitive.Int32.int
+      type t 
+      type simdWord(* = t*)
+      type elt
+      val add : simdWord * simdWord -> simdWord
+      val sub : simdWord * simdWord -> simdWord
+      val mul : simdWord * simdWord -> simdWord
+      val div : simdWord * simdWord -> simdWord
+      val min : simdWord * simdWord -> simdWord
+      val max : simdWord * simdWord -> simdWord
+      val andb : simdWord * simdWord -> simdWord
+      val orb : simdWord * simdWord -> simdWord
+      val xorb : simdWord * simdWord -> simdWord
+      val andnb : simdWord * simdWord -> simdWord
+      val hadd : simdWord * simdWord -> simdWord
+      val hsub : simdWord * simdWord -> simdWord
+      val addsub : simdWord * simdWord -> simdWord
+      val sqrt : simdWord -> simdWord
+(*      val fromArray : elt array -> simd
+(*
+ cast array to a word 8 array then
+ load from word8 array using Word8Array_subSimdWord *)
+      val toArray : elt array * simd -> unit*)
+      val fromScalar : elt -> simdWord
+      val toScalar : simdWord -> elt
    end
 (*(defun make_simd_struct (name simdSize realSize)
 (insert (format 

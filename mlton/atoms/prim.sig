@@ -41,13 +41,13 @@ signature PRIM =
              | CPointer_getCPointer (* ssa to rssa *)
              | CPointer_getObjptr (* ssa to rssa *)
              | CPointer_getReal of RealSize.t (* ssa to rssa *)
-             | CPointer_getSimdReal of SimdRealSize.t
+(*             | CPointer_getSimdReal of SimdRealSize.t*)
              | CPointer_getWord of WordSize.t (* ssa to rssa *)
              | CPointer_lt (* codegen *)
              | CPointer_setCPointer (* ssa to rssa *)
              | CPointer_setObjptr (* ssa to rssa *)
              | CPointer_setReal of RealSize.t (* ssa to rssa *)
-             | CPointer_setSimdReal of SimdRealSize.t
+(*             | CPointer_setSimdReal of SimdRealSize.t*)
              | CPointer_setWord of WordSize.t (* ssa to rssa *)
              | CPointer_sub (* codegen *)
              | CPointer_toWord (* codegen *)

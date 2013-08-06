@@ -483,21 +483,17 @@ structure Name =
                            prototype = (Vector.new3(t,t,CType.word),SOME t),
                            return = t}
                 end*)
-(*            local
-               fun make n s =
+               fun simdWordBinary s =
                   let
                      val t = simdWord s
                      val ct = CType.simdWord s
                   in
-                     vanilla {args = Vector.new (n, t),
+                     vanilla {args = Vector.new (2, t),
                               name = name,
-                              prototype = (Vector.new (n, ct), SOME ct),
+                              prototype = (Vector.new (2, ct), SOME ct),
                               return = t}
                   end
-            in
-               val simdWordBinary = make 2
-               val simdWordUnary = make 1
-            end*)
+
          in
             case n of
                IntInf_add => intInfBinary ()
@@ -585,6 +581,8 @@ structure Name =
              | Simd_Real_hadd s => simdRealBinary s
              | Simd_Real_hsub s => simdRealBinary s
              | Simd_Real_addsub s => simdRealBinary s
+             | Simd_Real_shuffle s => simdRealBinary s
+             | Simd_Real_cmp s => simdRealBinary s
              | Simd_Real_toScalar s =>
                   let
                     val t1 = simdReal s
@@ -611,30 +609,110 @@ structure Name =
                         prototype = (Vector.new1 ct1, SOME ct2),
                         return = t2}
                   end
-(*             | Simd_Real_cmp (s,_) => simdRealCompare s*)
-(*
- | Simd_Word_add s => simdWordBinary s
- | Simd_Word_adds s => simdWordBinary s
- | Simd_Word_sub s => simdWordBinary s
- | Simd_Word_subs s => simdWordBinary s
- | Simd_Word_min s => simdWordBinary s
- | Simd_Word_max s => simdWordBinary s
- (*Ignore multiplication for now*)
- | Simd_Word_hadd s => simdWordBinary s
- | Simd_Word_hsub s => simdWordBinary s
- | Simd_Word_abs s => simdWordBinary s
- | Simd_Word_andb s => simdWordBinary s
- | Simd_Word_orb s => simdWordBinary s
- | Simd_Word_xorb s => simdWordBinary s
- | Simd_Word_andnb s => simdWordBinary s
- | Simd_Word_sar s => simdWordBinary s
- | Simd_Word_sll s => simdWordBinary s
- | Simd_Word_slr s => simdWordBinary s
- | Simd_Word_cmpeq s => simdWordBinary s
- | Simd_Word_cmpgt s => simdWordBinary s
- | Simd_Word_fromScalar s => simdWordBinary s
- | Simd_Word_toScalar s => simdWordBinary s
-*)
+(*TUCKER: Need to figure out calling conventions for to array because
+ *I need to allocate the array in sml and pass it to c*)
+             | Simd_Real_toArray s =>
+                  let
+                    val t1 = simdReal s
+                    val ct1 = CType.simdReal s
+                    val temp = simdRealtoReal s
+                    val t2 = real temp
+                    val ct2 = CType.real temp
+                  in
+                    vanilla {args = Vector.new1 t1,
+                        name = name,
+                        prototype = (Vector.new1 ct1, SOME (ct2 array)),
+                        return = t2}
+                  end
+             | Simd_Real_fromArray s => 
+                  let
+                    val t2 = simdReal s
+                    val ct2 = CType.simdReal s
+                    val temp = simdRealtoReal s
+                    val t1 = real temp
+                    val ct1 = CType.real temp
+                  in
+                    vanilla {args = Vector.new1 (t1 array),
+                        name = name,
+                        prototype = (Vector.new1 (ct1 array), SOME ct2),
+                        return = t2}
+                  end
+(*TUCKER: Might need to deal with signs, aka make a simdWordSigned function
+ *that sets name to name+sign(S or U)*)
+             | Simd_Word_add s => simdWordBinary s
+             | Simd_Word_adds (s,_) => simdWordBinary s
+             | Simd_Word_sub s => simdWordBinary s
+             | Simd_Word_subs (s,_) => simdWordBinary s
+             | Simd_Word_min (s,_) => simdWordBinary s
+             | Simd_Word_max (s,_) => simdWordBinary s
+             | Simd_Word_mullo s => simdWordBinary s
+             | Simd_Word_mulhi (s,_) => simdWordBinary s
+             | Simd_Word_mul32 s => simdWordBinary s
+             | Simd_Word_shuffle s => simdWordBinary s
+             | Simd_Word_hadd s => simdWordBinary s
+             | Simd_Word_hsub s => simdWordBinary s
+             | Simd_Word_abs s => simdWordBinary s
+             | Simd_Word_andb s => simdWordBinary s
+             | Simd_Word_orb s => simdWordBinary s
+             | Simd_Word_xorb s => simdWordBinary s
+             | Simd_Word_andnb s => simdWordBinary s
+             | Simd_Word_sar s => simdWordBinary s
+             | Simd_Word_sll s => simdWordBinary s
+             | Simd_Word_slr s => simdWordBinary s
+(* these three are special they are simdWord*int -> simdWord
+             | Simd_Word_sari s => simdWordBinary s
+             | Simd_Word_slli s => simdWordBinary s*)
+             | Simd_Word_slri s => simdWordBinary s
+             | Simd_Word_cmpeq s => simdWordBinary s
+             | Simd_Word_cmpgt s => simdWordBinary s
+             | Simd_Word_toScalar (s w) =>
+                  let
+                    val t1 = simdWord (s w)
+                    val ct1 = CType.simdWord (s w)
+                    val t2 = word w
+                    val ct2 = CType.word w
+                  in
+                    vanilla {args = Vector.new1 t1,
+                        name = name,
+                        prototype = (Vector.new1 ct1, SOME ct2),
+                        return = t2}
+                  end
+             | Simd_Word_fromScalar (s w) => 
+                  let
+                    val t2 = simdWord (s w)
+                    val ct2 = CType.simdWord (s w)
+                    val t1 = word w
+                    val ct1 = CType.word w
+                  in
+                    vanilla {args = Vector.new1 t1,
+                        name = name,
+                        prototype = (Vector.new1 ct1, SOME ct2),
+                        return = t2}
+                  end
+             | Simd_Word_toArray (s w) =>
+                  let
+                    val t1 = simdWord (s w)
+                    val ct1 = CType.simdWord (s w)
+                    val t2 = word w
+                    val ct2 = CType.word w
+                  in
+                    vanilla {args = Vector.new1 t1,
+                        name = name,
+                        prototype = (Vector.new1 ct1, SOME (ct2 array)),
+                        return = t2}
+                  end
+             | Simd_Word_fromArray (s w) => 
+                  let
+                    val t2 = simdWord (s w)
+                    val ct2 = CType.simdWord (s w)
+                    val t1 = word w
+                    val ct1 = CType.word w
+                  in
+                    vanilla {args = Vector.new1 (t1 array),
+                        name = name,
+                        prototype = (Vector.new1 (ct1 array), SOME ct2),
+                        return = t2}
+                  end
              | Thread_returnToC => CFunction.returnToC ()
              | Word_add s => wordBinary (s, {signed = false})
              | Word_addCheck (s, sg) => wordBinaryOverflows (s, sg)
@@ -1336,12 +1414,12 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                | CPointer_getCPointer => cpointerGet ()
                                | CPointer_getObjptr => cpointerGet ()
                                | CPointer_getReal _ => cpointerGet ()
-                               | CPointer_getSimdReal _ => cpointerGet ()
+(*                               | CPointer_getSimdReal _ => cpointerGet ()*)
                                | CPointer_getWord _ => cpointerGet ()
                                | CPointer_setCPointer => cpointerSet ()
                                | CPointer_setObjptr => cpointerSet ()
                                | CPointer_setReal _ => cpointerSet ()
-                               | CPointer_setSimdReal _ => cpointerSet ()
+(*                               | CPointer_setSimdReal _ => cpointerSet ()*)
                                | CPointer_setWord _ => cpointerSet ()
                                | FFI f => simpleCCall f
                                | GC_collect =>
