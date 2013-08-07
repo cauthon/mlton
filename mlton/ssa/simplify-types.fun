@@ -232,6 +232,7 @@ fun transform (Program.T {datatypes, globals, functions, main}) =
                    | Real _ => ()
                    | Ref t => setTypeDependents t
                    | SimdReal _ => ()
+                   | SimdWord _ => ()
                    | Thread => ()
                    | Tuple ts => Vector.foreach (ts, setTypeDependents)
                    | Vector t => setTypeDependents t

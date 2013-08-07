@@ -961,10 +961,11 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun sse_cmpfp (oper,mov,imm) 
+        fun sse_cmpfp (oper,mov) 
           = let
               val ((src1,src1size),
-                   (src2,src2size)) = getSrc2 ()
+                   (src2,src2size),
+                   (imm,_)) = getSrc3 ()
               val (dst,dstsize) = getDst1 ()
             in
             AppendList.fromList
@@ -1490,17 +1491,12 @@ struct
                  | V128R64 =>
                    sse3_binap (Instruction.SSE_ADDSUBPD,Instruction.SSE_MOVUPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
-             | Simd_Real_cmp (s,i) =>
+             | Simd_Real_cmp s =>
                (case s of
                    V128R32 =>
-                   sse_cmpfp (Instruction.SSE_CMPPS,Instruction.SSE_MOVUPS,
-                              Operand.immediate_int' 
-                                ((SimdRealSize.cmp i),
-                                 WordSize.fromBits(Bits.fromInt 8)))
+                   sse_cmpfp (Instruction.SSE_CMPPS,Instruction.SSE_MOVUPS)
                  | V128R64 =>
-                   sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD,
-                              Operand.immediate_int' ((SimdRealSize.cmp i),
-                                 WordSize.fromBits(Bits.fromInt 8)))
+                   sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
 (*             | Simd_Real_cmpeq s => sse_cmpfp 0w0
              | Simd_Real_cmplt s => sse_cmpfp 0w1

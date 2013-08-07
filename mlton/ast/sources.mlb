@@ -72,6 +72,7 @@ in
    signature TYVAR
    signature WORD_SIZE
    signature SIMD_REAL_SIZE
+   signature SIMD_WORD_SIZE
 
    functor AdmitsEquality
    functor Ast

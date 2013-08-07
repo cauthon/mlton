@@ -13,8 +13,11 @@ sig
   val wordBytes: t -> Bytes.t
   val memoize: (t -> 'a) -> t -> 'a
   val all: t list
+  val all128: t list
+  val all256: t list
   val equals: t*t -> bool
   val toStringWord: t -> string
   val toStringSimd: t -> string
+  val word: t -> t'
 end
 

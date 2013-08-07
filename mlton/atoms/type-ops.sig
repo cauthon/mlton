@@ -26,6 +26,7 @@ signature TYPE_OPS =
       type realSize
       type tycon
       type simdRealSize
+      type simdWordSize
       type wordSize
       type t
 
@@ -50,6 +51,7 @@ signature TYPE_OPS =
       val real: realSize -> t
       val reff: t -> t
       val simdReal: simdRealSize -> t
+      val simdWord: simdWordSize -> t
       val thread: t
       val tuple: t vector -> t
       val unit: t

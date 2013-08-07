@@ -360,9 +360,8 @@ structure Type =
                         | SimdRealSize.V256R64 => C.Simd256_Real64)
                 | SimdWord s =>
                      (case s of 
-                          SimdWordSize.V128WX => C.Simd128_WordX
-                        | SimdWordSize.V256WX => C.Simd256_WordX
-
+                          SimdWordSize.V128WX _ => C.Simd128_WordX
+                        | SimdWordSize.V256WX _ => C.Simd256_WordX)
                 | _ => C.fromBits (width t)
                          
          val name = C.name o toCType
@@ -598,6 +597,7 @@ fun checkPrimApp {args, prim, result} =
         | SimdRealSize.V128R64 => RealSize.R64
         | SimdRealSize.V256R32 => RealSize.R32
         | SimdRealSize.V256R64 => RealSize.R64)
+      val simdWordtoWord = WordSize.fromBits o SimdWordSize.wordBits
       val word = fn s => fn t => equals (t, word s)
 
       val cint = word (WordSize.cint ())
@@ -731,10 +731,10 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Word_cmpeq s => simdWordBinary s
        | Simd_Word_cmpgt s => simdWordBinary s
        | Simd_Word_shuffle s => simdWordBinary s
-       | Simd_Word_toScalar (s w) => 
-         done ([simdWord (s w)], SOME (word w))
-       | Simd_Word_fromScalar (s w) => 
-         done ([word w], SOME (simdWord (s w)))
+       | Simd_Word_toScalar s => 
+         done ([simdWord s], SOME (word (simdWordtoWord s)))
+       | Simd_Word_fromScalar s => 
+         done ([word (simdWordtoWord s)], SOME (simdWord s))
        | Simd_Word_toArray s => 
          done ([simdWord s], 
                SOME (seq (WordSize.fromBits(SimdWordSize.wordBits s))))

@@ -307,6 +307,7 @@ structure Name =
               | SimdRealSize.V128R64 => RealSize.R64
               | SimdRealSize.V256R32 => RealSize.R32
               | SimdRealSize.V256R64 => RealSize.R64
+            val simdWordtoWord = WordSize.fromBits o SimdWordSize.wordBits
             fun amAllocationProfiling () =
                Control.ProfileAlloc = !Control.profile
             val intInfBinary = fn () =>
@@ -610,7 +611,8 @@ structure Name =
                         return = t2}
                   end
 (*TUCKER: Need to figure out calling conventions for to array because
- *I need to allocate the array in sml and pass it to c*)
+ *I need to allocate the array in sml and pass it to c*
+*MOVE to lower in source where sequence functions are
              | Simd_Real_toArray s =>
                   let
                     val t1 = simdReal s
@@ -636,7 +638,7 @@ structure Name =
                         name = name,
                         prototype = (Vector.new1 (ct1 array), SOME ct2),
                         return = t2}
-                  end
+                  end*)
 (*TUCKER: Might need to deal with signs, aka make a simdWordSigned function
  *that sets name to name+sign(S or U)*)
              | Simd_Word_add s => simdWordBinary s
@@ -665,54 +667,61 @@ structure Name =
              | Simd_Word_slri s => simdWordBinary s
              | Simd_Word_cmpeq s => simdWordBinary s
              | Simd_Word_cmpgt s => simdWordBinary s
-             | Simd_Word_toScalar (s w) =>
+             | Simd_Word_toScalar s =>
                   let
-                    val t1 = simdWord (s w)
-                    val ct1 = CType.simdWord (s w)
-                    val t2 = word w
-                    val ct2 = CType.word w
+                    val t1 = simdWord s
+                    val ct1 = CType.simdWord s
+                    val temp = simdWordtoWord s
+                    val t2 = word temp
+                    val ct2 = CType.word (temp,{signed=false})
                   in
                     vanilla {args = Vector.new1 t1,
                         name = name,
                         prototype = (Vector.new1 ct1, SOME ct2),
                         return = t2}
                   end
-             | Simd_Word_fromScalar (s w) => 
+             | Simd_Word_fromScalar s => 
                   let
-                    val t2 = simdWord (s w)
-                    val ct2 = CType.simdWord (s w)
-                    val t1 = word w
-                    val ct1 = CType.word w
+                    val t2 = simdWord s
+                    val ct2 = CType.simdWord s
+                    val temp = simdWordtoWord s
+                    val t1 = word temp
+                    val ct1 = CType.word (temp,{signed=false})
                   in
                     vanilla {args = Vector.new1 t1,
                         name = name,
                         prototype = (Vector.new1 ct1, SOME ct2),
                         return = t2}
                   end
-             | Simd_Word_toArray (s w) =>
+(*TUCKER: Need to figure out calling conventions for to array because
+ *I need to allocate the array in sml and pass it to c*
+*MOVE to lower in source where sequence functions are
+             | Simd_Word_toArray s =>
                   let
-                    val t1 = simdWord (s w)
-                    val ct1 = CType.simdWord (s w)
-                    val t2 = word w
-                    val ct2 = CType.word w
+                    val t1 = simdWord s
+                    val ct1 = CType.simdWord s
+                    val temp = simdWordtoWord s
+                    val t2 = word temp
+                    val ct2 = CType.word temp
                   in
                     vanilla {args = Vector.new1 t1,
                         name = name,
                         prototype = (Vector.new1 ct1, SOME (ct2 array)),
                         return = t2}
                   end
-             | Simd_Word_fromArray (s w) => 
+             | Simd_Word_fromArray s => 
                   let
-                    val t2 = simdWord (s w)
-                    val ct2 = CType.simdWord (s w)
-                    val t1 = word w
-                    val ct1 = CType.word w
+                    val t2 = simdWord s
+                    val ct2 = CType.simdWord s
+                    val temp = simdWordtoWord s
+                    val t1 = word temp
+                    val ct1 = CType.word temp
                   in
                     vanilla {args = Vector.new1 (t1 array),
                         name = name,
                         prototype = (Vector.new1 (ct1 array), SOME ct2),
                         return = t2}
-                  end
+                  end*)
              | Thread_returnToC => CFunction.returnToC ()
              | Word_add s => wordBinary (s, {signed = false})
              | Word_addCheck (s, sg) => wordBinaryOverflows (s, sg)

@@ -819,13 +819,6 @@ structure ObjptrRep =
                               | Control.Align8 =>
                                    if (Vector.exists
                                        (components, fn {component = c, ...} =>
-                                        (case Type.deSimdReal (Component.ty c) of
-                                             NONE => false
-                                           | SOME s => true)))
-                                   then Bytes.alignWord128 width
-                                   else
-                                   if (Vector.exists
-                                       (components, fn {component = c, ...} =>
                                         (case Type.deReal (Component.ty c) of
                                             NONE => false
                                           | SOME s =>

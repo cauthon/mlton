@@ -11,17 +11,22 @@ local
   val temp256 = fn x => (V256WX x)
 in
 val all = (List.map (all',temp128) @ List.map(all',temp256))
+val all128=List.map (all',temp128)
+val all256=List.map (all',temp256)
 end
+
+val word = fn (V128WX x) => x
+            | (V256WX x) => x
 val bytes =
  fn (V128WX _) => Bytes.fromInt 128
   | (V256WX _) => Bytes.fromInt 256
 local
   val temp =  fn x =>
                  case x of 
-                     W8 => Bytes.fromInt 8
-                   | W16 => Bytes.fromInt 16
-                   | W32 => Bytes.fromInt 32
-                   | W64 => Bytes.fromInt 64
+                     WordSize.W8 => Bytes.fromInt 8
+                   | WordSize.W16 => Bytes.fromInt 16
+                   | WordSize.W32 => Bytes.fromInt 32
+                   | WordSize.W64 => Bytes.fromInt 64
 in
   val wordBytes = 
    fn (V128WX x) => temp x

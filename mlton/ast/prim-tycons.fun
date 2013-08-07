@@ -24,6 +24,7 @@ structure BindingStrength =
 datatype z = datatype RealSize.t
 datatype z = datatype SimdRealSize.t
 datatype z = datatype SimdWordSize.t
+
 type tycon = t
 
 local
@@ -167,7 +168,7 @@ in
                | SOME {tycon, ...} => tycon)
       val primSimdWords =
           Vector.toListMap (all, fn {name, tycon, ...} =>
-                              {admitsEquality = Sometimes
+                              {admitsEquality = Sometimes,
                                kind = Arity 0,
                                name = name,
                                tycon = tycon})

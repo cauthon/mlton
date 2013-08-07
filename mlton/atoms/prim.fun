@@ -441,6 +441,7 @@ fun toString (n: 'a t): string =
        | Simd_Word_slli w => simd_word (w,"slli", NONE)
        | Simd_Word_slr w => simd_word (w,"slr", NONE)
        | Simd_Word_slri w => simd_word (w,"slri", NONE)
+       | Simd_Word_shuffle s => simd_word (s,"shuffle",NONE)
        | Simd_Word_sub w => simd_word (w,"sub", NONE)
        | Simd_Word_subs (w,s) => simd_word (w,"subs", SOME s)
        | Simd_Word_toArray w => simd_word (w,"storeu", NONE)
@@ -637,9 +638,9 @@ val equals: 'a t * 'a t -> bool =
       => SimdWordSize.equals(w,w') andalso op=(s,s')
     | (Simd_Word_max (w,s), Simd_Word_max (w',s'))
       => SimdWordSize.equals(w,w') andalso op=(s,s')
-    | (Simd_Word_mul32 (w,s), Simd_Word_mul32 (w',s')) =>
+    | (Simd_Word_mul32 w, Simd_Word_mul32 w') => SimdWordSize.equals(w,w')
+    | (Simd_Word_mulhi (w,s), Simd_Word_mulhi (w',s')) =>
       SimdWordSize.equals(w,w') andalso op=(s,s')
-    | (Simd_Word_mulhi w, Simd_Word_mulhi w') => SimdWordSize.equals(w,w')
     | (Simd_Word_mullo w, Simd_Word_mullo w') => SimdWordSize.equals(w,w')
     | (Simd_Word_hadd w, Simd_Word_hadd w') => SimdWordSize.equals(w,w')
     | (Simd_Word_hsub w, Simd_Word_hsub w') => SimdWordSize.equals(w,w')
@@ -866,13 +867,15 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Word_sari w => Simd_Word_sari w
     | Simd_Word_slli w => Simd_Word_slli w
     | Simd_Word_slri w => Simd_Word_slri w
-    | Simd_Word_mul32 (w,s) =>  Simd_Word_mul32 (w,s)
-    | Simd_Word_mulhi w =>  Simd_Word_mulhi w
+    | Simd_Word_mul32 w =>  Simd_Word_mul32 w
+    | Simd_Word_mulhi (w,s) =>  Simd_Word_mulhi (w,s)
     | Simd_Word_mullo w =>  Simd_Word_mullo w
     | Simd_Word_cmpeq w => Simd_Word_cmpeq w
     | Simd_Word_cmpgt w => Simd_Word_cmpgt w
     | Simd_Word_fromScalar w => Simd_Word_fromScalar w
     | Simd_Word_toScalar w => Simd_Word_toScalar w
+    | Simd_Word_fromArray w => Simd_Word_fromArray w
+    | Simd_Word_toArray w => Simd_Word_toArray w
     | Simd_Word_shuffle w => Simd_Word_shuffle w
     | String_toWord8Vector => String_toWord8Vector
     | Thread_atomicBegin => Thread_atomicBegin
@@ -1172,7 +1175,7 @@ val kind: 'a t -> Kind.t =
        | Simd_Real_toScalar _ => SideEffect
        | Simd_Real_fromArray _ => SideEffect
        | Simd_Real_toArray _ => SideEffect
-       | Simd_Real_shuffle _ => functional
+       | Simd_Real_shuffle _ => Functional
        | Simd_Word_add _ => Functional
        | Simd_Word_adds _ => Functional
        | Simd_Word_sub _ => Functional
@@ -1318,7 +1321,7 @@ local
                   Simd_Word_min,
                   Simd_Word_adds,
                   Simd_Word_subs,
-                  Simd_Word_mulhi]
+                  Simd_Word_mulhi],
                    fn p => p (s, sg))
       end
    fun simdWords (s: SimdWordSize.t) =
@@ -1627,6 +1630,7 @@ fun 'a checkApp (prim: 'a t,
         | SimdRealSize.V128R64 => RealSize.R64
         | SimdRealSize.V256R32 => RealSize.R32
         | SimdRealSize.V256R64 => RealSize.R64
+      val simdWordtoWord = WordSize.fromBits o SimdWordSize.wordBits
       val word8 = word WordSize.word8
       val word32 = word WordSize.word32
       fun intInfBinary () =
@@ -1784,7 +1788,7 @@ fun 'a checkApp (prim: 'a t,
 (*Need to ask about these, not sure if I need a type arg or not*)
        | Simd_Real_toArray s =>
          noTargs (fn () => (oneArg (simdReal s), 
-                            array (real (simdRealtoReal s)))
+                            array (real (simdRealtoReal s))))
        | Simd_Real_fromArray s =>
          noTargs (fn () => (oneArg (array (real (simdRealtoReal s))),
                             simdReal s))
@@ -1820,14 +1824,16 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Word_cmpeq s => simdWordBinary s
        | Simd_Word_cmpgt s => simdWordBinary s
        | Simd_Word_shuffle s => simdWordBinary s
-       | Simd_Word_fromScalar (s w) =>
-         noTargs (fn () => (oneArg (word w), simdWord (s w)))
-       | Simd_Word_toScalar (s w) =>
-         noTargs (fn () => (oneArg (simdWord (s w)), word w))
-       | Simd_Word_fromArray (s w) =>
-         noTargs (fn () => (oneArg (array (word w)), simdWord (s w)))
-       | Simd_Word_toArray (s w) =>
-         noTargs (fn () => (oneArg (simdWord (s w)), array (word w)))
+       | Simd_Word_fromScalar w =>
+         noTargs (fn () => (oneArg (word (simdWordtoWord w)), simdWord w))
+       | Simd_Word_toScalar w =>
+         noTargs (fn () => (oneArg (simdWord w), word (simdWordtoWord w)))
+       | Simd_Word_fromArray w =>
+         noTargs (fn () => (oneArg (array (word (simdWordtoWord w))),
+                            simdWord w))
+       | Simd_Word_toArray w =>
+         noTargs (fn () => (oneArg (simdWord w),
+                            array (word (simdWordtoWord w))))
 
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))

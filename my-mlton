@@ -1,27 +1,11 @@
 #!/bin/bash
-declare -a rargs
-case "$1" in
-@MLton)
-        shift
-        while [ "$#" -gt 0 -a "$1" != "--" ]; do
-                rargs[${#rargs[@]}]="$1"
-                shift
-        done
-        if [ "$#" -gt 0 -a "$1" == "--" ]; then
-                shift
-        else
-                echo '@MLton missing --'
-                exit 1
-        fi
-        ;;
-esac
 HOST_ARCH=amd64
 HOST_OS=linux
 mlton_smlnj_heap=/home/tucker/gsoc/mlton-trunk/build/lib/mlton-smlnj.x86-linux
 mlton_mlton=/home/tucker/gsoc/mlton-trunk/build/lib/mlton-compile
 mlton_poly=/home/tucker/gsoc/mlton-trunk/build/lib/mlton-polyml
 doitMLton () {
-    exec "$mlton_mlton" @MLton ram-slop 0.25 "${rargs[@]}" -- "$@"
+    exec "$mlton_mlton" @MLton ram-slop 0.25 "${rargs}" -- "$@"
 }
 doitSMLNJ () {
     exec sml @SMLload="$mlton_smlnj_heap" "$@"
@@ -54,6 +38,12 @@ case "$1" in
                 exit 1
             fi
         };;
+    debug|debugged) shift
+        $(dirname $0)/my-mlton.debug "$@"
+        exit 0;;
+    trace|traced) shift
+        $(dirname $0)/my-mlton.trace "$@"
+        exit 0;;
     *) doit () {
             if [[ -x "$mlton_mlton" ]];then
                 doitMLton "$@"
@@ -67,13 +57,36 @@ case "$1" in
         };;
 esac
 
+while $#;do
+    case "$1" in
+        @MLton)
+            shift
+            while "$#";do
+                case "$1" in
+                    --) shift
+                        rargs_ok=t
+                        break;;
+                    *)rargs="$rargs $1";shift;;
+                esac
+            done
+            if ! [ $rargs_ok ] ;then
+                echo '@MLton missing --'
+                exit 1
+            fi;;
+        *.sml|*.mlb|*.c)files="$files $i"
+            shift;;
+        *)args="$args $i"
+            shift;;
+    esac
+done
+args="${args}${files}"
 doit "/home/tucker/gsoc/mlton-trunk/build/lib" \
-        -ar-script "/home/tucker/gsoc/mlton-trunk/build/lib/static-library"                    \
-        -cc gcc                                              \
-        -as-opt "-m64"                                     \
-        -cc-opt " -I/home/tucker/gsoc/mlton-trunk/build/lib/include -O1 -fno-common -fno-strict-aliasing        -fomit-frame-pointer -w -m64"                                      \
-        -link-opt " -lm -lgmp -m64"                                   \
-        -mlb-path-map "/home/tucker/gsoc/mlton-trunk/build/lib/mlb-path-map"                   \
-        -profile-exclude '\$\(SML_LIB\)'                   \
-                                                  \
-        "$@"
+    -ar-script "/home/tucker/gsoc/mlton-trunk/build/lib/static-library"   \
+    -cc gcc                                                               \
+    -as-opt "-m64"                                                        \
+    -cc-opt " -I/home/tucker/gsoc/mlton-trunk/build/lib/include -O1 -fno-common -fno-strict-aliasing -fomit-frame-pointer -w -m64"                      \ 
+    -link-opt " -lm -lgmp -m64"                                           \
+    -mlb-path-map "/home/tucker/gsoc/mlton-trunk/build/lib/mlb-path-map"  \
+    -profile-exclude '\$\(SML_LIB\)'                                      \
+    "$args"
+exit 0

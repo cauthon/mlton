@@ -43,6 +43,7 @@ fun convert (S.Program.T {datatypes, functions, globals, main}) =
             | S.Type.IntInf => S2.Type.intInf
             | S.Type.Real s => S2.Type.real s
             | S.Type.SimdReal s => S2.Type.simdReal s
+            | S.Type.SimdWord s => S2.Type.simdWord s
             | S.Type.Ref t => S2.Type.reff1 (convertType t)
             | S.Type.Thread => S2.Type.thread
             | S.Type.Tuple ts =>
