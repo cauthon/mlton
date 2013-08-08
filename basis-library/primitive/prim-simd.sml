@@ -25,8 +25,8 @@ signature PRIM_SIMD_REAL =
       val hadd : simdReal * simdReal -> simdReal
       val hsub : simdReal * simdReal -> simdReal
       val addsub : simdReal * simdReal -> simdReal
-      val shuffle : simdReal * simdReal -> simdReal
-      val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal
+(*      val shuffle : simdReal * simdReal -> simdReal
+      val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal*)
       val sqrt : simdReal -> simdReal
 (*      val fromArray : elt array -> simd
 (*

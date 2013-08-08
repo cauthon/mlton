@@ -245,42 +245,7 @@ MLTON_CODEGEN_STATIC_INLINE                                           \
   void Simd128_Word_##opcode##_##sign##size                            \
   (__m128i* arg1,__m128i* retval,unsigned char imm){                      \
 __m128i x = _mm_loadu_si128(arg1);                       \
- _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}
+_mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}*/
 //defines binary simd integer operations, same syntax as unary ones
-#define binarySimdWord(opcode,sign,size)                                \
-  MLTON_CODEGEN_STATIC_INLINE                                           \
-  void Simd_Word_##opcode##_##sign##size                                \
-  (__m128i* arg1,__m128i* arg2,__m128i* retval){                        \
-    __m128i x = _mm_loadu_si128(arg1);                                  \
-    __m128i y = _mm_loadu_si128(arg2);                                  \
-    _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,y));}       
-#define packedBinary(opcode,sign,size)          \
-  binarySimdWord(opcode,ep##sign,size)
-#define do8and16(opcode,sign)                     \
-  packedBinary(opcode,sign,8)                   \
-  packedBinary(opcode,sign,16)
-#define do16and32 (opcode,sign)                    \
-  packedBinary(opcode,sign,16)                   \
-  packedBinary(opcode,sign,32)
-#define do16and32and64 (opcode,sign)               \
-  do16and32(opcode,sign)                           \
-  packedBinary(opcode,sign,64)                    
-#define do8and16and32and64                        \
-  do16and32and64(opcode,sign)                     \
-  packedBinary(opcode,sign,8)
-
-do8and16(avg,u)
-do8and16(adds,i)
-do8and16(adds,u)
-packedBinary(mul,u,32)
-
-binarySimdWord(and,si,128)
-binarySimdWord(andnot,si,128)
-binarySimdWord(or,si,128)
-binarySimdWord(xor,si,128)
-//SimdWordImm(slli,si,128)
-//SimdWordImm(srli,si,128)
 #undef binarySimdWord
-#undef unarySimdWord*/
-
 

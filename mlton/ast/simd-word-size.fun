@@ -18,8 +18,8 @@ end
 val word = fn (V128WX x) => x
             | (V256WX x) => x
 val bytes =
- fn (V128WX _) => Bytes.fromInt 128
-  | (V256WX _) => Bytes.fromInt 256
+ fn (V128WX _) => Bytes.fromInt 16
+  | (V256WX _) => Bytes.fromInt 32
 local
   val temp =  fn x =>
                  case x of 

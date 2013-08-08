@@ -189,7 +189,8 @@ fun simdWord (s: SimdWordSize.t) =
    case Bits.toInt (SimdWordSize.bits s) of
       128 => Simd128_WordX
     | 256 => Simd256_WordX
-    | _ => Error.bug "CType.simdWord"
+    | x => Error.bug (concat(["CType.simdWord incorrect size ",Int.toString(x),
+                             " recieved"]))
 
 val cint =
    Promise.lazy
