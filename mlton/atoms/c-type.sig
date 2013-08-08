@@ -39,6 +39,7 @@ signature C_TYPE =
 
       val align: t * Bytes.t -> Bytes.t
       val all: t list
+      val allNoSimd: t list
       val bool: t
       val cpointer: t
       val cint: unit -> t

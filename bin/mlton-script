@@ -101,7 +101,7 @@ doit "$lib" \
         -cc-opt '-fno-strict-aliasing -fomit-frame-pointer -w'   \
         -link-opt '-lm -lgmp'                                    \
         -mlb-path-map "$lib/mlb-path-map"                        \
-        -target-as-opt amd64 '-m64 -march=native'                \
+        -target-as-opt amd64 '-m64'                              \
         -target-as-opt x86 '-m32'                                \
         -target-cc-opt alpha                                     \
                 '-mieee -mbwx -mtune=ev6 -mfp-rounding-mode=d'   \

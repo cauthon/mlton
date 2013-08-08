@@ -37,6 +37,11 @@ val all = [CPointer,
            Word8, Word16, Word32, Word64,
            Simd128_Real32, Simd128_Real64, Simd128_WordX,
            Simd256_Real32, Simd256_Real64, Simd256_WordX]
+val allNoSimd = [CPointer,
+                 Int8, Int16, Int32, Int64,
+                 Objptr,
+                 Real32, Real64,
+                 Word8, Word16, Word32, Word64]
 
 val cpointer = CPointer
 val objptr = Objptr
