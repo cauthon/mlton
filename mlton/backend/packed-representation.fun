@@ -836,14 +836,15 @@ structure ObjptrRep =
                                    else width
                             (*needs some work, this probably won't do what i want*)
                               | Control.Align16 => 
-                                   if (Vector.exists
+                                   (*if (Vector.exists
                                        (components, fn {component = c, ...} =>
                                         (case Type.deSimdReal (Component.ty c) of
                                             NONE => false
                                           | SOME s =>
                                                SimdRealSize.equalsSimd (s, SimdRealSize.V256R32))))
-                                      then Bytes.alignWord256 width
-                                   else Bytes.alignWord128 width
+                                      then Bytes.alignWord128 width
+                                   else Bytes.alignWord128*)
+                                width
                               | Control.Align32 => 
                                 Bytes.alignWord256 width
                        in

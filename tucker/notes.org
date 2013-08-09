@@ -82,6 +82,16 @@ _import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
   -stuck on elaborate, actually a problem with the basis libary
   -where else do I need to add module/structure/etc.. information
   -go to basis libary
+* google hangout <2013-08-09 Fri>
+  handleMisaligned in c-codegen is a place to look for making sure
+  gcc keeps things aligned.
+  Also need to keep in mind stack alignment
+  Stack alignment might be weird
+  simd constants should be a struct of size and a vector of values
+
+
+
+  
 * Low level details
 ** Immediate opperands
 *** Compairson

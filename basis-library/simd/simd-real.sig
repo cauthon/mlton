@@ -15,6 +15,7 @@ sig
 (*load/store*)
   val fromArray:elt array -> t
   val toArray:elt array * t -> unit
+(*  val fromArrayOffset:elt array*Int32.int -> t*)
 (*  val fromArraySlice:elt slice -> t (*non primtive*)
   val set:elt list -> t(*aka from list*) (*non primtive*)
   val set1:elt -> t(*fill with duplicates of elt*) (*non primtive*)*)

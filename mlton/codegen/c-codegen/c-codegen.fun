@@ -276,7 +276,7 @@ fun declareGlobals (prefix: string, print) =
       val _ = print (concat [prefix, "struct GC_state gcState;\n"])
       val _ =
          List.foreach
-         (CType.allNoSimd, fn t =>
+         (CType.all, fn t =>
           let
              val s = CType.toString t
           in
@@ -309,14 +309,14 @@ fun outputDeclarations
             val _ =
                (print "static int saveGlobals (FILE *f) {\n"
                 ; (List.foreach
-                   (CType.allNoSimd, fn t =>
+                   (CType.all, fn t =>
                     print (concat ["\tSaveArray (global",
                                    CType.toString t, ", f);\n"])))
                 ; print "\treturn 0;\n}\n")
             val _ =
                (print "static int loadGlobals (FILE *f) {\n"
                 ; (List.foreach
-                   (CType.allNoSimd, fn t =>
+                   (CType.all, fn t =>
                     print (concat ["\tLoadArray (global",
                                    CType.toString t, ", f);\n"])))
                 ; print "\treturn 0;\n}\n")
@@ -1218,7 +1218,7 @@ fun output {program as Machine.Program.T {chunks,
                end
             fun declareRegisters () =
                List.foreach
-               (CType.allNoSimd, fn t =>
+               (CType.all, fn t =>
                 let
                    val pre = concat ["\t", CType.toString t, " ",
                                      CType.name t, "_"]
