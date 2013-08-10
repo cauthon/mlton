@@ -404,7 +404,7 @@ fun toString (n: 'a t): string =
        | Simd_Real_andn s => simd_real (s,"andnotb")
        | Simd_Real_cmp s => simd_real (s,"cmp")
        | Simd_Real_div s => simd_real (s,"div")
-       | Simd_Real_fromArray s => simd_real (s,"loadu")
+       | Simd_Real_fromArray s => simd_real (s,"load")
        | Simd_Real_fromScalar s => simd_real (s,"loads")
        | Simd_Real_hadd s => simd_real (s,"hadd")
        | Simd_Real_hsub s => simd_real (s,"hsub")
@@ -415,7 +415,7 @@ fun toString (n: 'a t): string =
        | Simd_Real_shuffle s => simd_real (s,"shuffle")
        | Simd_Real_sqrt s => simd_real (s,"sqrt")
        | Simd_Real_sub s => simd_real (s,"sub")
-       | Simd_Real_toArray s => simd_real (s,"storeu")
+       | Simd_Real_toArray s => simd_real (s,"store")
        | Simd_Real_toScalar s => simd_real (s, "stores")
        | Simd_Real_xor s => simd_real (s,"xorb")
        | Simd_Word_abs w => simd_word (w,"abs", NONE)
@@ -1782,11 +1782,11 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
        | Simd_Real_shuffle s => 
-         noTargs (fn () => threeArgs(simdReal s,simdReal s,word8),simdReal s)
+         noTargs (fn () => (threeArgs(simdReal s,simdReal s,word8),simdReal s))
   (* simd comparisons can't just return a bool as they need to
    * compare multiple objects*)
        | Simd_Real_cmp s =>
-         noTargs (fn () => threeArgs(simdReal s,simdReal s,word8),simdReal s)
+         noTargs (fn () => (threeArgs(simdReal s,simdReal s,word8),simdReal s))
 (*Need to ask about these, not sure if I need a type arg or not*)
        | Simd_Real_toArray s =>
          noTargs (fn () => (oneArg (simdReal s), 

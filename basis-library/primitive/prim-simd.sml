@@ -24,11 +24,11 @@ signature PRIM_SIMD_REAL =
       val hadd : simdReal * simdReal -> simdReal
       val hsub : simdReal * simdReal -> simdReal
       val addsub : simdReal * simdReal -> simdReal
-(*      val shuffle : simdReal * simdReal * Primitive.Word8.word -> simdReal
-      val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal*)
+      val shuffle : simdReal * simdReal * Primitive.Word8.word -> simdReal
+      val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val sqrt : simdReal -> simdReal
-(*      val fromArray : elt array -> simd
-      val toArray : elt array * simd -> unit*)
+      val fromArray : elt array -> simd
+      val toArray : elt array * simd -> unit
       val fromScalar : elt -> simdReal
       val toScalar : simdReal -> elt
    end
@@ -281,7 +281,7 @@ end\n" x x n m m x x x x x x x x x x x x x x x x x x x x x x x x x x x x x)))
              ("Simd256_Word8" 256 8) ("Simd256_Word16" 256 16) 
              ("Simd256_Word32" 256 32)("Simd256_Word64" 256 64)))
   (apply #'make_simd_struct i))*)
- local
+(* local
    fun unimp (name,size) =
        concat ["Function ",name," is not implemented for size Word",
                size,"\n"])
@@ -646,5 +646,5 @@ structure Simd256_Word64 : PRIM_SIMD_WORD =
       val cmpeq = _prim "Simd256_Word64_cmpeq": simdWord * simdWord -> simdWord;
       val cmpgt = _prim "Simd256_Word64_cmpgt": simdWord * simdWord -> simdWord;
 end
-end
+end*)
 end

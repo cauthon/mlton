@@ -107,9 +107,9 @@ signature SIMD_WORD = sig
   val andnb:t*t->t
   val notb:t->t(*vandn 0xff..ff*t->t*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
-  val sar:t*t->t (* w d *)
-  val slr:t*t->t (* w d q dq *)
-  val sll:t*t->t (* w d q dq *)
+  val sar:t*t->t 
+  val slr:t*t->t 
+  val sll:t*t->t 
 (*we can also logically shift a full 128bit vector left/right*)
 (*Comparison*)
   (*this is all we get for builtin integer comparison*)
