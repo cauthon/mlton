@@ -1781,10 +1781,12 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
-       | Simd_Real_shuffle s => simdRealBinary s
+       | Simd_Real_shuffle s => 
+         noTargs (fn () => threeArgs(simdReal s,simdReal s,word8),simdReal s)
   (* simd comparisons can't just return a bool as they need to
    * compare multiple objects*)
-       | Simd_Real_cmp s => simdRealBinary s
+       | Simd_Real_cmp s =>
+         noTargs (fn () => threeArgs(simdReal s,simdReal s,word8),simdReal s)
 (*Need to ask about these, not sure if I need a type arg or not*)
        | Simd_Real_toArray s =>
          noTargs (fn () => (oneArg (simdReal s), 
