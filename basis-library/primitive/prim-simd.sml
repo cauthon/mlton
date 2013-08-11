@@ -27,8 +27,8 @@ signature PRIM_SIMD_REAL =
       val shuffle : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val sqrt : simdReal -> simdReal
-      val fromArray : elt array -> simd
-      val toArray : elt array * simd -> unit
+      val fromArray : elt array -> simdReal
+      val toArray : elt array * simdReal -> unit
       val fromScalar : elt -> simdReal
       val toScalar : simdReal -> elt
    end
@@ -53,7 +53,7 @@ signature PRIM_SIMD_WORD =
       val mulshi:simdWord * simdWord -> simdWord (*multiply t*t and take low bytes of t2 results*)
       val muluhi:simdWord * simdWord -> simdWord (*multiply t*t and take low bytes of t2 results*)
       val mull:simdWord * simdWord -> simdWord (*multiply t*t and take higt bytes of t2 results*)
-      val mul32:simdWord * simdWord -> simdWord2 (*multiply odd elements of t,t and return t2 result*)
+(*      val mul32:simdWord * simdWord -> simdWord2 (*multiply odd elements of t,t and return t2 result*)*)
       val hsub:simdWord * simdWord -> simdWord
       val abs:t->t
       (*bitwise*)
@@ -65,9 +65,9 @@ signature PRIM_SIMD_WORD =
       val sar:simdWord * simdWord -> simdWord
       val slr:simdWord * simdWord -> simdWord
       val sll:simdWord * simdWord -> simdWord
-      val sari:simdWord * word8 -> simdWord
-      val slri:simdWord * word8 -> simdWord
-      val slli:simdWord * word8 -> simdWord
+      val sari:simdWord * Primitive.Word8.word -> simdWord
+      val slri:simdWord * Primitive.Word8.word -> simdWord
+      val slli:simdWord * Primitive.Word8.word -> simdWord
       (*we can also logically shift a full 128bit vector left/right*)
       (*Comparison*)
       (*this is all we get for builtin integer comparison*)
@@ -123,23 +123,25 @@ structure Simd128_Real32 : PRIM_SIMD_REAL =
 (*    type simd = t*)
 
       val add = _prim "Simd128_Real32_add": simdReal * simdReal -> simdReal ;
-      val sub = _prim "Simd128_Real32_sub": simdReal * simdReal -> simdReal ;
-      val mul = _prim "Simd128_Real32_mul": simdReal * simdReal -> simdReal ;
-      val div = _prim "Simd128_Real32_div": simdReal * simdReal -> simdReal ;
-      val min = _prim "Simd128_Real32_min": simdReal * simdReal -> simdReal ;
-      val max = _prim "Simd128_Real32_max": simdReal * simdReal -> simdReal ;
+      val addsub = _prim "Simd128_Real32_addsub": simdReal * simdReal -> simdReal ;
       val andb = _prim "Simd128_Real32_andb": simdReal * simdReal -> simdReal ;
-      val orb = _prim "Simd128_Real32_orb": simdReal * simdReal -> simdReal ;
-      val xorb = _prim "Simd128_Real32_xorb": simdReal * simdReal -> simdReal ;
       val andnb = _prim "Simd128_Real32_andnotb": simdReal * simdReal -> simdReal ;
+      val cmp = _prim "Simd128_Real32_cmp": simdReal * simdReal * Word8.word -> simdReal ;
+      val div = _prim "Simd128_Real32_div": simdReal * simdReal -> simdReal ;
+      val fromArray = _prim "Simd128_Real32_load": elt array -> simdReal ;
+      val fromScalar = _prim "Simd128_Real32_loads": elt -> simdReal ;
       val hadd = _prim "Simd128_Real32_hadd": simdReal * simdReal -> simdReal ;
       val hsub = _prim "Simd128_Real32_hsub": simdReal * simdReal -> simdReal ;
-      val addsub = _prim "Simd128_Real32_addsub": simdReal * simdReal -> simdReal ;
+      val max = _prim "Simd128_Real32_max": simdReal * simdReal -> simdReal ;
+      val min = _prim "Simd128_Real32_min": simdReal * simdReal -> simdReal ;
+      val mul = _prim "Simd128_Real32_mul": simdReal * simdReal -> simdReal ;
+      val orb = _prim "Simd128_Real32_orb": simdReal * simdReal -> simdReal ;
+      val shuffle = _prim "Simd128_Real32_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd128_Real32_sqrt": simdReal -> simdReal ;
-(*      val fromArray = _prim "Simd128_Real32_fromArray": elt array -> simdReal ;
-      val toArray = _prim "Simd128_Real32_toArray": simdReal -> elt array ;*)
-      val fromScalar = _prim "Simd128_Real32_loads": elt -> simdReal ;
+      val sub = _prim "Simd128_Real32_sub": simdReal * simdReal -> simdReal ;
+      val toArray = _prim "Simd128_Real32_store": elt array * simdReal -> unit;
       val toScalar = _prim "Simd128_Real32_stores": simdReal -> elt ;
+      val xorb = _prim "Simd128_Real32_xorb": simdReal * simdReal -> simdReal ;
   end
 structure Simd128_Real64 : PRIM_SIMD_REAL =
   struct
@@ -152,23 +154,25 @@ structure Simd128_Real64 : PRIM_SIMD_REAL =
 (*    type simdReal = t*)
 
       val add = _prim "Simd128_Real64_add": simdReal * simdReal -> simdReal ;
-      val sub = _prim "Simd128_Real64_sub": simdReal * simdReal -> simdReal ;
-      val mul = _prim "Simd128_Real64_mul": simdReal * simdReal -> simdReal ;
-      val div = _prim "Simd128_Real64_div": simdReal * simdReal -> simdReal ;
-      val min = _prim "Simd128_Real64_min": simdReal * simdReal -> simdReal ;
-      val max = _prim "Simd128_Real64_max": simdReal * simdReal -> simdReal ;
+      val addsub = _prim "Simd128_Real64_addsub": simdReal * simdReal -> simdReal ;
       val andb = _prim "Simd128_Real64_andb": simdReal * simdReal -> simdReal ;
-      val orb = _prim "Simd128_Real64_orb": simdReal * simdReal -> simdReal ;
-      val xorb = _prim "Simd128_Real64_xorb": simdReal * simdReal -> simdReal ;
       val andnb = _prim "Simd128_Real64_andnotb": simdReal * simdReal -> simdReal ;
+      val cmp = _prim "Simd128_Real64_cmp": simdReal * simdReal * Word8.word -> simdReal ;
+      val div = _prim "Simd128_Real64_div": simdReal * simdReal -> simdReal ;
+      val fromArray = _prim "Simd128_Real64_load": elt array -> simdReal ;
+      val fromScalar = _prim "Simd128_Real64_loads": elt -> simdReal ;
       val hadd = _prim "Simd128_Real64_hadd": simdReal * simdReal -> simdReal ;
       val hsub = _prim "Simd128_Real64_hsub": simdReal * simdReal -> simdReal ;
-      val addsub = _prim "Simd128_Real64_addsub": simdReal * simdReal -> simdReal ;
+      val max = _prim "Simd128_Real64_max": simdReal * simdReal -> simdReal ;
+      val min = _prim "Simd128_Real64_min": simdReal * simdReal -> simdReal ;
+      val mul = _prim "Simd128_Real64_mul": simdReal * simdReal -> simdReal ;
+      val orb = _prim "Simd128_Real64_orb": simdReal * simdReal -> simdReal ;
+      val shuffle = _prim "Simd128_Real64_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd128_Real64_sqrt": simdReal -> simdReal ;
-(*      val fromArray = _prim "Simd128_Real64_fromArray": elt array -> simdReal ;
-      val toArray = _prim "Simd128_Real64_toArray": simdReal -> elt array ;*)
-      val fromScalar = _prim "Simd128_Real64_loads": elt -> simdReal ;
+      val sub = _prim "Simd128_Real64_sub": simdReal * simdReal -> simdReal ;
+      val toArray = _prim "Simd128_Real64_store": elt array * simdReal -> unit;
       val toScalar = _prim "Simd128_Real64_stores": simdReal -> elt ;
+      val xorb = _prim "Simd128_Real64_xorb": simdReal * simdReal -> simdReal ;
   end
 structure Simd256_Real32 : PRIM_SIMD_REAL =
   struct
@@ -181,23 +185,25 @@ structure Simd256_Real32 : PRIM_SIMD_REAL =
 (*    type simd = t*)
 
       val add = _prim "Simd256_Real32_add":simdReal * simdReal -> simdReal ;
-      val sub = _prim "Simd256_Real32_sub":simdReal * simdReal -> simdReal ;
-      val mul = _prim "Simd256_Real32_mul":simdReal * simdReal -> simdReal ;
-      val div = _prim "Simd256_Real32_div":simdReal * simdReal -> simdReal ;
-      val min = _prim "Simd256_Real32_min":simdReal * simdReal -> simdReal ;
-      val max = _prim "Simd256_Real32_max":simdReal * simdReal -> simdReal ;
+      val addsub = _prim "Simd256_Real32_addsub":simdReal * simdReal -> simdReal ;
       val andb = _prim "Simd256_Real32_andb":simdReal * simdReal -> simdReal ;
-      val orb = _prim "Simd256_Real32_orb":simdReal * simdReal -> simdReal ;
-      val xorb = _prim "Simd256_Real32_xorb":simdReal * simdReal -> simdReal;
       val andnb = _prim "Simd256_Real32_andnotb":simdReal * simdReal -> simdReal ;
+      val cmp = _prim "Simd256_Real32_cmp": simdReal * simdReal * Word8.word -> simdReal ;
+      val div = _prim "Simd256_Real32_div":simdReal * simdReal -> simdReal ;
+      val fromArray = _prim "Simd256_Real32_load": elt array -> simdReal ;
+      val fromScalar = _prim "Simd256_Real32_loads": elt -> simdReal ;
       val hadd = _prim "Simd256_Real32_hadd":simdReal * simdReal -> simdReal ;
       val hsub = _prim "Simd256_Real32_hsub":simdReal * simdReal -> simdReal ;
-      val addsub = _prim "Simd256_Real32_addsub":simdReal * simdReal -> simdReal ;
+      val max = _prim "Simd256_Real32_max":simdReal * simdReal -> simdReal ;
+      val min = _prim "Simd256_Real32_min":simdReal * simdReal -> simdReal ;
+      val mul = _prim "Simd256_Real32_mul":simdReal * simdReal -> simdReal ;
+      val orb = _prim "Simd256_Real32_orb":simdReal * simdReal -> simdReal ;
+      val shuffle = _prim "Simd256_Real32_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd256_Real32_sqrt":simdReal -> simdReal ;
-(*      val fromArray = _prim "Simd256_Real32_fromArray": elt array -> simdReal ;
-      val toArray = _prim "Simd256_Real32_toArray": simdReal -> elt array ;*)
-      val fromScalar = _prim "Simd256_Real32_loads": elt -> simdReal ;
+      val sub = _prim "Simd256_Real32_sub":simdReal * simdReal -> simdReal ;
+      val toArray = _prim "Simd256_Real32_store": elt array * simdReal -> unit;
       val toScalar = _prim "Simd256_Real32_stores": simdReal -> elt ;
+      val xorb = _prim "Simd256_Real32_xorb":simdReal * simdReal -> simdReal;
   end
 structure Simd256_Real64 : PRIM_SIMD_REAL =
   struct
@@ -210,23 +216,25 @@ structure Simd256_Real64 : PRIM_SIMD_REAL =
 (*    type simdReal = t*)
 
       val add = _prim "Simd256_Real64_add": simdReal * simdReal -> simdReal ;
-      val sub = _prim "Simd256_Real64_sub": simdReal * simdReal -> simdReal ;
-      val mul = _prim "Simd256_Real64_mul": simdReal * simdReal -> simdReal ;
-      val div = _prim "Simd256_Real64_div": simdReal * simdReal -> simdReal ;
-      val min = _prim "Simd256_Real64_min": simdReal * simdReal -> simdReal ;
-      val max = _prim "Simd256_Real64_max": simdReal * simdReal -> simdReal ;
+      val addsub = _prim "Simd256_Real64_addsub": simdReal * simdReal -> simdReal ;
       val andb = _prim "Simd256_Real64_andb": simdReal * simdReal -> simdReal ;
-      val orb = _prim "Simd256_Real64_orb": simdReal * simdReal -> simdReal ;
-      val xorb = _prim "Simd256_Real64_xorb": simdReal * simdReal -> simdReal ;
       val andnb = _prim "Simd256_Real64_andnotb": simdReal * simdReal -> simdReal ;
+      val cmp = _prim "Simd256_Real64_cmp": simdReal * simdReal * Word8.word -> simdReal ;
+      val div = _prim "Simd256_Real64_div": simdReal * simdReal -> simdReal ;
+      val fromArray = _prim "Simd256_Real64_load": elt array -> simdReal ;
+      val fromScalar = _prim "Simd256_Real64_loads": elt -> simdReal ;
       val hadd = _prim "Simd256_Real64_hadd": simdReal * simdReal -> simdReal ;
       val hsub = _prim "Simd256_Real64_hsub": simdReal * simdReal -> simdReal ;
-      val addsub = _prim "Simd256_Real64_addsub": simdReal * simdReal -> simdReal ;
+      val max = _prim "Simd256_Real64_max": simdReal * simdReal -> simdReal ;
+      val min = _prim "Simd256_Real64_min": simdReal * simdReal -> simdReal ;
+      val mul = _prim "Simd256_Real64_mul": simdReal * simdReal -> simdReal ;
+      val orb = _prim "Simd256_Real64_orb": simdReal * simdReal -> simdReal ;
+      val shuffle = _prim "Simd256_Real64_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd256_Real64_sqrt": simdReal -> simdReal ;
-(*      val fromArray = _prim "Simd256_Real64_fromArray": elt array -> simdReal ;
-      val toArray = _prim "Simd256_Real64_toArray": simdReal -> elt array ;*)
-      val fromScalar = _prim "Simd256_Real64_loads": elt -> simdReal ;
+      val sub = _prim "Simd256_Real64_sub": simdReal * simdReal -> simdReal ;
+      val toArray = _prim "Simd256_Real64_store": elt array * simdReal -> unit;
       val toScalar = _prim "Simd256_Real64_stores": simdReal -> elt ;
+      val xorb = _prim "Simd256_Real64_xorb": simdReal * simdReal -> simdReal ;
   end
 
 (*(defun make_simd_struct (x n m)

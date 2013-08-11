@@ -160,16 +160,6 @@ both(mul)
 both(div)
 both(min)
 both(max)
-define shuffleReal(id,size)                             \
-MLTON_COGEGEN_STATIC_INLINE                             \
-  Simd128_Real##size##_t                                \
-  Simd128_Real##size##_##opcode                         \
-  (Simd128_Real##size##_t s1,Simd128_Real##size##_t s2, \
-   Word8_t imm){                                        \
-    return _mm_shuffle_##id (s1,s2,imm);                \
-  }
-shuffleReal(ps,32)
-shuffleReal(ps,64)
 #define logicalSimdReal(opcode,id,size) \
   MLTON_CODEGEN_STATIC_INLINE \
   Simd128_Real##size##_t    /*return type*/ \
@@ -177,6 +167,7 @@ shuffleReal(ps,64)
   (Simd128_Real##size##_t s1, Simd128_Real##size##_t s2){ \
     return _mm##opcode##_##id (s1,s2); \
   }
+#include "simd-shuffle.h"
 #define bothl(opcode)                           \
   logicalSimdReal(opcode,ps,32)               \
   logicalSimdReal(opcode,pd,64)

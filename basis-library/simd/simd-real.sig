@@ -14,7 +14,7 @@ sig
   type elt (* element type*)
 (*load/store*)
   val fromArray:elt array -> t
-  val toArray:elt array * t -> unit
+  val toArray:elt array * t-> unit
 (*  val fromArrayOffset:elt array*Int32.int -> t*)
 (*  val fromArraySlice:elt slice -> t (*non primtive*)
   val set:elt list -> t(*aka from list*) (*non primtive*)
@@ -58,8 +58,8 @@ sig
   val vcvt2i:t->WordX.t*)
 (*SSE has 8 float comparisons, AVX has 32 so we implement comparisons using
 ( *a datatype of possible comparisions*)
-(*  datatype cmp(*type of comparison predicates, its just an integer*)
-  val cmp: t*t*cmp->t*)
+
+  val cmp: t*t*Word8.word->t
 (*return true if any of the comparisons return true, uses maskmove
    fun cmpBool(s1,s2,cmp) =
       let
@@ -70,9 +70,9 @@ sig
 (*  val cmpBool: t*t*cmp -> bool
 (*return a list of booleans, one for each comparison*)
   val cmpBools: t*t*cmp -> bool list*)
-(*(*unpack/shuffle/blend,etc*)
-  val shuffle:t*t*word8.word->t
-  val blend:t*t*t->t
+(*unpack/shuffle/blend,etc*)
+  val shuffle:t*t*Word8.word->t
+(*  val blend:t*t*t->t
   val extract:t*word8.word -> e*)
   val toString: t -> string
   val toStringScalar: t -> string

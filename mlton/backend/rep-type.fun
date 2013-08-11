@@ -701,8 +701,8 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_fromScalar s => 
          done ([real (simdRealtoReal s)], SOME (simdReal s))
        | Simd_Real_toArray s => 
-         done ([simdReal s], 
-               SOME (seq (WordSize.fromBits(SimdRealSize.realBits s))))
+         done ([simdReal s,
+                seq (WordSize.fromBits(SimdRealSize.realBits s))],NONE)
        | Simd_Real_fromArray s => 
          done ([seq (WordSize.fromBits(SimdRealSize.realBits s))], 
                SOME (simdReal s))

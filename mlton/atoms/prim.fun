@@ -1789,8 +1789,9 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => (threeArgs(simdReal s,simdReal s,word8),simdReal s))
 (*Need to ask about these, not sure if I need a type arg or not*)
        | Simd_Real_toArray s =>
-         noTargs (fn () => (oneArg (simdReal s), 
-                            array (real (simdRealtoReal s))))
+         noTargs (fn () => 
+                     (twoArgs (simdReal s, 
+                               array (real (simdRealtoReal s))),unit))
        | Simd_Real_fromArray s =>
          noTargs (fn () => (oneArg (array (real (simdRealtoReal s))),
                             simdReal s))

@@ -79,7 +79,7 @@ WARNXCFLAGS += -Wredundant-decls
 WARNXCFLAGS += -Wnested-externs
 # WARNXCFLAGS += -Wunreachable-code
 
-XCFLAGS := -fno-common $(WARNXCFLAGS) $(MARCH)
+XCFLAGS := -fno-common -Wall $(MARCH)
 OPTXCFLAGS := -Wdisabled-optimization -O2 -fomit-frame-pointer
 DEBUGXCFLAGS := -DASSERT=1 -Wno-uninitialized -O0 -g
 PICXCFLAGS :=
@@ -332,7 +332,7 @@ basis/Real/Math.o:      basis/Real/Math-fns.h
 basis/Real/Real-pic.o:  basis/Real/Real-ops.h
 basis/Real/Real-gdb.o:  basis/Real/Real-ops.h
 basis/Real/Real.o:      basis/Real/Real-ops.h
-basis/Simd/Simd.o:      basis/Simd/Simd-opts.h
+basis/Simd/Simd.o:      basis/Simd/Simd-opts.h basis/Simd/simd-shuffle.h
 basis/Real/Real.c_XCFLAGS := -Wno-float-equal
 basis/Real/gdtoa-pic.o: $(GDTOAHFILES)
 basis/Real/gdtoa-gdb.o: $(GDTOAHFILES)
