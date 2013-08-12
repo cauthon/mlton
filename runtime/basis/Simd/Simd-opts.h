@@ -277,4 +277,14 @@ __m128i x = _mm_loadu_si128(arg1);                       \
 _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}*/
 //defines binary simd integer operations, same syntax as unary ones
 #undef binarySimdWord
-
+/*assume we get an array with 16 byte alignment and properly
+  aligned offset*/
+#define simdArrayOffset(size,opcode,suffix,type)                    \
+  MLTON_CODEGEN_STATIC_INLINE                                       \
+  Simd128_Real##size##_t                                            \
+  Simd128_Real##size##_fromArray (Array(Real##size##_t) r,Int32_t i){   \
+    return _mm_##opcode##_##suffix ((type*)(r + (i*size/8)));             \
+  }
+simdArrayOffset(32,load,ps,float)
+simdArrayOffset(64,load,pd,double)
+#undef simdArrayOffset

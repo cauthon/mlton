@@ -1,3 +1,9 @@
+(* Copyright (C) 2013 Tucker DiNapoli
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
 signature SIMD_WORD = sig
   val vec_size : Int32.int
   val word_size : Int32.int

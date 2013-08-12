@@ -1,0 +1,9 @@
+  $(SML_LIB)/basis/basis.mlb
+  $(SML_LIB)/basis/mlton.mlb
+local
+  ../lib/mlton/basic/sources.mlb
+in
+  structure List
+end
+  $(SML_LIB)/basis/simd/simd.mlb
+  test-move.sml

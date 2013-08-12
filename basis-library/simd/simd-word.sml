@@ -1,3 +1,9 @@
+(* Copyright (C) 2013 Tucker DiNapoli
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
 (*TODO*)
 structure Simd128_Word8 : SIMD_WORD =
 struct
