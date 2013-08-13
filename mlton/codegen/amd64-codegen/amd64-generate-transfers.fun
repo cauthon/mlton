@@ -87,18 +87,32 @@ struct
       val transferXmmRegs =
           XmmRegister.xmm1D::
           XmmRegister.xmm1S::
+          XmmRegister.xmm1X::
+          XmmRegister.ymm1::
           XmmRegister.xmm2D::
           XmmRegister.xmm2S::
+          XmmRegister.xmm2X::
+          XmmRegister.ymm2::
           XmmRegister.xmm3D::
           XmmRegister.xmm3S::
+          XmmRegister.xmm3X::
+          XmmRegister.ymm3::
           XmmRegister.xmm4D::
           XmmRegister.xmm4S::
+          XmmRegister.xmm4X::
+          XmmRegister.ymm4::
           XmmRegister.xmm5D::
           XmmRegister.xmm5S::
+          XmmRegister.xmm5X::
+          XmmRegister.ymm5::
           XmmRegister.xmm6D::
           XmmRegister.xmm6S::
+          XmmRegister.xmm6X::
+          XmmRegister.ymm6::
           XmmRegister.xmm7D::
           XmmRegister.xmm7S::
+          XmmRegister.xmm7X::
+          XmmRegister.ymm7::
           nil
      in
         {frontierReg = Register.r12,
@@ -107,7 +121,9 @@ struct
                          | Entry.CReturn _ => Register.rax::Register.eax::Register.al::transferRegs
                          | _ => [],
          transferXmmRegs = fn Entry.Jump _ => transferXmmRegs
-                             | Entry.CReturn _ => XmmRegister.xmm0D::XmmRegister.xmm0S::transferXmmRegs
+                             | Entry.CReturn _ => 
+                               XmmRegister.xmm0D::XmmRegister.xmm0S::
+                               XmmRegister.xmm0X::XmmRegister.ymm0::transferXmmRegs
                              | _ => []}
      end
 
@@ -154,22 +170,35 @@ struct
           Register.r15::
           Register.r15w::
           nil
-
       val transferXmmRegs =
-          XmmRegister.xmm8D::
           XmmRegister.xmm8S::
-          XmmRegister.xmm9D::
+          XmmRegister.xmm8D::
+          XmmRegister.xmm8X::
+          XmmRegister.ymm8::
           XmmRegister.xmm9S::
-          XmmRegister.xmm10D::
+          XmmRegister.xmm9D::
+          XmmRegister.xmm9X::
+          XmmRegister.ymm9::
           XmmRegister.xmm10S::
-          XmmRegister.xmm11D::
+          XmmRegister.xmm10D::
+          XmmRegister.xmm10X::
+          XmmRegister.ymm10::
           XmmRegister.xmm11S::
-          XmmRegister.xmm12D::
+          XmmRegister.xmm11D::
+          XmmRegister.xmm11X::
+          XmmRegister.ymm11::
           XmmRegister.xmm12S::
-          XmmRegister.xmm13D::
+          XmmRegister.xmm12D::
+          XmmRegister.xmm12X::
+          XmmRegister.ymm12::
           XmmRegister.xmm13S::
-          XmmRegister.xmm14D::
+          XmmRegister.xmm13D::
+          XmmRegister.xmm13X::
+          XmmRegister.ymm13::
           XmmRegister.xmm14S::
+          XmmRegister.xmm14D::
+          XmmRegister.xmm14X::
+          XmmRegister.ymm14::
           nil
      in
         {frontierReg = Register.r12,
@@ -178,7 +207,9 @@ struct
                          | Entry.CReturn _ => Register.rax::Register.eax::Register.al::transferRegs
                          | _ => [],
          transferXmmRegs = fn Entry.Jump _ => transferXmmRegs
-                             | Entry.CReturn _ => XmmRegister.xmm0D::XmmRegister.xmm0S::transferXmmRegs
+                             | Entry.CReturn _ => 
+                               XmmRegister.xmm0D::XmmRegister.xmm0S::
+                               XmmRegister.xmm0X::XmmRegister.ymm0::transferXmmRegs
                              | _ => []}
      end
 
@@ -1171,6 +1202,7 @@ struct
                        = livenessTransfer {transfer = transfer,
                                            liveInfo = liveInfo}
                      val c_stackP = amd64MLton.c_stackPContentsOperand
+(*TUCKER: probably need to add here*)
                      val c_stackPDerefWord = amd64MLton.c_stackPDerefWordOperand
                      val c_stackPDerefFloat = amd64MLton.c_stackPDerefFloatOperand
                      val c_stackPDerefDouble = amd64MLton.c_stackPDerefDoubleOperand
@@ -1198,6 +1230,7 @@ struct
                                     MLton.Platform.OS.Cygwin => true
                                   | MLton.Platform.OS.MinGW => true
                                   | _ => false
+(*TUCKER: Really need to add to here*)
                      val (setup_args,
                           (reg_args, xmmreg_args),
                           size_stack_args, _)

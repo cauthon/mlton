@@ -1787,11 +1787,9 @@ fun 'a checkApp (prim: 'a t,
    * compare multiple objects*)
        | Simd_Real_cmp s =>
          noTargs (fn () => (threeArgs(simdReal s,simdReal s,word8),simdReal s))
-(*Need to ask about these, not sure if I need a type arg or not*)
        | Simd_Real_toArray s =>
          noTargs (fn () => 
-                     (twoArgs (simdReal s, 
-                               array (real (simdRealtoReal s))),unit))
+                     (twoArgs (array (real (simdRealtoReal s)),simdReal s), unit))
        | Simd_Real_fromArray s =>
          noTargs (fn () => (oneArg (array (real (simdRealtoReal s))),
                             simdReal s))

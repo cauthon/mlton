@@ -197,7 +197,7 @@ struct
                   scale = Scale.Eight,
                   size = wordSize,
                   class = Classes.CArg}
-
+(*TUCKER: Probably need to add to here*)
   val applyFFTempXmmRegArgS = Label.fromString "applyFFTempXmmRegArgS"
   fun applyFFTempXmmRegArgSContents i
     = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgS,

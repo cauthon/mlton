@@ -34,7 +34,7 @@ fun simdFold (x:e,a:e array,f:(t*t->t)):e =
 (*the main loop, fold the array using simd instructions *)
       fun loop(s,i) =
           if i >= len then fin s else
-          loop(f(t,Simd.fromArray(a[i])),op+(i,size))
+          loop(f(t,Simd.fromArrayOffset(a,i)),op+(i,size))
     in Simd.toScalar(f(loop(t,size),Simd.fromScalar(init(x,overflow)))) end
 val simdSum = fn (x,a) => simdFold(x,a,Simd.add)
 val simdProd = fn (x,a) => simdFold(x,a,Simd.mul)
@@ -58,11 +58,12 @@ fun simdApp (a:e array,f:(t->t)) =
           else (*this is going to look really weird untill I figure out 
                 *sml pointer stuff*)
             let
-              val _ = a[n]:=Simd.toArray(f(Simd.fromArray(a[n])))
+              val _ = Simd.toArrayOffset
+                        (a,f(Simd.fromArrayOffset(a,n)),n)
             in loop(n+size) end
       val _ = loop(0)
-    in a end
-fun simdSearch (a:e array,x: e,c:cmp) =
+    in () end
+(*fun simdSearch (a:e array,x: e,c:cmp) =
     let 
       val search = set1(x)(*load a simd vector of repeated x's*)
       val len = Array.length a
@@ -104,5 +105,5 @@ fun simdSearch (a:e array,x: e,c:cmp) =
                then atEnd(simd.maskMove(Simd.fromArray(a[i]),search,cmp),i,0)
           else loop(i+n)
    in loop 0 end
-fun simdFind (a:e array,x:e) = simdSearch(a,x,cmpeq)
+fun simdFind (a:e array,x:e) = simdSearch(a,x,cmpeq)*)
 end

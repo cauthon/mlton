@@ -58,7 +58,7 @@ sig
   val vcvt2i:t->WordX.t*)
 (*SSE has 8 float comparisons, AVX has 32 so we implement comparisons using
 ( *a datatype of possible comparisions*)
-
+(*  datatype cmp = eq | lt | gt | le | ge | ne | nlt | ngt | nle | ord | unord*)
   val cmp: t*t*Word8.word->t
 (*return true if any of the comparisons return true, uses maskmove
    fun cmpBool(s1,s2,cmp) =

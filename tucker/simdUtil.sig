@@ -21,10 +21,10 @@ sig
   val simdMin:e*e array->e
 (*apply function (t*t->t) to all elements of seq,e*e->e necessary for the
  *same reason*)
-  val simdApp:e array*(t->t)->array(*or -> ()*)
+  val simdApp:e array*(t->t)-> unit
 (*search for element e in array using comparison function (t*t->t)*)
-  val simdSearch:e array*e*SimdReal.cmp->int
-  val simdFind:e array*e->int
+(*  val simdSearch:e array*e*SimdReal.cmp->int
+  val simdFind:e array*e->int*)
 end
          
   

@@ -91,7 +91,13 @@ _import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
 
 
 
-  
+* google hangout <2013-08-13 Tue>
+ -add to amd64-generate-trasfers and amd64-entry*
+ to allow native codgen with c functions
+ also return false for isPrimApp in amd64-mlton.fun
+
+ -Timer structure in basis should be fine for timing
+
 * Low level details
 ** Immediate opperands
 *** Compairson

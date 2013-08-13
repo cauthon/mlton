@@ -1,7 +1,7 @@
 (* Written by Stephen Weeks (sweeks@sweeks.com). *)
 local
 open Array
-structure Simd = Simd128Word64
+structure S = Simd128Word64
 type real = Real64.real
 (*might need to use array slices, ask matthew about array access*)
 fun dot (a:real array,b:real array,n:int,b_step:int) = 
@@ -17,14 +17,14 @@ fun dot (a:real array,b:real array,n:int,b_step:int) =
         val result = ref 0.0 
     in (while ((!i)<n) do
               (let 
-                val s1 = Simd.mul
-                           (Simd.fromArraySlice(ArraySlice.slice(a,(!i),2)),
+                val s1 = S.mul
+                           (S.fromArrayOffset(a,2)),
                             Simd.set(sub(b,(b_step*(!i))),sub(b,(b_step*(!i)))))
               in
                 (result:=(!result)+
-                         (Simd.toScalar
-                            (Simd.add
-                               (Simd.shuffle(s1,s1,0w2(*imm8=00000010*)))));
+                         (S.toScalar
+                            (S.add
+                               (S.shuffle(s1,s1,0w2(*imm8=00000010*)))));
                  i:=(!i)+2) end)
               ;(!result))
     end

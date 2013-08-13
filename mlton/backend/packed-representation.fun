@@ -846,7 +846,7 @@ structure ObjptrRep =
                                    else Bytes.alignWord128*)
                                 width
                               | Control.Align32 => 
-                                Bytes.alignWord256 width
+                                width
                        in
                           Bytes.- (alignWidth, width)
                        end

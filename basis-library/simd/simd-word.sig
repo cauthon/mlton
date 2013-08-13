@@ -37,11 +37,11 @@ signature SIMD_WORD = sig
   val abs:t->t
 (*bitwise*)
   val andb:t*t->t
-  val norb:t*t->t
+  (*val norb:t*t->t*)
   val orb: t*t->t
   val xorb:t*t->t
   val andnb:t*t->t
-  val notb:t->t(*vandn 0xff..ff*t->t*)
+  (*val notb:t->t(*vandn 0xff..ff*t->t*)*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val sar:t*t->t
   val slr:t*t->t
@@ -93,11 +93,11 @@ signature SIMD_WORD8 = sig
   val abs:t->t
 (*bitwise*)
   val andb:t*t->t
-  val norb:t*t->t
+  (*val norb:t*t->t*)
   val orb: t*t->t
   val xorb:t*t->t
   val andnb:t*t->t
-  val notb:t->t(*vandn 0xff..ff*t->t*)
+  (*val notb:t->t(*vandn 0xff..ff*t->t*)*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
 (*  val sar:t*t->t
   val slr:t*t->t
@@ -151,11 +151,11 @@ signature SIMD_WORD16 = sig
   val abs:t->t
 (*bitwise*)
   val andb:t*t->t
-  val norb:t*t->t
+  (*val norb:t*t->t*)
   val orb: t*t->t
   val xorb:t*t->t
   val andnb:t*t->t
-  val notb:t->t(*vandn 0xff..ff*t->t*)
+  (*val notb:t->t(*vandn 0xff..ff*t->t*)*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val sar:t*t->t
   val slr:t*t->t
@@ -200,11 +200,11 @@ signature SIMD_WORD32 = sig
   val abs:t->t
 (*bitwise*)
   val andb:t*t->t
-  val norb:t*t->t
+  (*val norb:t*t->t*)
   val orb: t*t->t
   val xorb:t*t->t
   val andnb:t*t->t
-  val notb:t->t(*vandn 0xff..ff*t->t*)
+  (*val notb:t->t(*vandn 0xff..ff*t->t*)*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val sar:t*t->t (* w d *)     
   val slr:t*t->t (* w d q dq *)
@@ -238,11 +238,11 @@ signature SIMD_WORD64 = sig
   val abs:t->t
 (*bitwise*)
   val andb:t*t->t
-  val norb:t*t->t
+  (*val norb:t*t->t*)
   val orb: t*t->t
   val xorb:t*t->t
   val andnb:t*t->t
-  val notb:t->t(*vandn 0xff..ff*t->t*)
+  (*val notb:t->t(*vandn 0xff..ff*t->t*)*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val slr:t*t->t
   val sll:t*t->t

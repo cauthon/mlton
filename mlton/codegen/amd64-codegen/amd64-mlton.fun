@@ -22,12 +22,12 @@ struct
      structure RealSize = RealSize
      structure Prim = Prim
      structure SimdRealSize = SimdRealSize
-     (* structure SimdWordSize = SimdWordSize *)
+     structure SimdWordSize = SimdWordSize
      structure WordSize = WordSize
      datatype z = datatype RealSize.t
      datatype z = datatype WordSize.prim
      datatype z = datatype SimdRealSize.t
-(*   datatype z = datatype SimdWordSize.t*)
+     datatype z = datatype SimdWordSize.t
   end
 
   type transInfo = {addData : amd64.Assembly.t list -> unit,
@@ -41,7 +41,7 @@ struct
         datatype z = datatype RealSize.t
         datatype z = datatype WordSize.prim
         datatype z = datatype SimdRealSize.t
-        (* datatype z = datatype SimdWordSize.t *)
+        datatype z = datatype SimdWordSize.t
         fun w32168 s =
            case WordSize.prim s of
               W8 => true
@@ -87,7 +87,7 @@ struct
          | Real_rndToWord (_, s2, {signed}) => signed orelse w32168 s2
          | Real_round _ => false
          | Real_sub _ => true
-         | Simd_Real_add  _ => true
+(*         | Simd_Real_add  _ => true
          | Simd_Real_addsub _ => true
          | Simd_Real_and  _ => true
          | Simd_Real_andn  _ => true
@@ -109,7 +109,7 @@ struct
 (*         | Simd_Real_fromArray _ => true
          | Simd_Real_toArray _ => true*)
          | Simd_Real_fromScalar _ => true
-         | Simd_Real_toScalar _ => true
+         | Simd_Real_toScalar _ => true*)
          | Thread_returnToC => false
          | Word_add _ => true
          | Word_addCheck _ => true
@@ -1389,7 +1389,7 @@ struct
                       | _ => Error.bug "amd64MLton.prim: Real_rndToWord, W64, false"
                   end
              | Real_sub _ => sse_binas Instruction.SSE_SUBS
-             | Simd_Real_add s => 
+(*             | Simd_Real_add s => 
                (case s of 
                    V128R32 => 
                    sse_binap (Instruction.SSE_ADDPS,Instruction.SSE_MOVUPS)
@@ -1519,7 +1519,7 @@ struct
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
                  | V128R64 => sse_movfp Instruction.SSE_MOVSD
-                 | _ => Error.bug "amd64-mlton, avx unimplemented")
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")*)
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

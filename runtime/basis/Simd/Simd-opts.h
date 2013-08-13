@@ -8,18 +8,18 @@
   }
 fromArray(32,ps,loadu,float)
 fromArray(64,pd,loadu,double)*/
-#define SimdLoadReal(opcode,size,suffix,type)                   \
-  MLTON_CODEGEN_STATIC_INLINE                                   \
-  Simd128_Real##size##_t                                        \
-  Simd128_Real##size##_##opcode (Array(Real##size##_t) r){      \
-    return _mm_##opcode##_##suffix ((type*)r);                  \
+#define SimdLoadReal(opcode,size,suffix,type,vsize,avx)                 \
+  MLTON_CODEGEN_STATIC_INLINE                                           \
+  Simd##vsize##_Real##size##_t                                          \
+  Simd##vsize##_Real##size##_##opcode (Array(Real##size##_t) r){        \
+    return _mm##avx##_##opcode##_##suffix ((type*)r);                          \
   }
-SimdLoadReal(loadu,32,ps,float)
-SimdLoadReal(loadu,64,pd,double)
-SimdLoadReal(load,32,ps,float)
-SimdLoadReal(load,64,pd,double)
-SimdLoadReal(loadr,32,ps,float)
-SimdLoadReal(loadr,64,pd,double)
+SimdLoadReal(loadu,32,ps,float,128,)
+SimdLoadReal(loadu,64,pd,double,128,)
+SimdLoadReal(load,32,ps,float,128,)
+SimdLoadReal(load,64,pd,double,128,)
+SimdLoadReal(loadr,32,ps,float,128,)
+SimdLoadReal(loadr,64,pd,double,128,) 
 #define SimdLoad1Real(opcode,size,suffix)                       \
   MLTON_CODEGEN_STATIC_INLINE                                        \
   Simd128_Real##size##_t                                             \
@@ -29,18 +29,18 @@ SimdLoadReal(loadr,64,pd,double)
 SimdLoad1Real(load1,32,ps)
 SimdLoad1Real(load1,64,pd)
 
-#define SimdStoreReal(opcode,size,suffix,type)          \
+#define SimdStoreReal(opcode,size,suffix,type,vsize,avx)   \
   MLTON_CODEGEN_STATIC_INLINE                           \
-  void Simd128_Real##size##_##opcode                    \
-  (Array(Real##size##_t) r,Simd128_Real##size##_t s){   \
-    return _mm_##opcode##_##suffix ((type*)r,s);        \
+  void Simd##vsize##_Real##size##_##opcode                    \
+  (Array(Real##size##_t) r,Simd##vsize##_Real##size##_t s){   \
+    return _mm##avx##_##opcode##_##suffix ((type*)r,s);        \
   }
-SimdStoreReal(store,32,ps,float)
-SimdStoreReal(store,64,pd,double)
-SimdStoreReal(storeu,32,ps,float)
-SimdStoreReal(storeu,64,pd,double)
-SimdStoreReal(storer,32,ps,float)
-SimdStoreReal(storer,64,pd,double)
+SimdStoreReal(store,32,ps,float,128,)
+SimdStoreReal(store,64,pd,double,128,)
+SimdStoreReal(storeu,32,ps,float,128,)
+SimdStoreReal(storeu,64,pd,double,128,)
+SimdStoreReal(storer,32,ps,float,128,)
+SimdStoreReal(storer,64,pd,double,128,)
 #define SimdLoadScalar(size,suffix,type)                   \
   MLTON_CODEGEN_STATIC_INLINE                                     \
   Simd128_Real##size##_t Simd128_Real##size##_loads               \
@@ -70,10 +70,10 @@ Simd128_Real32_t Simd128_Real32_##opcode                \
 }
 //unhygenic macro, its not good, but it works
 #define asm_cmppd(i)                              \
-  asm("cmppd %2,%1,%0" : "=x" (x) : "x" (y), "i" (i));  \
+  asm("cmppd %2,%1,%0" : "=x" (x) : "x" (y), "i" (i),"0" (x));  \
   return x
 #define asm_cmpps(i)                              \
-  asm("cmpps %2,%1,%0" : "=x" (x) : "x" (y), "i" (i));  \
+  asm("cmpps %2,%1,%0" : "=x" (x) : "x" (y), "i" (i),"0" (x));  \
   return x
 MLTON_CODEGEN_STATIC_INLINE
 Simd128_Real64_t Simd128_Real64_cmp 
@@ -130,47 +130,47 @@ SimdSetReal1(64,set1,pd)
  *unaryReal(sqrt,double*,double*,__m128d,pd) and this
  *unaryReal(sqrt,float*,float*,__m128,ps)  */
   /*  void Simd128_Real##size##_##opcode (argv arg1,retype retval);     */
-#define unarySimdReal(opcode,id,size)                           \
+#define unarySimdReal(opcode,id,size,vsize,avx)                    \
   MLTON_CODEGEN_STATIC_INLINE                                   \
-  Simd128_Real##size##_t                                        \
-  Simd128_Real##size##_##opcode (Simd128_Real##size##_t s){     \
-    return _mm_##opcode##_##id (s);}                                    
-unarySimdReal (sqrt,ps,32)
-unarySimdReal (sqrt,pd,64)
+  Simd##vsize##_Real##size##_t                                          \
+  Simd##vsize##_Real##size##_##opcode (Simd##vsize##_Real##size##_t s){ \
+    return _mm##avx##_##opcode##_##id (s);}                                    
+unarySimdReal (sqrt,ps,32,128,)
+unarySimdReal (sqrt,pd,64,128,)
 /*argv,retype,type,
  *macro to define binary simd real functions, called like
  *binaryReal(add,float*,float*,__m128,ps)(defines a function
  *mlton_add_ps which takes 2 float*s as arguements and another float*
  *which defines a memory location for the result*/
-#define binarySimdReal(opcode,id,size)                          \
+#define binarySimdReal(opcode,id,size,vsize,avx)                   \
   MLTON_CODEGEN_STATIC_INLINE                                   \
-  Simd128_Real##size##_t    /*return type*/                     \
-  Simd128_Real##size##_##opcode  /*function name*/              \
-  (Simd128_Real##size##_t s1, Simd128_Real##size##_t s2){       \
-    return _mm_##opcode##_##id (s1,s2);                         \
+  Simd##vsize##_Real##size##_t    /*return type*/                     \
+  Simd##vsize##_Real##size##_##opcode  /*function name*/              \
+  (Simd##vsize##_Real##size##_t s1, Simd##vsize##_Real##size##_t s2){       \
+    return _mm##avx##_##opcode##_##id (s1,s2);                         \
   }
 /*there are some functions that have different retvals, but we'll
  *ignore them for right now*/
 #define both(opcode)                            \
-  binarySimdReal(opcode,ps,32)                    \
-  binarySimdReal(opcode,pd,64)
+  binarySimdReal(opcode,ps,32,128,)             \
+  binarySimdReal(opcode,pd,64,128,)
 both(add)
 both(sub)
 both(mul)
 both(div)
 both(min)
 both(max)
-#define logicalSimdReal(opcode,id,size) \
+#define logicalSimdReal(opcode,id,size,vsize,avx)  \
   MLTON_CODEGEN_STATIC_INLINE \
-  Simd128_Real##size##_t    /*return type*/ \
-  Simd128_Real##size##opcode##b  /*function name*/ \
-  (Simd128_Real##size##_t s1, Simd128_Real##size##_t s2){ \
-    return _mm##opcode##_##id (s1,s2); \
+  Simd##vsize##_Real##size##_t    /*return type*/ \
+  Simd##vsize##_Real##size##opcode##b  /*function name*/ \
+  (Simd##vsize##_Real##size##_t s1, Simd##vsize##_Real##size##_t s2){ \
+    return _mm##avx##opcode##_##id (s1,s2); \
   }
 #include "simd-shuffle.h"
 #define bothl(opcode)                           \
-  logicalSimdReal(opcode,ps,32)               \
-  logicalSimdReal(opcode,pd,64)
+  logicalSimdReal(opcode,ps,32,128,)            \
+  logicalSimdReal(opcode,pd,64,128,)
 bothl(_and)
 bothl(_or)
 bothl(_xor)
@@ -182,16 +182,58 @@ both(addsub)
 #endif
 #undef both
 #undef bothl
+#ifdef __AVX__
+#define both(opcode)                            \
+  binarySimdReal(opcode,ps,32,256,256)             \
+  binarySimdReal(opcode,pd,64,256,256)
+both(add)
+both(sub)
+both(mul)
+both(div)
+both(min)
+both(max)
+both(hadd)
+both(hsub)
+both(addsub)
+#define bothl(opcode)                           \
+  logicalSimdReal(opcode,ps,32,256,256)            \
+  logicalSimdReal(opcode,pd,64,256,256)
+bothl(_and)
+bothl(_or)
+bothl(_xor)
+bothl(_andnot)
+SimdStoreReal(store,32,ps,float,256,256)
+SimdStoreReal(store,64,pd,double,256,256)
+SimdStoreReal(storeu,32,ps,float,256,256)
+SimdStoreReal(storeu,64,pd,double,256,256)
+SimdStoreReal(storer,32,ps,float,256,256)
+SimdStoreReal(storer,64,pd,double,256,256)
+SimdLoadReal(loadu,32,ps,float,256,256)
+SimdLoadReal(loadu,64,pd,double,256,256)
+SimdLoadReal(load,32,ps,float,256,256)
+SimdLoadReal(load,64,pd,double,256,256)
+//SimdLoadReal(loadr,32,ps,float,256,256)
+//SimdLoadReal(loadr,64,pd,double,256,256)
+MLTON_CODEGEN_STATIC_INLINE
+Real32_t Simd256_Real32_stores (Simd256_Real32_t x){
+  float temp;
+  asm ("vmovss %0,%1,%0" : "=x" (temp) : "x" (x));
+  return temp;
+}
+MLTON_CODEGEN_STATIC_INLINE
+Real64_t Simd256_Real64_stores (Simd256_Real64_t x){
+  double temp;
+  asm ("vmovsd %0,%1,%0" : "=x" (temp) : "x" (x));
+  return temp;
+}
+#undef both
+#undef bothl
+#endif
 #undef unarySimdReal
 #undef binarySimdReal
 #undef logicalSimdReal
 #undef shuffleReal
-#ifdef __AVX__
-/*avx macros, just redefine above to take a simdSize parameter and 
- call them with it set to 128 above and 256 for avx*/
-#endif
-#ifdef __AVX2__
-#endif
+
 #define binarySimdWord(id,opcode,size,sign)                             \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   Simd128_Word##size##_t    /*return type*/                             \
@@ -263,19 +305,14 @@ _mm_set1_epi64 (__m64 __A)
 _mm_set1_epi32 (int __A)
 _mm_set1_epi16 (short __A)
 _mm_set1_epi8 (char __A)*/
-/*Defines unary simd integer operations
- *just one arguement of the for <base_opcode>_<suffix>
- *where suffix is of the form ep or s (ep=packed,i=scalar) +
- * i or u (signed or unsigned) + size (8,16,32,64)
- *defines a function mlton_opcode*/
-
 /*#define SimdWordImm(opcode,sign,size)                               \
 MLTON_CODEGEN_STATIC_INLINE                                           \
   void Simd128_Word_##opcode##_##sign##size                            \
   (__m128i* arg1,__m128i* retval,unsigned char imm){                      \
 __m128i x = _mm_loadu_si128(arg1);                       \
 _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}*/
-//defines binary simd integer operations, same syntax as unary ones
+#ifdef __AVX2__
+#endif
 #undef binarySimdWord
 /*assume we get an array with 16 byte alignment and properly
   aligned offset*/
@@ -287,4 +324,12 @@ _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}*/
   }
 simdArrayOffset(32,load,ps,float)
 simdArrayOffset(64,load,pd,double)
+#define simdArrayStore(size,opcode,suffix,type) \
+  MLTON_CODEGEN_STATIC_INLINE                                       \
+  void Simd128_Real##size##_toArray\
+  (Array(Real##size##_t) r,Simd128_Real##size##_t s,Int32_t i){           \
+    return _mm_##opcode##_##suffix ((type*)(r + (i*size/8)),s);          \
+  }
+simdArrayStore(32,store,ps,float)
+simdArrayStore(64,store,pd,double)
 #undef simdArrayOffset
