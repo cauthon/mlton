@@ -3,7 +3,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-(*signature SIMD_REAL_COMMON =
+signature SIMD_REAL_COMMON =
 sig
   type simdReal
   type elt
@@ -11,6 +11,7 @@ sig
   val fromArray:elt array -> simdReal
   val toArray:elt array * simdReal -> unit
   val fromArrayUnsafe:elt array * Int32.int -> simdReal
+  val toArrayUnsafe:elt array * simdReal * Int32.int -> unit
   val eltToString:elt -> string
 end
 signature SIMD_REAL_STRUCTS =
@@ -21,8 +22,8 @@ sig
   structure Common:SIMD_REAL_COMMON
   sharing type S.elt = elt
   sharing type S.simdReal = simdReal
-end*)
-(*functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
+end
+functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
   struct
   local
     type real = S.elt
@@ -40,6 +41,12 @@ end*)
             raise Subscript
           else
             fromArrayUnsafe (a,i)
+      fun toArrayOffset (a,ni) = 
+          if (Array.length a <= i + elements) 
+             orelse (i < 0) then
+            raise Subscript
+          else
+            toArrayUnsafe (a,s,i)
       val eltToString = eltToString
     end
     fun toString s = let
@@ -57,9 +64,11 @@ end*)
     fun cmp (s1:simdReal,s2:simdReal,c:cmp) = let
       val imm = case c of
                     eq => 0w0
-                        | lt  | gt | le | ge | ne | nlt | ngt | nle | ord | unord
+                        | lt => 0w1  | gt => 0w6 | le => 0w2 | ge => 0w5 | ne => 0w4| nlt => 0w5 | ngt => 0w2 | nle => 0w6 | ord => 0w7| unord  => 0w3
+      in S.Simd.cmp(s1,s2,imm)
+    end
   end
-end*)
+end
 
 structure Simd128_Real32 : SIMD_REAL =
 struct
@@ -130,7 +139,7 @@ end
         val temp = toScalar s
       in (Real64.toString temp) end
 end
-end
+endn
 
 structure Simd256_Real32 : SIMD_REAL =
 struct

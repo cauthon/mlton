@@ -333,3 +333,4 @@ simdArrayOffset(64,load,pd,double)
 simdArrayStore(32,store,ps,float)
 simdArrayStore(64,store,pd,double)
 #undef simdArrayOffset
+#undef simdArrayStore
