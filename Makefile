@@ -54,7 +54,7 @@ endif
 
 .PHONY: all
 all:
-	$(MAKE) docs all-no-docs
+	$(MAKE) all-no-docs
 
 .PHONY: all-no-docs
 all-no-docs:

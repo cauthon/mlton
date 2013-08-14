@@ -117,4 +117,4 @@ signature UNSAFE = UNSAFE
 
 (*Simd Signatures*)
 signature SIMD_REAL = SIMD_REAL
-(*signature SIMD_WORD = SIMD_WORD*)
+signature SIMD_WORD = SIMD_WORD

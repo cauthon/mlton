@@ -1052,6 +1052,7 @@ val storer = _import "Simd128_Real32_storer" private : (Real32.t) array * Simd12
 val stores = _import "Simd128_Real32_stores" private : Simd128_Real32.t -> Real32.t;
 val storeu = _import "Simd128_Real32_storeu" private : (Real32.t) array * Simd128_Real32.t -> unit;
 val sub = _import "Simd128_Real32_sub" private : Simd128_Real32.t * Simd128_Real32.t -> Simd128_Real32.t;
+val toArray = _import "Simd128_Real32_toArray" private : (Real32.t) array * Simd128_Real32.t * Int32.t -> unit;
 val xorb = _import "Simd128_Real32_xorb" private : Simd128_Real32.t * Simd128_Real32.t -> Simd128_Real32.t;
 end
 structure Simd128_Real64 = 
@@ -1085,7 +1086,88 @@ val storer = _import "Simd128_Real64_storer" private : (Real64.t) array * Simd12
 val stores = _import "Simd128_Real64_stores" private : Simd128_Real64.t -> Real64.t;
 val storeu = _import "Simd128_Real64_storeu" private : (Real64.t) array * Simd128_Real64.t -> unit;
 val sub = _import "Simd128_Real64_sub" private : Simd128_Real64.t * Simd128_Real64.t -> Simd128_Real64.t;
+val toArray = _import "Simd128_Real64_toArray" private : (Real64.t) array * Simd128_Real64.t * Int32.t -> unit;
 val xorb = _import "Simd128_Real64_xorb" private : Simd128_Real64.t * Simd128_Real64.t -> Simd128_Real64.t;
+end
+structure Simd128_Word16 = 
+struct
+type t = Simd128_Word16.t
+val add = _import "Simd128_Word16_add" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val addss = _import "Simd128_Word16_addss" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val addsu = _import "Simd128_Word16_addsu" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val avg = _import "Simd128_Word16_avg" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val cmpeq = _import "Simd128_Word16_cmpeq" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val cmpgt = _import "Simd128_Word16_cmpgt" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val fromArray = _import "Simd128_Word16_fromArray" private : (Word16.t) array * Int32.t -> Simd128_Word16.t;
+val load = _import "Simd128_Word16_load" private : (Word16.t) array -> Simd128_Word16.t;
+val loadu = _import "Simd128_Word16_loadu" private : (Word16.t) array -> Simd128_Word16.t;
+val mulhis = _import "Simd128_Word16_mulhis" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val mulhiu = _import "Simd128_Word16_mulhiu" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val mullos = _import "Simd128_Word16_mullos" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val sll = _import "Simd128_Word16_sll" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val sra = _import "Simd128_Word16_sra" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val srl = _import "Simd128_Word16_srl" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val store = _import "Simd128_Word16_store" private : (Word16.t) array * Simd128_Word16.t -> unit;
+val storeu = _import "Simd128_Word16_storeu" private : (Word16.t) array * Simd128_Word16.t -> unit;
+val stream = _import "Simd128_Word16_stream" private : (Word16.t) array * Simd128_Word16.t -> unit;
+val sub = _import "Simd128_Word16_sub" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val subss = _import "Simd128_Word16_subss" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val subsu = _import "Simd128_Word16_subsu" private : Simd128_Word16.t * Simd128_Word16.t -> Simd128_Word16.t;
+val toArray = _import "Simd128_Word16_toArray" private : (Word16.t) array * Simd128_Word16.t * Int32.t -> unit;
+end
+structure Simd128_Word32 = 
+struct
+type t = Simd128_Word32.t
+val add = _import "Simd128_Word32_add" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val cmpeq = _import "Simd128_Word32_cmpeq" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val cmpgt = _import "Simd128_Word32_cmpgt" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val fromArray = _import "Simd128_Word32_fromArray" private : (Word32.t) array * Int32.t -> Simd128_Word32.t;
+val load = _import "Simd128_Word32_load" private : (Word32.t) array -> Simd128_Word32.t;
+val loadu = _import "Simd128_Word32_loadu" private : (Word32.t) array -> Simd128_Word32.t;
+val mul32 = _import "Simd128_Word32_mul32" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val sll = _import "Simd128_Word32_sll" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val sra = _import "Simd128_Word32_sra" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val srl = _import "Simd128_Word32_srl" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val store = _import "Simd128_Word32_store" private : (Word32.t) array * Simd128_Word32.t -> unit;
+val storeu = _import "Simd128_Word32_storeu" private : (Word32.t) array * Simd128_Word32.t -> unit;
+val stream = _import "Simd128_Word32_stream" private : (Word32.t) array * Simd128_Word32.t -> unit;
+val sub = _import "Simd128_Word32_sub" private : Simd128_Word32.t * Simd128_Word32.t -> Simd128_Word32.t;
+val toArray = _import "Simd128_Word32_toArray" private : (Word32.t) array * Simd128_Word32.t * Int32.t -> unit;
+end
+structure Simd128_Word64 = 
+struct
+type t = Simd128_Word64.t
+val add = _import "Simd128_Word64_add" private : Simd128_Word64.t * Simd128_Word64.t -> Simd128_Word64.t;
+val fromArray = _import "Simd128_Word64_fromArray" private : (Word64.t) array * Int32.t -> Simd128_Word64.t;
+val load = _import "Simd128_Word64_load" private : (Word64.t) array -> Simd128_Word64.t;
+val loadu = _import "Simd128_Word64_loadu" private : (Word64.t) array -> Simd128_Word64.t;
+val sll = _import "Simd128_Word64_sll" private : Simd128_Word64.t * Simd128_Word64.t -> Simd128_Word64.t;
+val srl = _import "Simd128_Word64_srl" private : Simd128_Word64.t * Simd128_Word64.t -> Simd128_Word64.t;
+val store = _import "Simd128_Word64_store" private : (Word64.t) array * Simd128_Word64.t -> unit;
+val storeu = _import "Simd128_Word64_storeu" private : (Word64.t) array * Simd128_Word64.t -> unit;
+val stream = _import "Simd128_Word64_stream" private : (Word64.t) array * Simd128_Word64.t -> unit;
+val sub = _import "Simd128_Word64_sub" private : Simd128_Word64.t * Simd128_Word64.t -> Simd128_Word64.t;
+val toArray = _import "Simd128_Word64_toArray" private : (Word64.t) array * Simd128_Word64.t * Int32.t -> unit;
+end
+structure Simd128_Word8 = 
+struct
+type t = Simd128_Word8.t
+val add = _import "Simd128_Word8_add" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val addss = _import "Simd128_Word8_addss" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val addsu = _import "Simd128_Word8_addsu" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val avg = _import "Simd128_Word8_avg" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val cmpeq = _import "Simd128_Word8_cmpeq" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val cmpgt = _import "Simd128_Word8_cmpgt" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val fromArray = _import "Simd128_Word8_fromArray" private : (Word8.t) array * Int32.t -> Simd128_Word8.t;
+val load = _import "Simd128_Word8_load" private : (Word8.t) array -> Simd128_Word8.t;
+val loadu = _import "Simd128_Word8_loadu" private : (Word8.t) array -> Simd128_Word8.t;
+val store = _import "Simd128_Word8_store" private : (Word8.t) array * Simd128_Word8.t -> unit;
+val storeu = _import "Simd128_Word8_storeu" private : (Word8.t) array * Simd128_Word8.t -> unit;
+val stream = _import "Simd128_Word8_stream" private : (Word8.t) array * Simd128_Word8.t -> unit;
+val sub = _import "Simd128_Word8_sub" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val subss = _import "Simd128_Word8_subss" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val subsu = _import "Simd128_Word8_subsu" private : Simd128_Word8.t * Simd128_Word8.t -> Simd128_Word8.t;
+val toArray = _import "Simd128_Word8_toArray" private : (Word8.t) array * Simd128_Word8.t * Int32.t -> unit;
 end
 structure Socket = 
 struct

@@ -276,6 +276,54 @@ binaryWords8and16and32(epi,cmpeq,)
 binaryWords16and32and64(epi,sll,)
 binaryWords16and32and64(epi,srl,)
 binaryWords16and32(epi,sra,)
+#define SimdLoadWord(size,opcode)                     \
+  MLTON_CODEGEN_STATIC_INLINE                         \
+  Simd128_Word##size##_t                              \
+  Simd128_Word##size##_##opcode (Array(Word##size##_t) w){      \
+    return _mm_##opcode##_si128((__m128i*)w);         \
+  }
+#define SimdStoreWord(size,opcode)                      \
+  MLTON_CODEGEN_STATIC_INLINE                           \
+  void Simd128_Word##size##_##opcode                     \
+  (Array(Word##size##_t) w,  Simd128_Word##size##_t s){  \
+    return _mm_##opcode##_si128((__m128i*)w,s);  \
+  }
+#define DoAll(opcode,macro)                         \
+  Simd##macro##Word(8,opcode)                       \
+  Simd##macro##Word(16,opcode)                      \
+  Simd##macro##Word(32,opcode)                      \
+  Simd##macro##Word(64,opcode)                      
+DoAll(load,Load)
+DoAll(loadu,Load)
+DoAll(stream,Store)
+DoAll(store,Store)
+DoAll(storeu,Store)
+/*assume we get an array with 16 byte alignment and properly
+  aligned offset*/
+#define SimdArrayOffsetWord(size,opcode)               \
+  MLTON_CODEGEN_STATIC_INLINE                                       \
+  Simd128_Word##size##_t                                            \
+  Simd128_Word##size##_fromArray (Array(Word##size##_t) r,Int32_t i){   \
+    return _mm_##opcode##_si128 ((__m128i*)(r + (i*size/8)));     \
+  }
+#define SimdArrayStoreWord(size,opcode) \
+  MLTON_CODEGEN_STATIC_INLINE                                       \
+  void Simd128_Word##size##_toArray\
+  (Array(Word##size##_t) r,Simd128_Word##size##_t s,Int32_t i){        \
+    return _mm_##opcode##_si128 ((__m128i*)(r + (i*size/8)),s);        \
+  }
+DoAll(load,ArrayOffset)
+DoAll(store,ArrayStore)
+#undef SimdArrayOffsetWord
+#undef SimdArrayStoreWord
+
+#undef DoAll
+/*MLTON_CODEGEN_STATIC_INLINE
+Word64_t Simd128_WordX_stores (__m128i x){
+  Word64_t temp;
+  asm ("movq %0,%1" : "=x" (temp) : "x" (x));
+  return temp;
+}*/
 /* SimdWord instruction names
        | Simd_Word_min (w,s) => simd_word (w,"min", SOME s)
        | Simd_Word_max (w,s) => simd_word (w,"max", SOME s)

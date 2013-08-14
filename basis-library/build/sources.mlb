@@ -219,6 +219,8 @@ in
    in
       ../simd/simd-real.sig
       ../simd/simd-real.sml
+      ../simd/simd-word.sig
+      ../simd/simd-word.sml
    end
    local 
       ../config/bind/int-top.sml 

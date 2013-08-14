@@ -1,5 +1,4 @@
 functor SimdWordSize (S: SIMD_WORD_SIZE_STRUCTS): SIMD_WORD_SIZE =
-(* For now I really should make SimdSize of the form of real and not word*)
 struct
 open S
 type t' = WordSize.prim
@@ -23,10 +22,10 @@ val bytes =
 local
   val temp =  fn x =>
                  case x of 
-                     WordSize.W8 => Bytes.fromInt 8
-                   | WordSize.W16 => Bytes.fromInt 16
-                   | WordSize.W32 => Bytes.fromInt 32
-                   | WordSize.W64 => Bytes.fromInt 64
+                     WordSize.W8 => Bytes.fromInt 1
+                   | WordSize.W16 => Bytes.fromInt 2
+                   | WordSize.W32 => Bytes.fromInt 4
+                   | WordSize.W64 => Bytes.fromInt 8
 in
   val wordBytes = 
    fn (V128WX x) => temp x

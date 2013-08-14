@@ -271,10 +271,10 @@ fun toString (n: 'a t): string =
       fun simd_sign (sign): string =
           case sign of
               NONE => ""
-            | SOME {signed} => if signed then "S" else "U"
+            | SOME {signed} => if signed then "s" else "u"
       fun simd_word (s: SimdWordSize.t,str: string,sign): string =
-            concat ["Simd", SimdWordSize.toStringSimd s, "_",
-                    SimdWordSize.toStringWord s,"_", str, simd_sign sign]
+          concat ["Simd", SimdWordSize.toStringSimd s, "_","Word",
+                  SimdWordSize.toStringWord s,"_", str, simd_sign sign]
       fun sign {signed} = if signed then "WordS" else "WordU"
       fun word (s: WordSize.t, str: string): string =
          concat ["Word", WordSize.toString s, "_", str]
