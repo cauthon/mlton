@@ -182,6 +182,15 @@ struct
                      class = Classes.CStack}
   val c_stackPDerefFloatOperand
     = Operand.memloc c_stackPDerefFloat
+  val c_stackPDerefXmm
+    = MemLoc.simple {base = c_stackPContents,
+                     index = Immediate.zero,
+                     scale = wordScale,
+                     size = Size.VXMM,
+                     class = Classes.CStack}
+  val c_stackPDerefXmmOperand
+    = Operand.memloc c_stackPDerefXmm
+
 
   val applyFFTempFun = Label.fromString "applyFFTempFun"
   val applyFFTempFunContents 
@@ -212,10 +221,18 @@ struct
                   scale = Scale.Eight,
                   size = Size.DBLE,
                   class = Classes.CArg}
-  fun applyFFTempXmmRegArgContents (floatSize, i)
-    = case floatSize of
+  val applyFFTempXmmRegArgX = Label.fromString "applyFFTempXmmRegArgX"
+  fun applyFFTempXmmRegArgXContents i
+    = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgX,
+                  index = Immediate.int i,
+                  scale = Scale.Eight,
+                  size = Size.VXMM,
+                  class = Classes.CArg}
+  fun applyFFTempXmmRegArgContents (argSize, i)
+    = case argSize of
          Size.DBLE => applyFFTempXmmRegArgDContents i
        | Size.SNGL => applyFFTempXmmRegArgSContents i
+       | Size.VXMM => applyFFTempXmmRegArgXContents i
        | _ => Error.bug "amd64MLtonBasic.applyFFTempXmmRegArgContents"
 
   val fpcvtTemp = Label.fromString "fpcvtTemp"

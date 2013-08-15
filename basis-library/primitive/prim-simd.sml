@@ -378,7 +378,7 @@ structure Simd128_Word16 : PRIM_SIMD_WORD =
       val sll = _prim "Simd128_Word16_sll": simdWord * simdWord -> simdWord;(*w d q*)
       val sari = _prim "Simd128_Word16_sari": simdWord * Word8.word -> simdWord;(*w d*)
       val slri = _prim "Simd128_Word16_slri": simdWord * Word8.word -> simdWord;(*w d q*)
-      val slli = _prim "Simd128_Word16_slli": simdWord * word8 -> simdWord;(*w d q*)
+      val slli = _prim "Simd128_Word16_slli": simdWord * Word8.word -> simdWord;(*w d q*)
       (*we can also logically shift a full 128bit vector left/right*)
       (*Comparison*)
       (*this is all we get for builtin integer comparison*)

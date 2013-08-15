@@ -562,7 +562,7 @@ struct
                 transfer = NONE}]
             end
 
-        fun sse_movfp instr
+        fun sse_movfp (instr:Instruction.sse_movfp)
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()

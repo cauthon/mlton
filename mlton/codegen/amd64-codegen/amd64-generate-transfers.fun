@@ -633,8 +633,7 @@ struct
                                                        {dst = dst,
                                                         src = Operand.memloc src,
                                                         size = dstsize})::stmts
-                                               | Size.VEC =>
-(*NOTE: TUCKER: Needs to be parameterized by element size*)
+                                                 | Size.VEC =>
                                                       (amd64.Assembly.instruction_sse_movfp
                                                        {instr = amd64.Instruction.SSE_MOVAPD,
                                                         dst = dst,
@@ -1202,10 +1201,10 @@ struct
                        = livenessTransfer {transfer = transfer,
                                            liveInfo = liveInfo}
                      val c_stackP = amd64MLton.c_stackPContentsOperand
-(*TUCKER: probably need to add here*)
                      val c_stackPDerefWord = amd64MLton.c_stackPDerefWordOperand
                      val c_stackPDerefFloat = amd64MLton.c_stackPDerefFloatOperand
                      val c_stackPDerefDouble = amd64MLton.c_stackPDerefDoubleOperand
+                     val c_stackPDerefXmm = amd64MLton.c_stackPDerefXmmOperand
                      val applyFFTempFun = amd64MLton.applyFFTempFunContentsOperand
                      val applyFFTempRegArg = amd64MLton.applyFFTempRegArgContents
                      val applyFFTempXmmRegArg = amd64MLton.applyFFTempXmmRegArgContents
@@ -1243,18 +1242,18 @@ struct
                                   else [Register.rdi,Register.rsi,Register.rdx,
                                         Register.rcx,Register.r8,Register.r9],
                                   if win64
-                                  then [(XmmRegister.xmm0D,XmmRegister.xmm0S),
-                                        (XmmRegister.xmm1D,XmmRegister.xmm1S),
-                                        (XmmRegister.xmm2D,XmmRegister.xmm2S),
-                                        (XmmRegister.xmm3D,XmmRegister.xmm3S)]
-                                  else [(XmmRegister.xmm0D,XmmRegister.xmm0S),
-                                        (XmmRegister.xmm1D,XmmRegister.xmm1S),
-                                        (XmmRegister.xmm2D,XmmRegister.xmm2S),
-                                        (XmmRegister.xmm3D,XmmRegister.xmm3S),
-                                        (XmmRegister.xmm4D,XmmRegister.xmm4S),
-                                        (XmmRegister.xmm5D,XmmRegister.xmm5S),
-                                        (XmmRegister.xmm6D,XmmRegister.xmm6S),
-                                        (XmmRegister.xmm7D,XmmRegister.xmm7S)])),
+                                  then [(XmmRegister.xmm0D,XmmRegister.xmm0S,XmmRegister.xmm0X,XmmRegister.ymm0),
+                                        (XmmRegister.xmm1D,XmmRegister.xmm1S,XmmRegister.xmm1X,XmmRegister.ymm1),
+                                        (XmmRegister.xmm2D,XmmRegister.xmm2S,XmmRegister.xmm2X,XmmRegister.ymm2),
+                                        (XmmRegister.xmm3D,XmmRegister.xmm3S,XmmRegister.xmm3X,XmmRegister.ymm3)]
+                                  else [(XmmRegister.xmm0D,XmmRegister.xmm0S,XmmRegister.xmm0X,XmmRegister.ymm0),
+                                        (XmmRegister.xmm1D,XmmRegister.xmm1S,XmmRegister.xmm1X,XmmRegister.ymm1),
+                                        (XmmRegister.xmm2D,XmmRegister.xmm2S,XmmRegister.xmm2X,XmmRegister.ymm2),
+                                        (XmmRegister.xmm3D,XmmRegister.xmm3S,XmmRegister.xmm3X,XmmRegister.ymm3),
+                                        (XmmRegister.xmm4D,XmmRegister.xmm4S,XmmRegister.xmm4X,XmmRegister.ymm4),
+                                        (XmmRegister.xmm5D,XmmRegister.xmm5S,XmmRegister.xmm5X,XmmRegister.ymm5),
+                                        (XmmRegister.xmm6D,XmmRegister.xmm6S,XmmRegister.xmm6X,XmmRegister.ymm6),
+                                        (XmmRegister.xmm7D,XmmRegister.xmm7S,XmmRegister.xmm7X,XmmRegister.ymm7)])),
                           fn ((arg, size), 
                               (setup_args,
                                (reg_args, xmmreg_args),
@@ -1269,6 +1268,8 @@ struct
                                   (regs, xmmregs)) =
                                 if Size.eq (size, Size.DBLE)
                                    orelse Size.eq (size, Size.SNGL)
+                                      orelse Size.eq (size, Size.VXMM)
+                                         orelse Size.eq (size, Size.VYMM)
                                     then (case xmmregs of
                                              xmmreg::xmmregs => 
                                                 let
@@ -1277,8 +1278,13 @@ struct
                                                    val xmmreg =
                                                       if Size.eq (size, Size.DBLE)
                                                          then #1 xmmreg
-                                                      else #2 xmmreg
+                                                      else if Size.eq (size, Size.VXMM)
+                                                         then #2 xmmreg
+                                                      else if Size.eq (size, Size.VYMM)
+                                                         then #1 xmmreg
+                                                      else #4 xmmreg
                                                 in
+                                                  if Size.eq(size,Size.DBLE) orelse Size.eq(size,Size.SNGL) then
                                                    (AppendList.fromList
                                                     [Assembly.instruction_sse_movs
                                                      {src = arg,
@@ -1292,8 +1298,25 @@ struct
                                                      (mem, xmmreg)::xmmreg_args),
                                                     0,
                                                     (prune regs, xmmregs))
+                                                     else if Size.eq(size,Size.VXMM) then
+                                                   (AppendList.fromList
+                                                    [Assembly.instruction_sse_movfp
+                                                     {instr = Instruction.SSE_MOVAPD,
+                                                      src = arg,
+                                                      dst = Operand.memloc mem,
+                                                      size = size},
+                                                     Assembly.directive_xmmcache
+                                                     {caches = [{register = xmmreg,
+                                                                 memloc = mem,
+                                                                 reserve = true}]}],
+                                                    (reg_args,
+                                                     (mem, xmmreg)::xmmreg_args),
+                                                    0,
+                                                    (prune regs, xmmregs))
+                                                  else Error.bug("avx unimplemented")
                                                 end
                                            | [] =>
+                                             if Size.eq(size,Size.DBLE) orelse Size.eq(size,Size.SNGL) then
                                                 (AppendList.fromList
                                                  [Assembly.instruction_binal
                                                   {oper = Instruction.SUB,
@@ -1308,7 +1331,24 @@ struct
                                                    size = size}],
                                                  (reg_args, xmmreg_args),
                                                  8,
-                                                 (regs, xmmregs)))
+                                                 (regs, xmmregs))
+                                             else if Size.eq(size,Size.VXMM) then
+                                                (AppendList.fromList
+                                                 [Assembly.instruction_binal
+                                                  {oper = Instruction.SUB,
+                                                   dst = c_stackP,
+                                                   (*not sure what this is, should
+                                                    *I change it to 16?*)
+                                                   src = Operand.immediate_int 8,
+                                                   size = pointerSize},
+                                                  Assembly.instruction_sse_movs
+                                                  {src = arg,
+                                                   dst = c_stackPDerefXmm,
+                                                   size = size}],
+                                                 (reg_args, xmmreg_args),
+                                                 8,
+                                                 (regs, xmmregs))
+                                                  else Error.bug("Avx unimplemented"))
                                 else if Size.eq (size, Size.BYTE) 
                                         orelse Size.eq (size, Size.WORD)
                                         orelse Size.eq (size, Size.LONG)

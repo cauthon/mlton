@@ -14,7 +14,7 @@ signature SCALE =
    sig
       include SCALE_STRUCTS
 
-      datatype t = One | Two | Four | Eight
+      datatype t = One | Two | Four | Eight | Sixteen | ThirtyTwo
 
       val fromBytes: Bytes.t -> t option
       val layout: t -> Layout.t

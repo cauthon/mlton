@@ -83,6 +83,7 @@ signature AMD64_MLTON_BASIC =
     val c_stackPDerefWordOperand : amd64.Operand.t
     val c_stackPDerefDoubleOperand : amd64.Operand.t
     val c_stackPDerefFloatOperand : amd64.Operand.t
+    val c_stackPDerefXmmOperand : amd64.Operand.t
 
     (* Static temps defined in amd64-main.h *)
     val applyFFTempFunContentsOperand : amd64.Operand.t

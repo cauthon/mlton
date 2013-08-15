@@ -10,13 +10,15 @@ struct
 
 open S
 
-datatype t = One | Two | Four | Eight
+datatype t = One | Two | Four | Eight | Sixteen | ThirtyTwo
 
 val toString =
    fn One => "1"
     | Two => "2"
     | Four => "4"
     | Eight => "8"
+    | Sixteen => "16"
+    | ThirtyTwo => "32"
 
 val layout = Layout.str o toString
 
@@ -25,6 +27,8 @@ val fromInt: int -> t option =
     | 2 => SOME Two
     | 4 => SOME Four
     | 8 => SOME Eight
+    | 16 => SOME Sixteen
+    | 32 => SOME ThirtyTwo
     | _ => NONE
 
 val fromBytes: Bytes.t -> t option =
@@ -35,5 +39,7 @@ val toInt: t -> int =
     | Two => 2
     | Four => 4
     | Eight => 8
+    | Sixteen => 16
+    | ThirtyTwo => 32
 
 end
