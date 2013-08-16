@@ -32,10 +32,12 @@ signature C_TYPE =
        | Word64
        | Simd128_Real32
        | Simd128_Real64
-       | Simd128_WordX
+       | Simd128_Word8
+       | Simd128_Word16
+       | Simd128_Word32
+       | Simd128_Word64
        | Simd256_Real32
        | Simd256_Real64
-       | Simd256_WordX
 
       val align: t * Bytes.t -> Bytes.t
       val all: t list

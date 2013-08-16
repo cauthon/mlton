@@ -20,7 +20,7 @@ structure Kind = TyconKind ()
 structure RealSize = RealSize ()
 structure WordSize = WordSize ()
 structure SimdRealSize = SimdRealSize ()
-structure SimdWordSize = SimdWordSize (structure WordSize = WordSize)
+structure SimdWordSize = SimdWordSize ()
 structure Field = Record.Field
 
 structure Tycon =

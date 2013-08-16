@@ -821,13 +821,15 @@ structure Type =
                 Tycon.simdReal SimdRealSize.V128R64),
                ("Simd256_Real32", CType.simdReal SimdRealSize.V256R32,
                 Tycon.simdReal SimdRealSize.V256R32),
-               ("Simd256_Real64", CType.simdReal SimdRealSize.V256R64,
-                Tycon.simdReal SimdRealSize.V256R64)]
-            @ [("Simd128_WordX", CType.simdWord (hd SimdWordSize.all128),
-                Tycon.simdWord (hd SimdWordSize.all128)),
-               ("Simd256_WordX", CType.simdWord (hd SimdWordSize.all256),
-                Tycon.simdWord (hd SimdWordSize.all256))]
-               
+               ("Simd256_Real64", CType.simdReal SimdRealSize.V256R64, Tycon.simdReal SimdRealSize.V256R64)]
+        @ [("Simd128_Word8", CType.simdWord SimdWordSize.V128W8,
+                Tycon.simdWord SimdWordSize.V128W8),
+           ("Simd128_Word16", CType.simdWord SimdWordSize.V128W16,
+            Tycon.simdWord SimdWordSize.V128W16),
+           ("Simd128_Word32", CType.simdWord SimdWordSize.V128W32,
+            Tycon.simdWord SimdWordSize.V128W32),
+           ("Simd128_Word64", CType.simdWord SimdWordSize.V128W64,
+                Tycon.simdWord SimdWordSize.V128W64)]
          end
 
       val nullary =

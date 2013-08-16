@@ -25,18 +25,21 @@ datatype t =
  | Word64
  | Simd128_Real32
  | Simd128_Real64
- | Simd128_WordX
+ | Simd128_Word8
+ | Simd128_Word16
+ | Simd128_Word32
+ | Simd128_Word64
  | Simd256_Real32
  | Simd256_Real64
- | Simd256_WordX
 
 val all = [CPointer,
            Int8, Int16, Int32, Int64,
            Objptr,
            Real32, Real64,
            Word8, Word16, Word32, Word64,
-           Simd128_Real32, Simd128_Real64, Simd128_WordX,
-           Simd256_Real32, Simd256_Real64, Simd256_WordX]
+           Simd128_Real32, Simd128_Real64,
+           Simd128_Word8, Simd128_Word16, Simd128_Word32, Simd128_Word64,
+           Simd256_Real32, Simd256_Real64]
 val allNoSimd = [CPointer,
                  Int8, Int16, Int32, Int64,
                  Objptr,
@@ -46,7 +49,7 @@ val allNoSimd = [CPointer,
 val cpointer = CPointer
 val objptr = Objptr
 val thread = objptr
-n
+
 val equals: t * t -> bool = op =
 
 fun memo (f: t -> 'a): t -> 'a =
@@ -65,10 +68,12 @@ fun memo (f: t -> 'a): t -> 'a =
       val word64 = f Word64
       val simd128_real32 = f Simd128_Real32
       val simd128_real64 = f Simd128_Real64
-      val simd128_wordx  = f Simd128_WordX
+      val simd128_word8  = f Simd128_Word8
+      val simd128_word16  = f Simd128_Word16
+      val simd128_word32  = f Simd128_Word32
+      val simd128_word64  = f Simd128_Word64
       val simd256_real32 = f Simd256_Real32
       val simd256_real64 = f Simd256_Real64
-      val simd256_wordx  = f Simd256_WordX
    in
       fn CPointer => cpointer
        | Int8 => int8
@@ -84,10 +89,12 @@ fun memo (f: t -> 'a): t -> 'a =
        | Word64 => word64 
        | Simd128_Real32  => simd128_real32 
        | Simd128_Real64 => simd128_real64
-       | Simd128_WordX => simd128_wordx
+       | Simd128_Word8 => simd128_word8
+       | Simd128_Word16 => simd128_word16
+       | Simd128_Word32 => simd128_word32
+       | Simd128_Word64 => simd128_word64
        | Simd256_Real32 => simd256_real32
        | Simd256_Real64 => simd256_real64
-       | Simd256_WordX => simd256_wordx
    end
 
 val toString =
@@ -105,10 +112,12 @@ val toString =
     | Word64 => "Word64"
     | Simd128_Real32 => "Simd128_Real32"
     | Simd128_Real64 => "Simd128_Real64"
-    | Simd128_WordX => "Simd128_WordX"
+    | Simd128_Word8 => "Simd128_Word8"
+    | Simd128_Word16 => "Simd128_Word16"
+    | Simd128_Word32 => "Simd128_Word32"
+    | Simd128_Word64 => "Simd128_Word64"
     | Simd256_Real32 => "Simd256_Real32"
     | Simd256_Real64 => "Simd256_Real64"
-    | Simd256_WordX => "Simd256_WordX"
 
 val layout = Layout.str o toString
 
@@ -128,10 +137,12 @@ fun size (t: t): Bytes.t =
     | Word64 => Bytes.fromInt 8
     | Simd128_Real32 => Bytes.fromInt 16
     | Simd128_Real64 => Bytes.fromInt 16
-    | Simd128_WordX => Bytes.fromInt 16
+    | Simd128_Word8 => Bytes.fromInt 16
+    | Simd128_Word16 => Bytes.fromInt 16
+    | Simd128_Word32 => Bytes.fromInt 16
+    | Simd128_Word64 => Bytes.fromInt 16
     | Simd256_Real32 => Bytes.fromInt 32
     | Simd256_Real64 => Bytes.fromInt 32
-    | Simd256_WordX => Bytes.fromInt 32
 
 fun name t =
    case t of
@@ -149,10 +160,12 @@ fun name t =
     | Word64 => "W64"
     | Simd128_Real32 => "V128R32"
     | Simd128_Real64 => "V128R64"
-    | Simd128_WordX => "V128WX"
+    | Simd128_Word8 => "V128W8"
+    | Simd128_Word16 => "V128W16"
+    | Simd128_Word32 => "V128W32"
+    | Simd128_Word64 => "V128W64"
     | Simd256_Real32 => "V256R32"
     | Simd256_Real64 => "V256R64"
-    | Simd256_WordX => "V256WX"
 
 fun align (t: t, b: Bytes.t): Bytes.t =
    Bytes.align (b, {alignment = size t})
@@ -192,11 +205,14 @@ fun simdReal (s: SimdRealSize.t) =
     | _ => Error.bug "CType.simdReal"
 fun simdWord (s: SimdWordSize.t) =
    case Bits.toInt (SimdWordSize.bits s) of
-      128 => Simd128_WordX
-    | 256 => Simd256_WordX
-    | x => Error.bug (concat(["CType.simdWord incorrect size ",Int.toString(x),
-                             " recieved"]))
-
+       128 => 
+       (case Bits.toInt (SimdWordSize.wordBits s) of
+            8 => Simd128_Word8
+          | 16 => Simd128_Word16
+          | 32 => Simd128_Word32
+          | 64 => Simd128_Word64
+          | _ =>Error.bug "CType.simdWord")
+     | _ => Error.bug "CType.simdWord"
 val cint =
    Promise.lazy
    (fn () => word' (Control.Target.Size.cint (),

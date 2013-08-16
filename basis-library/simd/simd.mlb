@@ -23,8 +23,4 @@ in
       structure Simd128_Word16
       structure Simd128_Word32
       structure Simd128_Word64
-      structure Simd256_Word8
-      structure Simd256_Word16
-      structure Simd256_Word32
-      structure Simd256_Word64
 end end end

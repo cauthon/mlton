@@ -1,36 +1,26 @@
 functor SimdWordSize (S: SIMD_WORD_SIZE_STRUCTS): SIMD_WORD_SIZE =
 struct
 open S
-type t' = WordSize.prim
-datatype t  = V128WX of t'
-            | V256WX of t'
-val all'= [WordSize.W8,WordSize.W16,WordSize.W32,WordSize.W64]
-local
-  val temp128 = fn x => (V128WX x)
-  val temp256 = fn x => (V256WX x)
-in
-val all = (List.map (all',temp128) @ List.map(all',temp256))
-val all128=List.map (all',temp128)
-val all256=List.map (all',temp256)
-end
+datatype t  = V128W8
+       | V128W16
+       | V128W32
+       | V128W64
+val all = [V128W8,V128W16,V128W32,V128W64]
 
-val word = fn (V128WX x) => x
-            | (V256WX x) => x
 val bytes =
- fn (V128WX _) => Bytes.fromInt 16
-  | (V256WX _) => Bytes.fromInt 32
-local
-  val temp =  fn x =>
-                 case x of 
-                     WordSize.W8 => Bytes.fromInt 1
-                   | WordSize.W16 => Bytes.fromInt 2
-                   | WordSize.W32 => Bytes.fromInt 4
-                   | WordSize.W64 => Bytes.fromInt 8
-in
-  val wordBytes = 
-   fn (V128WX x) => temp x
-    | (V256WX x) => temp x
-end
+ fn w =>
+    case w of
+        V128W8 => Bytes.fromInt 16
+      | V128W16 => Bytes.fromInt 16
+      | V128W32 => Bytes.fromInt 16
+      | V128W64 => Bytes.fromInt 16
+val wordBytes = 
+   fn w =>
+      case w of 
+    V128W8 => Bytes.fromInt 1
+    | V128W16 => Bytes.fromInt 2
+    | V128W32 => Bytes.fromInt 4
+    | V128W64 => Bytes.fromInt 8
 val bits = Bytes.toBits o bytes
 val wordBits = Bytes.toBits o wordBytes
 fun equals (s,s') = Bits.equals(bits s,bits s') andalso 
@@ -40,10 +30,14 @@ val toStringWord = Bits.toString o wordBits
 val memoize: (t -> 'a) -> t -> 'a =
    fn f =>
    let
-     fun v128wx x =  f (V128WX x)
-     fun v256wx x =  f (V256WX x)
+     val v128w8 =  f V128W8
+     val v128w16 =  f V128W16
+     val v128w32 =  f V128W32
+     val v128w64 =  f V128W64
    in
-     fn (V128WX x) => v128wx x
-      | (V256WX x) => v256wx x
+     fn V128W8 => v128w8
+     | V128W16 => v128w16
+     | V128W32 => v128w32
+     | V128W64 => v128w64
    end
 end

@@ -54,6 +54,7 @@ signature PRIM_SIMD_WORD =
       val muluhi:simdWord * simdWord -> simdWord (*multiply t*t and take high bytes of t2 results*)
       val mullo:simdWord * simdWord -> simdWord (*multiply t*t and take low bytes of t2 results*)
 (*      val mul32:simdWord * simdWord -> simdWord2 (*multiply odd elements of t,t and return t2 result*)*)
+      val hadd:simdWord * simdWord -> simdWord
       val hsub:simdWord * simdWord -> simdWord
       val abs:t->t
       (*bitwise*)
@@ -317,7 +318,7 @@ structure Simd128_Word8 : PRIM_SIMD_WORD =
       val mulshi =  unimp()
       val muluhi =  unimp()
       val mullo =  unimp()
-      val mul32 =  unimp()
+(*      val mul32 =  unimp()*)
       val hsub =   unimp()
       val hadd =  unimp()
       val abs = _prim "Simd128_Word8_abs": simdWord -> simdWord;(*b w*)
@@ -363,7 +364,7 @@ structure Simd128_Word16 : PRIM_SIMD_WORD =
       val mulshi = _prim "Simd128_Word16_mulhis": simdWord * simdWord -> simdWord; (*mul signed high, w*)
       val muluhi = _prim "Simd128_Word16_mulhiu": simdWord * simdWord -> simdWord; (*mul unsigned high w*)
       val mullo = _prim "Simd128_Word16_mullo": simdWord * simdWord -> simdWord; (*mul low, w*)
-      val mul32 =  unimp()
+(*      val mul32 =  unimp()*)
       val hsub = _prim "Simd128_Word16_hsub": simdWord * simdWord -> simdWord;(*w d*)
       val hadd = _prim "Simd128_Word16_hadd": simdWord * simdWord -> simdWord;(*w d*)
       val abs = _prim "Simd128_Word16_abs": simdWord -> simdWord;(*b w*)
@@ -454,7 +455,7 @@ structure Simd128_Word64 : PRIM_SIMD_WORD =
       val mulshi =  unimp()
       val muluhi =  unimp()
       val mullo =  unimp()
-      val mul32 =  unimp()
+(*      val mul32 =  unimp()*)
       val hsub =  unimp()
       val hadd =  unimp()
       val abs =  unimp()
@@ -476,7 +477,7 @@ structure Simd128_Word64 : PRIM_SIMD_WORD =
       val cmpeq = _prim "Simd128_Word64_cmpeq": simdWord * simdWord -> simdWord;
       val cmpgt = _prim "Simd128_Word64_cmpgt": simdWord * simdWord -> simdWord;
 end
-structure Simd256_Word8 : PRIM_SIMD_WORD =
+(*structure Simd256_Word8 : PRIM_SIMD_WORD =
    struct
       open Simd256_Word8
       val vecSize : Int32.int = 256
@@ -655,6 +656,6 @@ structure Simd256_Word64 : PRIM_SIMD_WORD =
       (*this is all we get for builtin integer comparison*)
       val cmpeq = _prim "Simd256_Word64_cmpeq": simdWord * simdWord -> simdWord;
       val cmpgt = _prim "Simd256_Word64_cmpgt": simdWord * simdWord -> simdWord;
-end
+end*)
 end
 end

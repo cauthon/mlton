@@ -136,10 +136,13 @@ because 16 => XMMS or XMMD or XMMW and
              | Word64 => Vector.new1 QUAD
              | Simd128_Real32 => Vector.new1 VXMM
              | Simd128_Real64 => Vector.new1 VXMM
-             | Simd128_WordX => Vector.new1 VXMM
+             | Simd128_Word8 => Vector.new1 VXMM
+             | Simd128_Word16 => Vector.new1 VXMM
+             | Simd128_Word32 => Vector.new1 VXMM
+             | Simd128_Word64 => Vector.new1 VXMM
              | Simd256_Real32 => Vector.new1 VYMM
              | Simd256_Real64 => Vector.new1 VYMM
-             | Simd256_WordX => Vector.new1 VYMM
+(*             | Simd256_WordX => Vector.new1 VYMM*)
 (*However This should fix the type issue noted above*)
 (*             | Simd128_Real32 => Vector.new1 XMMS
              | Simd128_Real64 => Vector.new1 XMMD
@@ -776,10 +779,13 @@ because 16 => XMMS or XMMD or XMMW and
              | Word64 => Eight
              | Simd128_Real32 => Sixteen
              | Simd128_Real64 => Sixteen
-             | Simd128_WordX => Sixteen
+             | Simd128_Word8 => Sixteen
+             | Simd128_Word16 => Sixteen
+             | Simd128_Word32 => Sixteen
+             | Simd128_Word64 => Sixteen
              | Simd256_Real32 => ThirtyTwo
              | Simd256_Real64 => ThirtyTwo
-             | Simd256_WordX => ThirtyTwo
+(*             | Simd256_WordX => ThirtyTwo*)
       end
 
       fun eq(s1, s2) = s1 = s2

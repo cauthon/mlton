@@ -256,10 +256,6 @@ signature BASIS_EXTRA =
       structure Simd128_Word16 : SIMD_WORD
       structure Simd128_Word32 : SIMD_WORD
       structure Simd128_Word64 : SIMD_WORD
-      structure Simd256_Word8 : SIMD_WORD
-      structure Simd256_Word16 : SIMD_WORD
-      structure Simd256_Word32 : SIMD_WORD
-      structure Simd256_Word64 : SIMD_WORD
       structure Socket : SOCKET
       structure SysWord : WORD
       structure Unix : UNIX
@@ -871,10 +867,6 @@ signature BASIS_EXTRA =
    where type Simd128_Word16.simdWord = Simd128_Word16.simdWord
    where type Simd128_Word32.simdWord = Simd128_Word32.simdWord
    where type Simd128_Word64.simdWord = Simd128_Word64.simdWord
-   where type Simd256_Word8.simdWord = Simd256_Word8.simdWord
-   where type Simd256_Word16.simdWord = Simd256_Word16.simdWord
-   where type Simd256_Word32.simdWord = Simd256_Word32.simdWord
-   where type Simd256_Word64.simdWord = Simd256_Word64.simdWord
    where type WideChar.char = WideChar.char
    where type WideString.string = WideString.string
    where type Word1.word = Word1.word

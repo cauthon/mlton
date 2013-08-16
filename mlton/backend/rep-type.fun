@@ -360,8 +360,10 @@ structure Type =
                         | SimdRealSize.V256R64 => C.Simd256_Real64)
                 | SimdWord s =>
                      (case s of 
-                          SimdWordSize.V128WX _ => C.Simd128_WordX
-                        | SimdWordSize.V256WX _ => C.Simd256_WordX)
+                          SimdWordSize.V128W8 => C.Simd128_Word8
+                        | SimdWordSize.V128W16 => C.Simd128_Word16
+                        | SimdWordSize.V128W32 => C.Simd128_Word32
+                        | SimdWordSize.V128W64 => C.Simd128_Word64)
                 | _ => C.fromBits (width t)
                          
          val name = C.name o toCType

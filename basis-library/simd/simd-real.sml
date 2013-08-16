@@ -3,7 +3,7 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-signature SIMD_REAL_COMMON =
+(*signature SIMD_REAL_COMMON =
 sig
   type simdReal
   type elt
@@ -68,7 +68,7 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
       in S.Simd.cmp(s1,s2,imm)
     end
   end
-end
+end*)
 
 structure Simd128_Real32 : SIMD_REAL =
 struct
@@ -139,7 +139,7 @@ end
         val temp = toScalar s
       in (Real64.toString temp) end
 end
-endn
+end
 
 structure Simd256_Real32 : SIMD_REAL =
 struct

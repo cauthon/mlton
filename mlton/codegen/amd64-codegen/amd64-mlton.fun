@@ -1498,10 +1498,7 @@ struct
                  | V128R64 =>
                    sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
-(*             | Simd_Real_cmpeq s => sse_cmpfp 0w0
-             | Simd_Real_cmplt s => sse_cmpfp 0w1
-             | Simd_Real_cmpgt s => sse_cmpfp 0w6 (*actually not less than or
-                                                   *equal, but same thing*)*)
+
 (*             | Simd_Real_toArray s => 
                (case s of 
                    V128R32 => sse_movfp Instruction.SSE_MOVUPS
