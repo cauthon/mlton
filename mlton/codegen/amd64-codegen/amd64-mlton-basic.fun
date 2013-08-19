@@ -228,11 +228,19 @@ struct
                   scale = Scale.Eight,
                   size = Size.VXMM,
                   class = Classes.CArg}
+  val applyFFTempXmmRegArgY = Label.fromString "applyFFTempXmmRegArgY"
+  fun applyFFTempXmmRegArgYContents i
+    = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgY,
+                  index = Immediate.int i,
+                  scale = Scale.Eight,
+                  size = Size.VYMM,
+                  class = Classes.CArg}
   fun applyFFTempXmmRegArgContents (argSize, i)
     = case argSize of
          Size.DBLE => applyFFTempXmmRegArgDContents i
        | Size.SNGL => applyFFTempXmmRegArgSContents i
        | Size.VXMM => applyFFTempXmmRegArgXContents i
+       | Size.VYMM => applyFFTempXmmRegArgYContents i
        | _ => Error.bug "amd64MLtonBasic.applyFFTempXmmRegArgContents"
 
   val fpcvtTemp = Label.fromString "fpcvtTemp"

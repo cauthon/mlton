@@ -16,6 +16,7 @@ PRIVATE Word64 applyFFTempStackArg;
 PRIVATE Word64 applyFFTempRegArg[6];
 PRIVATE Real32 applyFFTempXmmsRegArgD[8];
 PRIVATE Real64 applyFFTempXmmsRegArgS[8];
+PRIVATE Simd128_Real32  applyFFTempXmmsRegArgX[8];
 PRIVATE Word32 checkTemp;
 PRIVATE Word64 cReturnTemp[16];
 PRIVATE Pointer c_stackP;

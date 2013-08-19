@@ -27,8 +27,8 @@ signature PRIM_SIMD_REAL =
       val shuffle : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val sqrt : simdReal -> simdReal
-      val fromArray : elt array -> simdReal
-      val toArray : elt array * simdReal -> unit
+(*      val fromArray : elt array -> simdReal
+      val toArray : elt array * simdReal -> unit*)
       val fromScalar : elt -> simdReal
       val toScalar : simdReal -> elt
    end
@@ -46,9 +46,9 @@ signature PRIM_SIMD_WORD =
       val subs:simdWord * simdWord -> simdWord (* b w *)
       val subus:simdWord * simdWord -> simdWord (* b w *)
       val minu:simdWord * simdWord -> simdWord (* w, if sse4.1 then + b d *)
-      val min:simdWord * simdWord -> simdWord (* b, if sse4.1 then + w d *)
+      val mins:simdWord * simdWord -> simdWord (* b, if sse4.1 then + w d *)
       val maxu:simdWord * simdWord -> simdWord (* w, if sse4.1 then + b d *)
-      val max:simdWord * simdWord -> simdWord (* b, if sse4.1 then + w d *)
+      val maxs:simdWord * simdWord -> simdWord (* b, if sse4.1 then + w d *)
 
       val mulshi:simdWord * simdWord -> simdWord (*multiply t*t and take high bytes of t2 results*)
       val muluhi:simdWord * simdWord -> simdWord (*multiply t*t and take high bytes of t2 results*)
@@ -77,6 +77,8 @@ signature PRIM_SIMD_WORD =
    (*so i'll need to write these myself
     *vcmpne(!=),vcmpgep(= | >),vcmplt(!(> | =)),vcmple(!>)
     *vcmpngt(!>),vcmpnge(!(= | >)),vcmpnlt(> | =),vcmpnle(>)*)
+      val fromScalar : elt -> simdWord
+      val toScalar : simdWord -> elt
 end
 (*(defun make_simd_struct (name simdSize realSize)
 (insert (format 
@@ -311,9 +313,9 @@ structure Simd128_Word8 : PRIM_SIMD_WORD =
       val subs = _prim "Simd128_Word8_subss": simdWord * simdWord -> simdWord; (* b w *)
       val subus = _prim "Simd128_Word8_subsu": simdWord * simdWord -> simdWord; (* b w *)
       val minu = _prim "Simd128_Word8_minu": simdWord * simdWord -> simdWord; (* w, if sse4.1 then + b d *)
-      val min = _prim "Simd128_Word8_mins": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
+      val mins = _prim "Simd128_Word8_mins": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
       val maxu = _prim "Simd128_Word8_maxu": simdWord * simdWord -> simdWord; (* w, if sse4.1 then + b d *)
-      val max = _prim "Simd128_Word8_maxs": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
+      val maxs = _prim "Simd128_Word8_maxs": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
 
       val mulshi =  unimp()
       val muluhi =  unimp()
@@ -341,6 +343,8 @@ structure Simd128_Word8 : PRIM_SIMD_WORD =
       (*this is all we get for builtin integer comparison*)
       val cmpeq = _prim "Simd128_Word8_cmpeq": simdWord * simdWord -> simdWord;
       val cmpgt = _prim "Simd128_Word8_cmpgt": simdWord * simdWord -> simdWord;
+      val toScalar = _prim "Simd128_Word8_stores": simdWord -> elt ;
+      val fromScalar = _prim "Simd128_Word8_loads": elt -> simdWord ;
    end
 
 structure Simd128_Word16 : PRIM_SIMD_WORD =
@@ -357,9 +361,9 @@ structure Simd128_Word16 : PRIM_SIMD_WORD =
       val subs = _prim "Simd128_Word16_subss": simdWord * simdWord -> simdWord; (* b w *)
       val subus = _prim "Simd128_Word16_subsu": simdWord * simdWord -> simdWord; (* b w *)
       val minu = _prim "Simd128_Word16_minu": simdWord * simdWord -> simdWord; (* w, if sse4.1 then + b d *)
-      val min = _prim "Simd128_Word16_mins": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
+      val mins = _prim "Simd128_Word16_mins": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
       val maxu = _prim "Simd128_Word16_maxu": simdWord * simdWord -> simdWord; (* w, if sse4.1 then + b d *)
-      val max = _prim "Simd128_Word16_maxs": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
+      val maxs = _prim "Simd128_Word16_maxs": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
 
       val mulshi = _prim "Simd128_Word16_mulhis": simdWord * simdWord -> simdWord; (*mul signed high, w*)
       val muluhi = _prim "Simd128_Word16_mulhiu": simdWord * simdWord -> simdWord; (*mul unsigned high w*)
@@ -385,7 +389,8 @@ structure Simd128_Word16 : PRIM_SIMD_WORD =
       (*this is all we get for builtin integer comparison*)
       val cmpeq = _prim "Simd128_Word16_cmpeq": simdWord * simdWord -> simdWord;
       val cmpgt = _prim "Simd128_Word16_cmpgt": simdWord * simdWord -> simdWord;
-
+      val toScalar = _prim "Simd128_Word16_stores": simdWord -> elt ;
+      val fromScalar = _prim "Simd128_Word16_loads": elt -> simdWord ;
 end
 
 structure Simd128_Word32 : PRIM_SIMD_WORD =
@@ -402,9 +407,9 @@ structure Simd128_Word32 : PRIM_SIMD_WORD =
       val subs =  unimp()
       val subus =  unimp()
       val minu = _prim "Simd128_Word32_minu": simdWord * simdWord -> simdWord; (* w, if sse4.1 then + b d *)
-      val min = _prim "Simd128_Word32_mins": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
+      val mins = _prim "Simd128_Word32_mins": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
       val maxu = _prim "Simd128_Word32_maxu": simdWord * simdWord -> simdWord; (* w, if sse4.1 then + b d *)
-      val max = _prim "Simd128_Word32_maxs": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
+      val maxs = _prim "Simd128_Word32_maxs": simdWord * simdWord -> simdWord; (* b, if sse4.1 then + w d *)
 
       val mulshi =  unimp()
       val muluhi =  unimp()
@@ -430,7 +435,8 @@ structure Simd128_Word32 : PRIM_SIMD_WORD =
       (*this is all we get for builtin integer comparison*)
       val cmpeq = _prim "Simd128_Word32_cmpeq": simdWord * simdWord -> simdWord;
       val cmpgt = _prim "Simd128_Word32_cmpgt": simdWord * simdWord -> simdWord;
-
+      val toScalar = _prim "Simd128_Word32_stores": simdWord -> elt ;
+      val fromScalar = _prim "Simd128_Word32_loads": elt -> simdWord ;
 end
 
 structure Simd128_Word64 : PRIM_SIMD_WORD =
@@ -448,9 +454,9 @@ structure Simd128_Word64 : PRIM_SIMD_WORD =
       val subs =  unimp()
       val subus =  unimp()
       val minu =  unimp()
-      val min =  unimp()
+      val mins =  unimp()
       val maxu =  unimp()
-      val max =  unimp()
+      val maxs =  unimp()
 
       val mulshi =  unimp()
       val muluhi =  unimp()
@@ -476,6 +482,8 @@ structure Simd128_Word64 : PRIM_SIMD_WORD =
       (*this is all we get for builtin integer comparison*)
       val cmpeq = _prim "Simd128_Word64_cmpeq": simdWord * simdWord -> simdWord;
       val cmpgt = _prim "Simd128_Word64_cmpgt": simdWord * simdWord -> simdWord;
+      val toScalar = _prim "Simd128_Word64_stores": simdWord -> elt ;
+      val fromScalar = _prim "Simd128_Word64_loads": elt -> simdWord ;
 end
 (*structure Simd256_Word8 : PRIM_SIMD_WORD =
    struct

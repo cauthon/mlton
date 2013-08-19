@@ -142,14 +142,7 @@ because 16 => XMMS or XMMD or XMMW and
              | Simd128_Word64 => Vector.new1 VXMM
              | Simd256_Real32 => Vector.new1 VYMM
              | Simd256_Real64 => Vector.new1 VYMM
-(*             | Simd256_WordX => Vector.new1 VYMM*)
-(*However This should fix the type issue noted above*)
-(*             | Simd128_Real32 => Vector.new1 XMMS
-             | Simd128_Real64 => Vector.new1 XMMD
-             | Simd128_WordX => Vector.new1 XMMW
-             | Simd256_Real32 => Vector.new1 YMMS
-             | Simd256_Real64 => Vector.new1 YMMD
-             | Simd256_WordX => Vector.new1 YMMW*)
+
       end
 
       val class
@@ -161,12 +154,6 @@ because 16 => XMMS or XMMD or XMMW and
            | DBLE => FLT
            | VXMM => VEC
            | VYMM => VEC
-(*           | XMMS => VEC
-           | XMMD => VEC
-           | XMMW => VEC
-           | YMMS => VEC
-           | YMMD => VEC
-           | YMMW => VEC*)
 
       val eq = fn (s1, s2) => s1 = s2
       val lt = fn (s1, s2) => (toBytes s1) < (toBytes s2)
@@ -406,7 +393,7 @@ because 16 => XMMS or XMMD or XMMW and
                     XMM8, XMM9, XMM10, XMM11, XMM12, XMM13, XMM14, XMM15]
 
       datatype part
-        = X | Y | D | S (*| XS | XD | XW | YS | YD | YW*)
+        = X | Y | D | S
 
       datatype t = T of {reg: reg, part: part}
 
@@ -416,13 +403,6 @@ because 16 => XMMS or XMMD or XMMW and
              | S => Size.SNGL
              | X => Size.VXMM
              | Y => Size.VYMM
-(*             | XS => Size.XMMS
-             | XD => Size.XMMD
-             | XW => Size.XMMW
-             | YS => Size.YMMS
-             | YD => Size.YMMD
-             | YW => Size.YMMW*)
-
 
       fun layout (T {reg, part})
         = let
@@ -435,12 +415,6 @@ because 16 => XMMS or XMMD or XMMW and
                       | D => "%xmm"
                       | X => "%xmm"
                       | Y => "%ymm"
-(*                      | XS => "%xmm"
-                      | XD => "%xmm"
-                      | XW => "%xmm"
-                      | YS => "%ymm"
-                      | YD => "%ymm"
-                      | YW => "%ymm"*)
                in
                   str (String.concat [base, num])
                end
@@ -560,19 +534,10 @@ because 16 => XMMS or XMMD or XMMW and
          val doubleRegisters = make D
          val xmmRegisters = make X
          val ymmRegisters = make Y
-(*         val sseSingleRegisters = make XS
-         val sseDoubleRegisters = make XD
-         val sseIntegerRegisters = make XW
-         val avxSingleRegisters = make YS
-         val avxDoubleRegisters = make YD
-         val avxIntegerRegisters = make YW*)
       end
 
       val all = List.concat [singleRegisters, doubleRegisters,
-                             xmmRegisters, ymmRegisters
-(*                             sseSingleRegisters, sseDoubleRegisters,
-                             sseWordRegisters, avxSingleRegisters,
-                             avxDoubleRegisters, avxWordRegisters*)]
+                             xmmRegisters, ymmRegisters]
 
       fun valid r = List.contains(all, r, eq)
 (*Because I am not `that` crazy I gave up on the 6 size types here*)
@@ -610,10 +575,6 @@ because 16 => XMMS or XMMD or XMMW and
            | Size.DBLE => doubleRegisters
            | Size.VXMM => xmmRegisters
            | Size.VYMM => ymmRegisters
-(*           | Size.XMMS => sseSingleRegisters
-           | Size.XMMD => sseDoubleRegisters
-           | Size.YMMS => avxSingleRegisters
-           | Size.YMMD => avxDoubleRegisters*)
            | _ => Error.bug "amd64.XmmRegister.registers"
 
       val callerSaveRegisters = all
@@ -748,8 +709,8 @@ because 16 => XMMS or XMMD or XMMW and
              | Two => str "2"
              | Four => str "4"
              | Eight => str "8"
-             | Sixteen => str "16"
-             | ThirtyTwo => str "32"
+(*             | Sixteen => str "16"
+             | ThirtyTwo => str "32"*)
           end
 
       val fromBytes : int -> t
@@ -757,8 +718,8 @@ because 16 => XMMS or XMMD or XMMW and
            | 2 => Two
            | 4 => Four
            | 8 => Eight
-           | 16 => Sixteen
-           | 32 => ThirtyTwo
+(*           | 16 => Sixteen
+           | 32 => ThirtyTwo*)
            | _ => Error.bug "amd64.Scale.fromBytes"
       local
          datatype z = datatype CType.t
@@ -777,14 +738,14 @@ because 16 => XMMS or XMMD or XMMW and
              | Word16 => Two
              | Word32 => Four
              | Word64 => Eight
-             | Simd128_Real32 => Sixteen
-             | Simd128_Real64 => Sixteen
-             | Simd128_Word8 => Sixteen
-             | Simd128_Word16 => Sixteen
-             | Simd128_Word32 => Sixteen
-             | Simd128_Word64 => Sixteen
-             | Simd256_Real32 => ThirtyTwo
-             | Simd256_Real64 => ThirtyTwo
+             | Simd128_Real32 => Eight
+             | Simd128_Real64 => Eight
+             | Simd128_Word8 => Eight
+             | Simd128_Word16 => Eight
+             | Simd128_Word32 => Eight
+             | Simd128_Word64 => Eight
+             | Simd256_Real32 => Eight
+             | Simd256_Real64 => Eight
 (*             | Simd256_WordX => ThirtyTwo*)
       end
 
@@ -796,8 +757,8 @@ because 16 => XMMS or XMMD or XMMW and
            | Four => WordX.fromIntInf (4, WordSize.word64)
            | Eight => WordX.fromIntInf (8, WordSize.word64)
 (*TUCKER: ? should these be as they are or WordSize.word64*)
-           | Sixteen => WordX.fromIntInf (16, WordSize.word64)
-           | ThirtyTwo => WordX.fromIntInf (32, WordSize.word64)
+(*           | Sixteen => WordX.fromIntInf (16, WordSize.word64)
+           | ThirtyTwo => WordX.fromIntInf (32, WordSize.word64)*)
       val toImmediate = Immediate.word o toWordX
     end
 

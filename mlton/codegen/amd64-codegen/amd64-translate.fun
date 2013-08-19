@@ -92,8 +92,8 @@ struct
                       | Scale.Two => amd64.Scale.Two
                       | Scale.Four => amd64.Scale.Four
                       | Scale.Eight => amd64.Scale.Eight
-                      | Scale.Sixteen => amd64.Scale.Sixteen
-                      | Scale.ThirtyTwo => amd64.Scale.ThirtyTwo
+(*                      | Scale.Sixteen => amd64.Scale.Sixteen
+                      | Scale.ThirtyTwo => amd64.Scale.ThirtyTwo*)
                   val ty = Type.toCType ty
                   val origin =
                      case (amd64.Operand.deMemloc base,

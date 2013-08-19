@@ -7,6 +7,7 @@
 signature SIMD_WORD = sig
   val vec_size : Int32.int
   val word_size : Int32.int
+  val elements : Int32.int
   type t
   type elt 
   type simdWord
@@ -18,6 +19,8 @@ signature SIMD_WORD = sig
  *but 255+1->255 w/ saturation*)
   val toArray:elt array * t -> unit
   val fromArray:elt array -> t
+  val toScalar: t -> elt
+  val fromScalar:elt -> t
   val add:t*t->t (* b w d q *)
   val adds:t*t->t (* b w *)
   val addus:t*t->t (* b w *)
@@ -25,9 +28,9 @@ signature SIMD_WORD = sig
   val subs:t*t->t (* b w *)
   val subus:t*t->t (* b w *)
   val minu:t*t->t (* w, if sse4.1 then + b d *)
-  val min:t*t-> t (* b, if sse4.1 then + w d *)
+  val mins:t*t-> t (* b, if sse4.1 then + w d *)
   val maxu:t*t->t (* w, if sse4.1 then + b d *)
-  val max:t*t-> t (* b, if sse4.1 then + w d *)
+  val maxs:t*t-> t (* b, if sse4.1 then + w d *)
 (*  val pmadd:t*t->t2(*multiply adjecent elements of t and add adjectent
                      *elements of t2 intermediates to get t2 (unsigned)*)
   val madds:t*t->t2(*same as vpmadd but with signed*)*)
@@ -58,6 +61,9 @@ signature SIMD_WORD = sig
   (*this is all we get for builtin integer comparison*)
   val cmpeq:t*t->t
   val cmpgt:t*t->t
+  val toString: t -> string
+  val toStringScalar: t -> string
+  val toStringElt: elt -> string
 (*so i'll need to write these myself
  *vcmpne(!=),vcmpgep(= | >),vcmplt(!(> | =)),vcmple(!>)
  *vcmpngt(!>),vcmpnge(!(= | >)),vcmpnlt(> | =),vcmpnle(>)*)

@@ -206,26 +206,24 @@ SimdStoreReal(store,32,ps,float,256,256)
 SimdStoreReal(store,64,pd,double,256,256)
 SimdStoreReal(storeu,32,ps,float,256,256)
 SimdStoreReal(storeu,64,pd,double,256,256)
-SimdStoreReal(storer,32,ps,float,256,256)
-SimdStoreReal(storer,64,pd,double,256,256)
 SimdLoadReal(loadu,32,ps,float,256,256)
 SimdLoadReal(loadu,64,pd,double,256,256)
 SimdLoadReal(load,32,ps,float,256,256)
 SimdLoadReal(load,64,pd,double,256,256)
 //SimdLoadReal(loadr,32,ps,float,256,256)
 //SimdLoadReal(loadr,64,pd,double,256,256)
-MLTON_CODEGEN_STATIC_INLINE
+/*MLTON_CODEGEN_STATIC_INLINE
 Real32_t Simd256_Real32_stores (Simd256_Real32_t x){
   float temp;
-  asm ("vmovss %0,%1,%0" : "=x" (temp) : "x" (x));
+  asm ("vmovss %1,%1,%0" : "=x" (temp) : "x" (x));
   return temp;
 }
 MLTON_CODEGEN_STATIC_INLINE
 Real64_t Simd256_Real64_stores (Simd256_Real64_t x){
   double temp;
-  asm ("vmovsd %0,%1,%0" : "=x" (temp) : "x" (x));
+  asm ("vmovsd %1,%1,%0" : "=x" (temp) : "x" (x));
   return temp;
-}
+  }*/
 #undef both
 #undef bothl
 #endif
@@ -273,6 +271,10 @@ binarySimdWord(epi,mullo,16,s)
 binarySimdWord(epu,mul,32,32)
 binaryWords8and16and32(epi,cmpgt,)
 binaryWords8and16and32(epi,cmpeq,)
+binaryWords8and16and32(epi,max,s)
+binaryWords8and16and32(epu,max,u)
+binaryWords8and16and32(epi,min,s)
+binaryWords8and16and32(epu,min,u)
 binaryWords16and32and64(epi,sll,)
 binaryWords16and32and64(epi,srl,)
 binaryWords16and32(epi,sra,)

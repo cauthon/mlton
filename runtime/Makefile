@@ -101,8 +101,8 @@ XCFLAGS += -mieee -mbwx -mtune=ev6 -mfp-rounding-mode=d
 endif
 
 ifeq ($(TARGET_ARCH), amd64)
-#MARCH:=$(shell $(CC) -o ../bin/cpuid-mlton ../bin/cpuid-mlton.c;\
-#	../bin/cpuid-mlton -m)
+MARCH:=$(shell $(CC) -o ../bin/cpuid-mlton ../bin/cpuid-mlton.c;\
+	../bin/cpuid-mlton -m)
 XCFLAGS += -m64 $(MARCH)
 endif
 

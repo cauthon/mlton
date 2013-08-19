@@ -1477,8 +1477,8 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                      dst = NONE,
                                                      prim = prim})
                                     end
-                               | Thread_atomicBegin =>
-                                    (* gcState.atomicState++;
+                                 | Thread_atomicBegin =>
+                                   (* gcState.atomicState++;
                                      * if (gcState.signalsInfo.signalIsPending)
                                      *   gcState.limit = gcState.limitPlusSlop - LIMIT_SLOP;
                                      *)
