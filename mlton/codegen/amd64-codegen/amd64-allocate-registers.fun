@@ -647,6 +647,18 @@ struct
                                    src'::hint_memlocs,
                                    hint_ignore)
                              else (hint_register,hint_memlocs,hint_ignore))
+                   | (Assembly.Instruction (Instruction.SSE_MOVFP
+                                            {src = Operand.MemLoc src', 
+                                             dst = Operand.MemLoc dst',
+                                             ...}))
+                   => List.revMap
+                      (xmmhint,
+                       fn (hint_register,hint_memlocs,hint_ignore)
+                        => if List.contains(hint_memlocs, dst', MemLoc.eq)
+                             then (hint_register,
+                                   src'::hint_memlocs,
+                                   hint_ignore)
+                             else (hint_register,hint_memlocs,hint_ignore))
                    | _ => xmmhint
 
             val info = {dead = dead,
@@ -2479,7 +2491,10 @@ struct
                                           else xmmremove {memloc = memloc,
                                                            registerAllocation 
                                                            = registerAllocation}
+
                                   in
+                                    if (size = Size.DBLE orelse
+                                        size = Size.SNGL) then
                                     {assembly 
                                      = AppendList.appends
                                        [assembly,
@@ -2490,6 +2505,33 @@ struct
                                           src = Operand.XmmRegister register,
                                           size = size})],
                                      registerAllocation = registerAllocation}
+                                  else if (size =  Size.VXMM) then
+                                    {assembly 
+                                     = AppendList.appends
+                                       [assembly,
+                                        assembly_address,
+                                        AppendList.single
+                                        (Assembly.instruction_sse_movfp
+                                         {instr = Instruction.SSE_MOVAPD,
+                                           dst = Operand.Address address,
+                                          src = Operand.XmmRegister register,
+                                          size = size})],
+                                     registerAllocation = registerAllocation}
+                                      else
+                                          Error.bug "avx unimplemented"
+                              (*XmmRegister.Size.VYMM =>
+                                    {assembly 
+                                     = AppendList.appends
+                                       [assembly,
+                                        assembly_address,
+                                        AppendList.single
+                                        (Assembly.instruction_sse_movfp
+                                         {instr = Assembly.Instruction.SSE_MOVAPD
+                                           dst = Operand.Address address,
+                                          src = Operand.XmmRegister register,
+                                          size = size})],
+                                     registerAllocation = registerAllocation}*)
+
                                   end
 
                               fun doRemoveTrue ()
@@ -3513,11 +3555,21 @@ struct
                                             {register = final_register,
                                              assembly
                                              = AppendList.single
-                                               (Assembly.instruction_sse_movs
+                                               (if (size = Size.DBLE
+                                                    orelse size = Size.SNGL) then
+                                                  (Assembly.instruction_sse_movs
                                                 {src = Operand.xmmregister register,
                                                  dst = Operand.xmmregister 
                                                        final_register,
-                                                 size = size}),
+                                                 size = size})
+                                                else if (size = Size.VXMM) then
+                                              (Assembly.instruction_sse_movfp
+                                                 { instr = Instruction.SSE_MOVAPD,
+                                                   src = Operand.xmmregister register,
+                                                   dst = Operand.xmmregister 
+                                                       final_register,
+                                                 size = size})
+                                               else Error.bug "avx unimplemented"),
                                              registerAllocation 
                                              = registerAllocation}
                                           end
@@ -3575,12 +3627,21 @@ struct
                                                = AppendList.appends
                                                  [assembly_register,
                                                   AppendList.single
+                                               (if (size = Size.DBLE
+                                                    orelse size = Size.SNGL) then
                                                   (Assembly.instruction_sse_movs
-                                                   {src = Operand.xmmregister 
-                                                          register,
-                                                    dst = Operand.xmmregister 
-                                                          final_register,
-                                                    size = size})],
+                                                {src = Operand.xmmregister register,
+                                                 dst = Operand.xmmregister 
+                                                       final_register,
+                                                 size = size})
+                                                else if (size = Size.VXMM) then
+                                              (Assembly.instruction_sse_movfp
+                                                 { instr = Instruction.SSE_MOVAPD,
+                                                   src = Operand.xmmregister register,
+                                                   dst = Operand.xmmregister 
+                                                       final_register,
+                                                 size = size})
+                                                 else Error.bug "avx unimplemented")],
                                                registerAllocation
                                                = registerAllocation}
                                             end
@@ -3681,10 +3742,21 @@ struct
                                     [assembly_address,
                                      assembly_register,
                                      AppendList.single
-                                     (Assembly.instruction_sse_movs
-                                      {dst = Operand.xmmregister register',
-                                       src = Operand.address address,
-                                       size = size}),
+                                               (if (size = Size.DBLE
+                                                    orelse size = Size.SNGL) then
+                                                  (Assembly.instruction_sse_movs
+                                                {src = Operand.address address,
+                                                 dst = Operand.xmmregister 
+                                                       register',
+                                                 size = size})
+                                                else if (size = Size.VXMM) then
+                                              (Assembly.instruction_sse_movfp
+                                                 { instr = Instruction.SSE_MOVAPD,
+                                                   src = Operand.address address,
+                                                   dst = Operand.xmmregister 
+                                                       register',
+                                                 size = size})
+                                                else Error.bug "avx unimlemented"),
                                      assembly_force],
                                   registerAllocation = registerAllocation}
                                end
@@ -6469,7 +6541,8 @@ struct
              registerAllocation = registerAllocation}
           end
     end
-
+(*TUCKER: Need to add simd instructions here before they can 
+ *be used*)
   structure Instruction =
     struct
       structure RA = RegisterAllocation
@@ -9649,6 +9722,190 @@ struct
                                     | NONE => default ())
                      | NONE => default ()
                 end
+             | SSE_MOVFP {instr, src, dst, size}
+             => let
+                  val {uses,defs,kills} 
+                    = Instruction.uses_defs_kills instruction
+                  val {assembly = assembly_pre,
+                       registerAllocation}
+                    = RA.pre {uses = uses,
+                              defs = defs,
+                              kills = kills,
+                              info = info,
+                              registerAllocation = registerAllocation}
+
+                  fun default ()
+                    = let
+                        val {final_src,
+                             final_dst,
+                             assembly_src_dst,
+                             registerAllocation}
+                          = allocateXmmSrcDst
+                            {src = src,
+                             dst = dst,
+                             move_dst = false,
+                             size = size,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+                        val instruction
+                          = Instruction.SSE_MOVFP
+                            {instr = instr,
+                             src = final_src,
+                             dst = final_dst,
+                             size = size}
+
+                        val {uses = final_uses,
+                             defs = final_defs,  
+                             ...}
+                          = Instruction.uses_defs_kills instruction
+
+                        val {assembly = assembly_post,
+                             registerAllocation}
+                          = RA.post {uses = uses,
+                                     final_uses = final_uses,
+                                     defs = defs,
+                                     final_defs = final_defs,
+                                     kills = kills,
+                                     info = info,
+                                     registerAllocation = registerAllocation}
+                      in
+                        {assembly 
+                         = AppendList.appends 
+                           [assembly_pre,
+                            assembly_src_dst,
+                            AppendList.single
+                            (Assembly.instruction instruction),
+                            assembly_post],
+                         registerAllocation = registerAllocation}
+                      end
+
+                  fun default' ({register = register_src,
+                                 commit = commit_src,
+                                 ...} : RegisterAllocation.xmmvalue,
+                                memloc_dst)
+                    = let
+                        val registerAllocation
+                          = RA.xmmremove
+                            {memloc = memloc_dst,
+                             registerAllocation = registerAllocation}
+
+                        val registerAllocation
+                          = RA.xmmupdate
+                            {value = {register = register_src,
+                                      memloc = memloc_dst,
+                                      weight = 1024,
+                                      sync = false,
+                                      commit = commit_src},
+                             registerAllocation = registerAllocation}
+
+                        val final_uses = []
+                        val final_defs 
+                          = [Operand.xmmregister register_src]
+
+                        val {assembly = assembly_post,
+                             registerAllocation}
+                          = RA.post {uses = uses,
+                                     final_uses = final_uses,
+                                     defs = defs,
+                                     final_defs = final_defs,
+                                     kills = kills,
+                                     info = info,
+                                     registerAllocation = registerAllocation}
+                      in
+                        {assembly 
+                         = AppendList.appends [assembly_pre,
+                                               assembly_post],
+                         registerAllocation = registerAllocation}
+                      end
+
+                  fun default'' (memloc_dst)
+                    = let
+                        val registerAllocation
+                          = RA.xmmremove
+                            {memloc = memloc_dst,
+                             registerAllocation = registerAllocation}
+
+                        val {final_src,
+                             final_dst,
+                             assembly_src_dst,
+                             registerAllocation}
+                          = allocateXmmSrcDst
+                            {src = src,
+                             dst = dst,
+                             move_dst = false,
+                             size = size,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+                        val instruction
+                          = Instruction.SSE_MOVFP
+                            {instr = instr,
+                             src = final_src,
+                             dst = final_dst,
+                             size = size}
+
+                        val {uses = final_uses,
+                             defs = final_defs,
+                             ...}
+                          = Instruction.uses_defs_kills instruction
+
+                        val {assembly = assembly_post,
+                             registerAllocation}
+                          = RA.post {uses = uses,
+                                     final_uses = final_uses,
+                                     defs = defs,
+                                     final_defs = final_defs,
+                                     kills = kills,
+                                     info = info,
+                                     registerAllocation = registerAllocation}
+                      in
+                        {assembly 
+                         = AppendList.appends 
+                           [assembly_pre,
+                            assembly_src_dst,
+                            AppendList.single
+                            (Assembly.instruction instruction),
+                            assembly_post],
+                         registerAllocation = registerAllocation}
+                      end
+
+                  val memloc_src = Operand.deMemloc src
+                  val value_src 
+                    = case memloc_src
+                        of NONE => NONE
+                         | SOME memloc_src
+                         => RA.xmmallocated {memloc = memloc_src,
+                                              registerAllocation 
+                                              = registerAllocation}
+                  val memloc_dst = Operand.deMemloc dst
+                in
+                  case memloc_dst
+                    of SOME memloc_dst
+                     => if MemLocSet.contains(remove,memloc_dst)
+                          then (case memloc_src
+                                  of SOME memloc_src
+                                   => if List.contains
+                                         (memloc_src::(MemLoc.utilized memloc_src),
+                                          memloc_dst,
+                                          MemLoc.eq)
+                                        then default ()
+                                        else default'' memloc_dst
+                                   | NONE => default'' memloc_dst)
+                          else (case value_src
+                                  of SOME (value_src as {memloc = memloc_src,
+                                                         sync = sync_src, ...})
+                                    => if MemLocSet.contains(dead,memloc_src)
+                                          orelse
+                                          (MemLocSet.contains(remove,memloc_src)
+                                           andalso
+                                           sync_src)
+                                         then default' (value_src, memloc_dst)
+                                         else default ()
+                                    | NONE => default ())
+                     | NONE => default ()
+                end
+
              | SSE_COMIS {src1, src2, size}
                (* Scalar SSE compare instruction.
                 * Require src1/src2 operands as follows:

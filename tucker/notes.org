@@ -90,7 +90,6 @@ _import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
   simd constants should be a struct of size and a vector of values
 
 
-
 * google hangout <2013-08-13 Tue>
  -add to amd64-generate-trasfers and amd64-entry*
  to allow native codgen with c functions
@@ -98,6 +97,8 @@ _import "Real64Array_subSIMD" : Real64.real array * int -> v4f64
 
  -Timer structure in basis should be fine for timing
 
+* google hangout <2013-08-20 Tue>
+  
 * Low level details
 ** Immediate opperands
 *** Compairson

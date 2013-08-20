@@ -208,7 +208,7 @@ struct
                          | _ => [],
          transferXmmRegs = fn Entry.Jump _ => transferXmmRegs
                              | Entry.CReturn _ => 
-                               XmmRegister.xmm0D::XmmRegister.xmm0S::
+                               XmmRegister.xmm0S::XmmRegister.xmm0D::
                                XmmRegister.xmm0X::XmmRegister.ymm0::transferXmmRegs
                              | _ => []}
      end
@@ -1279,10 +1279,10 @@ struct
                                                       if Size.eq (size, Size.DBLE)
                                                          then #1 xmmreg
                                                       else if Size.eq (size, Size.VXMM)
-                                                         then #2 xmmreg
+                                                         then #3 xmmreg
                                                       else if Size.eq (size, Size.VYMM)
-                                                         then #1 xmmreg
-                                                      else #4 xmmreg
+                                                         then #4 xmmreg
+                                                      else #2 xmmreg
                                                 in
                                                   if Size.eq(size,Size.DBLE) orelse Size.eq(size,Size.SNGL) then
                                                    (AppendList.fromList

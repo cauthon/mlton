@@ -1507,10 +1507,12 @@ because 16 => XMMS or XMMD or XMMW and
                       [{src = xmmregister x, dst = cReturnTempContent (0,s)}]
                   val v128r32 = v (XmmRegister.xmm0X, VXMM)
                   val v128r64 = v (XmmRegister.xmm0X, VXMM)
-                  val v128wx = v (XmmRegister.xmm0X, VXMM)
+                  val v128w8 = v (XmmRegister.xmm0X, VXMM)
+                  val v128w16 = v (XmmRegister.xmm0X, VXMM)
+                  val v128w32 = v (XmmRegister.xmm0X, VXMM)
+                  val v128w64 = v (XmmRegister.xmm0X, VXMM)
                   val v256r32 = v (XmmRegister.ymm0, VYMM)
                   val v256r64 = v (XmmRegister.ymm0, VYMM)
-                  val v256wx = v (XmmRegister.ymm0, VYMM)
                in
                   case RepType.toCType ty of
                      CPointer => w64
@@ -1527,10 +1529,12 @@ because 16 => XMMS or XMMD or XMMW and
                    | Word64 => w64
                    | Simd128_Real32 => v128r32
                    | Simd128_Real64 => v128r64
-                   | Simd128_WordX => v128wx
+                   | Simd128_Word8 => v128w8
+                   | Simd128_Word16 => v128w16
+                   | Simd128_Word32 => v128w32
+                   | Simd128_Word64 => v128w64
                    | Simd256_Real32 => v256r32
                    | Simd256_Real64 => v256r64
-                   | Simd256_WordX => v256wx
                end
       end
     end
@@ -3502,9 +3506,6 @@ because 16 => XMMS or XMMD or XMMW and
                                                 concat ["(", Operand.toString src,
                                                         ",", MemLoc.toString dst, ")"]) returns]
            | Reserve {registers}
-(*NOTE: as of now on 2013:07:09 at 02:35 using GNU Emacs 24.3.1 (x86_64-unknown-linux-gnu, GTK+ Version 3.8.1)
- of 2013-04-29 on eric, hitting enter at the closing bracket in the section
- below freezes emacs*)
            => concat["Reserve: ", 
                      "registers: ",
                      List.fold(registers,
