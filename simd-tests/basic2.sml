@@ -3,18 +3,17 @@ local
   val simple1:real array = Array.fromList([1.0,2.0,3.0,4.0])
   val simple2:real array = Array.fromList([5.0,6.0,7.0,8.0])
   val simple3:real array = Array.fromList([9.0,10.0,11.0,12.0])
-  val rand1:real array = 
+(*  val rand1:real array = 
       Array.fromList([0.14751956, 0.2372235, 0.6751645, 0.8104256])
   val rand2:real array = 
-      Array.fromList([0.83982096, 0.98309407, 0.78378120, 0.03415542])
+      Array.fromList([0.83982096, 0.98309407, 0.78378120, 0.03415542])*)
   open Simd128_Real32
   structure SimdReal = Simd128_Real32
   type simdReal = Simd128_Real32.simdReal
-  val print_simd = _import "Simd128_Real32_print" : simdReal -> unit;
   val ps1:simdReal = fromArray(simple1)
   val ps2:simdReal = fromArray(simple2)
   val ps3:simdReal = fromArray(simple3)
-  val r1:simdReal = fromArray(rand1)
+(*  val r1:simdReal = fromArray(rand1)
   val r2:simdReal = fromArray(rand2)
   val _ = TextIO.print("simple 1: "^(toString ps1)^"\n")
   val _ = TextIO.print("simple 2: "^(toString ps2)^"\n")
@@ -24,11 +23,11 @@ local
     val _ = TextIO.print (concat(["Results for testing simd ",test,":\n"]))
     val _ = TextIO.print("Simple: "^(toString s)^"\n")
     val _ = TextIO.print("Rand: "^(toString s)^"\n")
-  in () end
+  in () end*)
   fun simdReal_fma (s1:simdReal,s2:simdReal,s3:simdReal):simdReal =
       SimdReal.add(s1,SimdReal.mul(s2,s3))
 in
-(*run a test for binary function f*)
+(*(*run a test for binary function f*)
 fun bin_test (f:(simdReal*simdReal->simdReal),name:string) =
     let
       val simple = f(ps1,ps2)(*6.0 8.0 10.0 12.0*)
@@ -44,11 +43,11 @@ fun test_from_string (s:string) =
 (*tests to be run*)
 val tests:(((simdReal*simdReal->simdReal) * string) list) =
     [(SimdReal.add,"add"),(SimdReal.sub,"sub"),
-     (SimdReal.mul,"mul")]
+     (SimdReal.mul,"mul")]*)
 (*run tests*)
 val temp = simdReal_fma(ps1,ps2,ps3)
 val _ = TextIO.print "Results for testing simd fma:\n"
 val _ = TextIO.print("Simple: "^(toString temp)^"\n")
-val _ = List.app bin_test tests
+(*val _ = List.app bin_test tests*)
 
 end

@@ -109,11 +109,11 @@ in
         print_test(S.sub(a1',a2'),gen_expected(op-,a1,a2,0),"simd sub a1 + a2");
         print_test(S.mul(a1',a2'),gen_expected(op*,a1,a2,0), "simd mul a1 + a2");
         print_test(S.div(a1',a2'),gen_expected(op/,a1,a2,0),"simd div a1 + a2"))
-   val shufA = S.shuffle(a1',a2',0w30)(*(0,1,3,2) -> *)
+   val shufA = S.primitiveShuffle(a1',a2',0w30)(*(0,1,3,2) -> *)
    val shufA_Const:simdConst = (Array.sub(a1,2),Array.sub(a1,3),
                                 Array.sub(a2,1),Array.sub(a2,0))
    val _ = print_test(shufA,shufA_Const,"simd shuffle a1,a2,(2,3,0,1)")
-   val cmpA = S.cmp(a1',a2',0w5)
+   val cmpA = S.primitiveCmp(a1',a2',0w5)
    val _ = TextIO.print("Compare a1'<a2': "^S.toString(cmpA)^"\n") 
    val e32' = S.fromScalar(e32)
    val pi32' = S.fromScalar(pi32)

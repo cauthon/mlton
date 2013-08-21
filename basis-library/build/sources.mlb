@@ -212,16 +212,6 @@ in
    ../real/real-global.sml
    ../real/pack-real.sig
    ../real/pack-real.sml
-(*simd here*)
-   local
-   ../sml-nj/unsafe.sig
-   ../sml-nj/unsafe.sml
-   in
-      ../simd/simd-real.sig
-      ../simd/simd-real.sml
-      ../simd/simd-word.sig
-      ../simd/simd-word.sml
-   end
    local 
       ../config/bind/int-top.sml 
       ../config/bind/pointer-prim.sml
@@ -234,7 +224,14 @@ in
       ../config/c/position.sml
       ../config/c/sys-word.sml
    end end
-
+(*simd here*)
+   local
+   ../sml-nj/unsafe.sig
+   ../sml-nj/unsafe.sml
+   in
+      ../simd/simd-word.sig
+      ../simd/simd-word.sml
+   end
    ../system/time.sig
    ../system/time.sml
    ../system/date.sig
@@ -279,7 +276,8 @@ in
    ../io/text-stream-io.sig
    ../io/text-io.sig
    ../io/text-io.sml
-
+   ../simd/simd-real.sig
+   ../simd/simd-real.sml
    ../system/path.sig
    ../system/path.sml
    ../system/file-sys.sig

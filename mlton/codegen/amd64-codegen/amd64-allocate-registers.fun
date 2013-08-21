@@ -2424,11 +2424,24 @@ struct
                                        [assembly,
                                         assembly_address,
                                         AppendList.single
-                                        (Assembly.instruction_sse_movs
-                                         {dst = Operand.Address address,
-                                          src = Operand.XmmRegister register,
-                                          size = size})],
-                                     registerAllocation = registerAllocation}
+                                        (if (size = Size.DBLE orelse
+                                             size = Size.SNGL) then
+                                           (Assembly.instruction_sse_movs
+                                              {dst = Operand.Address address,
+                                               src = Operand.XmmRegister register,
+                                               size = size})
+                                         else if (size =  Size.VXMM) then
+                                           (Assembly.instruction_sse_movfp
+                                              {instr = Instruction.SSE_MOVAPD,
+                                               dst = Operand.Address address,
+                                               src = Operand.XmmRegister register,
+                                               size = size})
+                                         else
+                                           Error.bug "avx unimplemented")],
+                                        registerAllocation = registerAllocation}
+
+
+
                                   end
 
                               fun doCommitTrue ()

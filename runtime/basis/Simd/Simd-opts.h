@@ -366,21 +366,27 @@ _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}*/
 #undef binarySimdWord
 /*assume we get an array with 16 byte alignment and properly
   aligned offset*/
-#define simdArrayOffset(size,opcode,suffix,type)                    \
-  MLTON_CODEGEN_STATIC_INLINE                                       \
-  Simd128_Real##size##_t                                            \
-  Simd128_Real##size##_fromArray (Array(Real##size##_t) r,Int32_t i){   \
-    return _mm_##opcode##_##suffix ((type*)(r + (i*size/8)));             \
+#define simdArrayOffset(size,opcode,suffix,type,vsize,avx)              \
+  MLTON_CODEGEN_STATIC_INLINE                                           \
+  Simd##vsize##_Real##size##_t                                          \
+  Simd##vsize##_Real##size##_fromArray (Array(Real##size##_t) r,Int32_t i){ \
+    return _mm##avx##_##opcode##_##suffix ((type*)(r + (i*size/8)));    \
   }
-simdArrayOffset(32,load,ps,float)
-simdArrayOffset(64,load,pd,double)
-#define simdArrayStore(size,opcode,suffix,type) \
+simdArrayOffset(32,load,ps,float,128,)
+     simdArrayOffset(64,load,pd,double,128,)
+#define simdArrayStore(size,opcode,suffix,type,vsize,avx)              \
   MLTON_CODEGEN_STATIC_INLINE                                       \
-  void Simd128_Real##size##_toArray\
-  (Array(Real##size##_t) r,Simd128_Real##size##_t s,Int32_t i){           \
-    return _mm_##opcode##_##suffix ((type*)(r + (i*size/8)),s);          \
+  void Simd##vsize##_Real##size##_toArray\
+  (Array(Real##size##_t) r,Simd##vsize##_Real##size##_t s,Int32_t i){   \
+    return _mm##avx##_##opcode##_##suffix ((type*)(r + (i*size/8)),s);  \
   }
-simdArrayStore(32,store,ps,float)
-simdArrayStore(64,store,pd,double)
+simdArrayStore(32,store,ps,float,128,)
+simdArrayStore(64,store,pd,double,128,)
+#ifdef __AVX__
+simdArrayOffset(32,load,ps,float,256,256)
+simdArrayOffset(64,load,pd,double,256,256)
+simdArrayStore(32,store,ps,float,256,256)
+simdArrayStore(64,store,pd,double,256,256)
+#endif
 #undef simdArrayOffset
 #undef simdArrayStore
