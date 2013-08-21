@@ -39,7 +39,7 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     in
 (*include this in public sig or no?*)
     fun mkShuffleConst(w1:word,w2:word,w3:word,w4:word):word =
-        orb(w1 << 0w6,orb(w2 << 0w4,orb(w3 << 0w2,w1 << 0w0)))
+        orb(w1 << 0w6,orb(w2 << 0w4,orb(w3 << 0w2,w4 << 0w0)))
     end
   in
     open Simd

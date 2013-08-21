@@ -82,6 +82,7 @@ sig
   val toString: simdReal -> string
   val toStringScalar: simdReal -> string
   val fmt: StringCvt.realfmt -> simdReal -> string
+(*think about adding fmtScalar*)
 end
 (*signature SIMD_AVAILABLE =
 sig
