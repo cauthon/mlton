@@ -9401,6 +9401,78 @@ struct
                 in
                   default ()
                 end
+
+             | SSE_BinAP {oper, src, dst, size}
+               (* SSE packed binary arithmetic instructions.
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg
+                *      xmm      X
+                *  src imm
+                *      lab
+                *      add      X
+                *)
+               => let
+               val {uses,defs,kills} 
+                   = Instruction.uses_defs_kills instruction
+               val {assembly = assembly_pre,
+                    registerAllocation}
+                   = RA.pre {uses = uses,
+                             defs = defs,
+                             kills = kills,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+               fun default ()
+                   = let
+                 val {final_src,
+                      final_dst,
+                      assembly_src_dst,
+                      registerAllocation}
+                     = allocateXmmSrcDst {src = src,
+                                          dst = dst,
+                                          move_dst = true,
+                                          size = size,
+                                          info = info,
+                                          registerAllocation = registerAllocation}
+
+                 val instruction 
+                     = Instruction.SSE_BinAP
+                         {oper = oper,
+                          src = final_src,
+                          dst = final_dst,
+                          size = size}
+
+                 val {uses = final_uses,
+                      defs = final_defs,
+                      ...}
+                     = Instruction.uses_defs_kills instruction
+
+                 val {assembly = assembly_post,
+                      registerAllocation}
+                     = RA.post {uses = uses,
+                                final_uses = final_uses,
+                                defs = defs,
+                                final_defs = final_defs,
+                                kills = kills,
+                                info = info,
+                                registerAllocation = registerAllocation}
+               in
+                 {assembly
+                  = AppendList.appends 
+                      [assembly_pre,
+                       assembly_src_dst,
+                       AppendList.single
+                         (Assembly.instruction instruction),
+                       assembly_post],
+                  registerAllocation = registerAllocation}
+               end
+             in
+               default ()
+             end
+
              | SSE_UnAS {oper, src, dst, size}
                (* SSE scalar unary arithmetic instructions.
                 * Require src/dst operands as follows:

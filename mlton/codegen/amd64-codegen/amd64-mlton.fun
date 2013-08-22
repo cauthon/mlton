@@ -88,28 +88,28 @@ struct
          | Real_round _ => false
          | Real_sub _ => true
 (*         | Simd_Real_add  _ => true
-         | Simd_Real_addsub _ => true
+(*         | Simd_Real_addsub _ => true
          | Simd_Real_and  _ => true
          | Simd_Real_andn  _ => true
-         | Simd_Real_cmp _ => true
+         | Simd_Real_cmp _ => true*)
          | Simd_Real_div  _ => true
-         | Simd_Real_hadd  _ => true
+(*         | Simd_Real_hadd  _ => true
          | Simd_Real_hsub  _ => true
          | Simd_Real_max  _ => true
          | Simd_Real_min  _ => true
          | Simd_Real_mul  _ => true
          | Simd_Real_or  _ => true
 (*         | Simd_Real_shuffle _ => true*)
-         | Simd_Real_sqrt  _ => true
+         | Simd_Real_sqrt  _ => true*)
          | Simd_Real_sub  _ => true
-         | Simd_Real_xor  _ => true
+(*         | Simd_Real_xor  _ => true
 (*         | Simd_Real_cmpeq _ => true
          | Simd_Real_cmplt _ => true
          | Simd_Real_cmpgt _ => true*)*)
 (*         | Simd_Real_fromArray _ => true
          | Simd_Real_toArray _ => true
          | Simd_Real_fromScalar _ => true
-         | Simd_Real_toScalar _ => true*)
+         | Simd_Real_toScalar _ => true*)*)
          | Thread_returnToC => false
          | Word_add _ => true
          | Word_addCheck _ => true
@@ -1389,39 +1389,39 @@ struct
                       | _ => Error.bug "amd64MLton.prim: Real_rndToWord, W64, false"
                   end
              | Real_sub _ => sse_binas Instruction.SSE_SUBS
-(*             | Simd_Real_add s => 
+             | Simd_Real_add s => 
                (case s of 
                    V128R32 => 
-                   sse_binap (Instruction.SSE_ADDPS,Instruction.SSE_MOVUPS)
+                   sse_binap (Instruction.SSE_ADDPS,Instruction.SSE_MOVAPS)
                  | V128R64 => 
-                   sse_binap(Instruction.SSE_ADDPD,Instruction.SSE_MOVUPD)
-                 | _ => Error.bug "amd64-mlton, avx unimplemented")
+                   sse_binap(Instruction.SSE_ADDPD,Instruction.SSE_MOVAPD)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")(*
 (*avx ex.        | V256R32 =>
                    avx_binap(Instruction.AVX_ADDPS,Instruction.AVX_MOVUPS)
                  | V256R64 =>
-                   avx_binap(Instruction.AVX_ADDPD,Instruction.AVX_MOVUPD*)
+                   avx_binap(Instruction.AVX_ADDPD,Instruction.AVX_MOVUPD*)*)
              | Simd_Real_sub s => 
                (case s of 
                    V128R32 => 
-                   sse_binap (Instruction.SSE_SUBPS,Instruction.SSE_MOVUPS)
+                   sse_binap (Instruction.SSE_SUBPS,Instruction.SSE_MOVAPS)
                  | V128R64 => 
-                   sse_binap (Instruction.SSE_SUBPD,Instruction.SSE_MOVUPD)
+                   sse_binap (Instruction.SSE_SUBPD,Instruction.SSE_MOVAPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_mul s => 
                (case s of
                    V128R32 => 
-                   sse_binap (Instruction.SSE_MULPS,Instruction.SSE_MOVUPS)
+                   sse_binap (Instruction.SSE_MULPS,Instruction.SSE_MOVAPS)
                  | V128R64 => 
-                   sse_binap (Instruction.SSE_MULPD,Instruction.SSE_MOVUPD)
+                   sse_binap (Instruction.SSE_MULPD,Instruction.SSE_MOVAPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_div s => 
                (case s of
                    V128R32 => 
-                   sse_binap (Instruction.SSE_DIVPS,Instruction.SSE_MOVUPS)
+                   sse_binap (Instruction.SSE_DIVPS,Instruction.SSE_MOVAPS)
                  | V128R64 => 
-                   sse_binap (Instruction.SSE_DIVPD,Instruction.SSE_MOVUPD)
+                   sse_binap (Instruction.SSE_DIVPD,Instruction.SSE_MOVAPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
-             | Simd_Real_min s => 
+(*             | Simd_Real_min s => 
                (case s of
                    V128R32 => 
                    sse_binap (Instruction.SSE_MINPS,Instruction.SSE_MOVUPS)
