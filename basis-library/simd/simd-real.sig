@@ -16,7 +16,7 @@ sig
 (*load/store*)
   val fromArray:elt array -> simdReal
   val toArray:elt array * simdReal-> unit
-  val fromArrayOffset:elt array*Int32.int -> simdReal
+  val fromArrayOffset:elt array * Int32.int -> simdReal
 (*  val fromArraySlice:elt slice -> t (*non primtive*)
   val set:elt list -> t(*aka from list*) (*non primtive*)
   val set1:elt -> t(*fill with duplicates of elt*) (*non primtive*)*)

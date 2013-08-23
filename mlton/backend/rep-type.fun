@@ -703,10 +703,10 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_fromScalar s => 
          done ([real (simdRealtoReal s)], SOME (simdReal s))
        | Simd_Real_toArray s => 
-         done ([simdReal s,
-                seq (WordSize.fromBits(SimdRealSize.realBits s))],NONE)
+         done ([seq (WordSize.fromBits(SimdRealSize.realBits s)),
+                simdReal s],NONE)
        | Simd_Real_fromArray s => 
-         done ([seq (WordSize.fromBits(SimdRealSize.realBits s))], 
+         done ([seq (WordSize.fromBits(SimdRealSize.realBits s)),cint], 
                SOME (simdReal s))
        | Simd_Word_add s => simdWordBinary s
        | Simd_Word_adds (s,_) => simdWordBinary s
@@ -737,10 +737,10 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Word_fromScalar s => 
          done ([word (simdWordtoWord s)], SOME (simdWord s))
        | Simd_Word_toArray s => 
-         done ([simdWord s], 
-               SOME (seq (WordSize.fromBits(SimdWordSize.wordBits s))))
+         done ([seq (WordSize.fromBits(SimdWordSize.wordBits s)),
+                simdWord s],NONE)
        | Simd_Word_fromArray s => 
-         done ([seq (WordSize.fromBits(SimdWordSize.wordBits s))], 
+         done ([seq (WordSize.fromBits(SimdWordSize.wordBits s)),cint], 
                SOME (simdWord s))
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s
@@ -883,7 +883,7 @@ fun checkOffset {base, isVector, offset, result} =
       andalso
       equalsTys (resultTys, extractTys (baseTys, adjOffsetBits, resultBits))
    end)
-
+(*TUCKER: Might get error here, if so add in a seq case*)
 fun offsetIsOk {base, offset, tyconTy, result} = 
    case node base of
       Objptr opts => 

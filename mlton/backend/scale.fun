@@ -27,8 +27,8 @@ val fromInt: int -> t option =
     | 2 => SOME Two
     | 4 => SOME Four
     | 8 => SOME Eight
-(*    | 16 => SOME Sixteen
-    | 32 => SOME ThirtyTwo*)
+(*    | 16 => SOME Eight
+    | 32 => SOME Eight*)
     | _ => NONE
 
 val fromBytes: Bytes.t -> t option =

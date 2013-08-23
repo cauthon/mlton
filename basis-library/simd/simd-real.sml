@@ -48,7 +48,6 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     in
       val elements = elements
       val arrElements = elements-1 
-      val fromArray = fromArray
       val toArray = toArray
       fun fromArrayOffset (a,i) = 
           if (Array.length a <= i + arrElements) 
@@ -56,6 +55,7 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
             raise Subscript
           else
             fromArrayUnsafe (a,i)
+      val fromArray = fn x => fromArrayUnsafe(x,0)
       fun toArrayOffset (a,s,i) = 
           if (Array.length a <= i + arrElements) 
              orelse (i < 0) then

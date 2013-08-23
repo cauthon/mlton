@@ -7,8 +7,6 @@
  * See the file MLton-LICENSE for details.
  *)
 (*Define SML primitives as machine instructions*)
-(*TUCKER: This file is one place to write the word128/256 primitives, so they can be used in
- *Actual sml code*)
 functor amd64MLton (S: AMD64_MLTON_STRUCTS): AMD64_MLTON =
 struct
 
@@ -87,7 +85,7 @@ struct
          | Real_rndToWord (_, s2, {signed}) => signed orelse w32168 s2
          | Real_round _ => false
          | Real_sub _ => true
-(*         | Simd_Real_add  _ => true
+         | Simd_Real_add  _ => true
 (*         | Simd_Real_addsub _ => true
          | Simd_Real_and  _ => true
          | Simd_Real_andn  _ => true
@@ -97,7 +95,7 @@ struct
          | Simd_Real_hsub  _ => true
          | Simd_Real_max  _ => true
          | Simd_Real_min  _ => true
-         | Simd_Real_mul  _ => true
+*)         | Simd_Real_mul  _ => true(*
          | Simd_Real_or  _ => true
 (*         | Simd_Real_shuffle _ => true*)
          | Simd_Real_sqrt  _ => true*)
@@ -109,7 +107,7 @@ struct
 (*         | Simd_Real_fromArray _ => true
          | Simd_Real_toArray _ => true
          | Simd_Real_fromScalar _ => true
-         | Simd_Real_toScalar _ => true*)*)
+         | Simd_Real_toScalar _ => true*)
          | Thread_returnToC => false
          | Word_add _ => true
          | Word_addCheck _ => true
@@ -569,7 +567,7 @@ struct
               val _
                 = Assert.assert
                   ("amd64MLton.prim: sse_movfp, dstsize/srcsize",
-                   fn () => srcsize <> dstsize)
+                   fn () => srcsize = dstsize)
             in
               AppendList.fromList
               [Block.mkBlock'
@@ -589,7 +587,7 @@ struct
               val _
                 = Assert.assert
                   ("amd64MLton.prim: sse_imov, dstsize/srcsize",
-                   fn () => srcsize <> dstsize)
+                   fn () => srcsize = dstsize)
             in
               AppendList.fromList
               [Block.mkBlock'
@@ -1421,7 +1419,7 @@ struct
                  | V128R64 => 
                    sse_binap (Instruction.SSE_DIVPD,Instruction.SSE_MOVAPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
-(*             | Simd_Real_min s => 
+             | Simd_Real_min s => 
                (case s of
                    V128R32 => 
                    sse_binap (Instruction.SSE_MINPS,Instruction.SSE_MOVUPS)
@@ -1499,14 +1497,14 @@ struct
                    sse_cmpfp (Instruction.SSE_CMPPD,Instruction.SSE_MOVUPD)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
 
-(*             | Simd_Real_toArray s => 
+             | Simd_Real_toArray s => 
                (case s of 
-                   V128R32 => sse_movfp Instruction.SSE_MOVUPS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)
+                   V128R32 => sse_movfp Instruction.SSE_MOVAPS
+                 | V128R64 => sse_movfp Instruction.SSE_MOVAPD)
              | Simd_Real_fromArray s =>
                (case s of
-                   V128R32 => sse_movfp Instruction.SSE_MOVUPS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVUPD)*)
+                   V128R32 => sse_movfp Instruction.SSE_MOVAPS
+                 | V128R64 => sse_movfp Instruction.SSE_MOVAPD)
              | Simd_Real_toScalar s => 
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
@@ -1516,7 +1514,7 @@ struct
                (case s of
                    V128R32 => sse_movfp Instruction.SSE_MOVSS
                  | V128R64 => sse_movfp Instruction.SSE_MOVSD
-                 | _ => Error.bug "amd64-mlton, avx unimplemented")*)
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

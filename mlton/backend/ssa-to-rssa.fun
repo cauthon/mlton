@@ -771,7 +771,7 @@ structure Type =
 
       fun scale (ty: t): Scale.t =
          case Scale.fromBytes (bytes ty) of
-            NONE => Error.bug "SsaToRssa.Type.scale"
+            NONE => Error.bug ("SsaToRssa.Type.scale " ^ Bytes.toString (bytes ty))
           | SOME s => s
    end
 
@@ -1276,7 +1276,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                        scale = Type.scale ty,
                                                        ty = ty})
                                  end
-(*
+
                               fun subSimdWord s =
                                  let
                                     val ty = Type.simdWord s
@@ -1287,7 +1287,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                        scale = Type.scale ty,
                                                        ty = ty})
                                  end
-*)
+
                               fun dst () =
                                  case var of
                                     SOME x =>
@@ -1594,6 +1594,8 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                     a 0,
                                                     EnsuresBytesFree)),
                                            func = CFunction.threadSwitchTo ()}
+(*                               | Simd_Real_fromArray s => subSimdReal s
+                               | Simd_Word_fromArray s => subSimdWord s*)
                                | Vector_length => arrayOrVectorLength ()
                                | Weak_canGet =>
                                     ifIsWeakPointer

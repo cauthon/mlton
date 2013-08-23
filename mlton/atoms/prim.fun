@@ -1791,8 +1791,8 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => 
                      (twoArgs (array (real (simdRealtoReal s)),simdReal s), unit))
        | Simd_Real_fromArray s =>
-         noTargs (fn () => (oneArg (array (real (simdRealtoReal s))),
-                            simdReal s))
+         noTargs (fn () => (twoArgs (array (real (simdRealtoReal s)),
+                                     seqIndex), simdReal s))
        | Simd_Real_toScalar s =>
          noTargs (fn () => (oneArg (simdReal s), real (simdRealtoReal s)))
        | Simd_Real_fromScalar s =>
@@ -1830,11 +1830,11 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Word_toScalar w =>
          noTargs (fn () => (oneArg (simdWord w), word (simdWordtoWord w)))
        | Simd_Word_fromArray w =>
-         noTargs (fn () => (oneArg (array (word (simdWordtoWord w))),
-                            simdWord w))
+         noTargs (fn () => (twoArgs (array (word (simdWordtoWord w)),
+                            seqIndex), simdWord w))
        | Simd_Word_toArray w =>
-         noTargs (fn () => (oneArg (simdWord w),
-                            array (word (simdWordtoWord w))))
+         noTargs (fn () => (twoArgs (array (word (simdWordtoWord w)),
+                                       (simdWord w)),unit))
 
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
        | Thread_atomicEnd => noTargs (fn () => (noArgs, unit))
