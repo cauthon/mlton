@@ -86,28 +86,57 @@ struct
          | Real_round _ => false
          | Real_sub _ => true
          | Simd_Real_add  _ => true
-(*         | Simd_Real_addsub _ => true
+(*         | Simd_Real_addsub _ => true*)
          | Simd_Real_and  _ => true
-         | Simd_Real_andn  _ => true
+         | Simd_Real_andn  _ => true(*
          | Simd_Real_cmp _ => true*)
          | Simd_Real_div  _ => true
-(*         | Simd_Real_hadd  _ => true
-         | Simd_Real_hsub  _ => true
+(*       | Simd_Real_hadd  _ => true
+         | Simd_Real_hsub  _ => true*)
          | Simd_Real_max  _ => true
          | Simd_Real_min  _ => true
-*)         | Simd_Real_mul  _ => true(*
+         | Simd_Real_mul  _ => true
          | Simd_Real_or  _ => true
-(*         | Simd_Real_shuffle _ => true*)
+(*         | Simd_Real_shuffle _ => true
          | Simd_Real_sqrt  _ => true*)
          | Simd_Real_sub  _ => true
-(*         | Simd_Real_xor  _ => true
+         | Simd_Real_xor  _ => true
 (*         | Simd_Real_cmpeq _ => true
          | Simd_Real_cmplt _ => true
-         | Simd_Real_cmpgt _ => true*)*)
+         | Simd_Real_cmpgt _ => true*)
 (*         | Simd_Real_fromArray _ => true
          | Simd_Real_toArray _ => true
          | Simd_Real_fromScalar _ => true
          | Simd_Real_toScalar _ => true*)
+(*         | Simd_Word_abs _ => true
+         | Simd_Word_add _ => true
+         | Simd_Word_adds _ => true
+         | Simd_Word_andb _ => true
+         | Simd_Word_andnb _ => true
+         | Simd_Word_cmpeq _ => true
+         | Simd_Word_cmpgt _ => true
+         | Simd_Word_fromArray _ => true
+         | Simd_Word_fromScalar _ => true
+         | Simd_Word_hadd _ => true
+         | Simd_Word_hsub _ => true
+         | Simd_Word_max _ => true
+         | Simd_Word_min _ => true
+         | Simd_Word_mul32 _ => true
+         | Simd_Word_mulhi _ => true
+         | Simd_Word_mullo _ => true
+         | Simd_Word_orb _ => true
+         | Simd_Word_sar _ => true
+         | Simd_Word_sari _ => true
+         | Simd_Word_shuffle _ => true
+         | Simd_Word_sll _ => true
+         | Simd_Word_slli _ => true
+         | Simd_Word_slr _ => true
+         | Simd_Word_slri _ => true
+         | Simd_Word_sub _ => true
+         | Simd_Word_subs _ => true
+         | Simd_Word_toArray _ => true
+         | Simd_Word_toScalar _ => true
+         | Simd_Word_xorb _ => true*)
          | Thread_returnToC => false
          | Word_add _ => true
          | Word_addCheck _ => true
@@ -483,7 +512,7 @@ struct
                     src = src,
                     size = srcsize}],
                 (* or
-                = [Assembly.instruction_sse_movfp
+                = [Assembly.instruction_sse_movp
                    {instr = SSE_MOVS,
                       dst = dst,
                       src = src
@@ -560,47 +589,26 @@ struct
                 transfer = NONE}]
             end
 
-        fun sse_movfp (instr:Instruction.sse_movfp)
+        fun sse_movp (instr:Instruction.sse_movp)
           = let
               val (dst,dstsize) = getDst1 ()
               val (src,srcsize) = getSrc1 ()
               val _
                 = Assert.assert
-                  ("amd64MLton.prim: sse_movfp, dstsize/srcsize",
+                  ("amd64MLton.prim: sse_movp, dstsize/srcsize",
                    fn () => srcsize = dstsize)
             in
               AppendList.fromList
               [Block.mkBlock'
                {entry = NONE,
                 statements
-                = [Assembly.instruction_sse_movfp
+                = [Assembly.instruction_sse_movp
                    {instr = instr,
                     dst = dst,
                     src = src,
                     size = srcsize}],
                 transfer = NONE}]
             end
-        fun sse_imov instr
-          = let
-              val (dst,dstsize) = getDst1 ()
-              val (src,srcsize) = getSrc1 ()
-              val _
-                = Assert.assert
-                  ("amd64MLton.prim: sse_imov, dstsize/srcsize",
-                   fn () => srcsize = dstsize)
-            in
-              AppendList.fromList
-              [Block.mkBlock'
-               {entry = NONE,
-                statements
-                = [Assembly.instruction_sse_imov
-                   {instr = instr,
-                    dst = dst,
-                    src = src,
-                    size = srcsize}],
-                transfer = NONE}]
-            end
-
         fun sse_binas oper
           = let
               val ((src1,src1size),
@@ -683,7 +691,7 @@ struct
               [Block.mkBlock'
                {entry = NONE,
                 statements
-                = [Assembly.instruction_sse_movfp
+                = [Assembly.instruction_sse_movp
                    {instr = mov,
                     dst = dst,
                     src = src1,
@@ -726,7 +734,7 @@ struct
               [Block.mkBlock'
                {entry = NONE,
                 statements
-                = [Assembly.instruction_sse_movfp
+                = [Assembly.instruction_sse_movp
                    {instr = mov,
                     dst = dst,
                     src = src1,
@@ -782,7 +790,7 @@ struct
               [Block.mkBlock'
                {entry = NONE,
                 statements
-                = [Assembly.instruction_sse_movfp
+                = [Assembly.instruction_sse_movp
                    {instr = mov,
                     dst = dst,
                     src = src1,
@@ -903,7 +911,7 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun sse_ibinap oper
+        fun sse_ibinap (oper,size)
           = let
               val ((src1,src1size),
                    (src2,src2size)) = getSrc2 ()
@@ -947,7 +955,7 @@ struct
               [Block.mkBlock'
                {entry = NONE,
                 statements
-                = [Assembly.instruction_sse_imov
+                = [Assembly.instruction_sse_movp 
                    {instr = instr,
                     dst = dst,
                     src = src1,
@@ -956,7 +964,7 @@ struct
                    {oper = oper,
                     dst = dst,
                     src = src2,
-                    size = dstsize}],
+                    size = size}],
                 transfer = NONE}]
             end
         fun sse_cmpfp (oper,mov) 
@@ -970,7 +978,7 @@ struct
               [Block.mkBlock'
                {entry = NONE,
                 statements
-                = [Assembly.instruction_sse_movfp
+                = [Assembly.instruction_sse_movp
                      {instr = mov,
                       dst = dst,
                       src = src1,
@@ -1499,22 +1507,61 @@ struct
 
              | Simd_Real_toArray s => 
                (case s of 
-                   V128R32 => sse_movfp Instruction.SSE_MOVAPS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVAPD)
+                   V128R32 => sse_movp Instruction.SSE_MOVAPS
+                 | V128R64 => sse_movp Instruction.SSE_MOVAPD)
              | Simd_Real_fromArray s =>
                (case s of
-                   V128R32 => sse_movfp Instruction.SSE_MOVAPS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVAPD)
+                   V128R32 => sse_movp Instruction.SSE_MOVAPS
+                 | V128R64 => sse_movp Instruction.SSE_MOVAPD)
              | Simd_Real_toScalar s => 
                (case s of
-                   V128R32 => sse_movfp Instruction.SSE_MOVSS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVSD
+                   V128R32 => sse_movp Instruction.SSE_MOVSS
+                 | V128R64 => sse_movp Instruction.SSE_MOVSD
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
              | Simd_Real_fromScalar s => 
                (case s of
-                   V128R32 => sse_movfp Instruction.SSE_MOVSS
-                 | V128R64 => sse_movfp Instruction.SSE_MOVSD
+                   V128R32 => sse_movp Instruction.SSE_MOVSS
+                 | V128R64 => sse_movp Instruction.SSE_MOVSD
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
+(*
+\(^[[:space:]]\)+| Simd_Word_\([[:alnum:]]+\) s => true$
+\1| Simd_Word_\2 s =>
+\1  (case s of
+\1      V128W8 => ... sse_\2 (Instruction.(upcase \2),"b")
+\1    | V128W16 => ... sse_\2 (Instruction.(upcase \2),"w")
+\1    | V128W32 => ... sse_\2 (Instruction.(upcase \2),"d")
+\1    | V128W64 => ... sse_\2 (Instruction.(upcase \2),"q")
+\1    | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+      
+             | Simd_Word_abs s => true
+             | Simd_Word_add s => true
+             | Simd_Word_adds (s,g) => true
+             | Simd_Word_andb s => true
+             | Simd_Word_andnb s => true
+             | Simd_Word_cmpeq s => true
+             | Simd_Word_cmpgt s => true
+             | Simd_Word_fromArray s => true
+             | Simd_Word_fromScalar s => true
+             | Simd_Word_hadd s => true
+             | Simd_Word_hsub s => true
+             | Simd_Word_max (s,g) => true
+             | Simd_Word_min (s,g) => true
+             | Simd_Word_mul32 s => true
+             | Simd_Word_mulhi (s,g) => true
+             | Simd_Word_mullo s => true
+             | Simd_Word_orb s => true
+             | Simd_Word_sar s => true
+             | Simd_Word_sari s => true
+             | Simd_Word_shuffle s => true
+             | Simd_Word_sll s => true
+             | Simd_Word_slli s => true
+             | Simd_Word_slr s => true
+             | Simd_Word_slri s => true
+             | Simd_Word_sub s => true
+             | Simd_Word_subs (s,g) => true
+             | Simd_Word_toArray s => true
+             | Simd_Word_toScalar s => true
+             | Simd_Word_xorb s => true*)
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

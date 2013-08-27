@@ -441,7 +441,7 @@ struct
                                               {dst = dst,
                                                src = src,
                                                size = srcsize}
-                          | amd64.Size.VEC => amd64.Assembly.instruction_sse_movfp
+                          | amd64.Size.VEC => amd64.Assembly.instruction_sse_movp
                                                 {instr = amd64.Instruction.SSE_MOVAPD,
                                                  dst = dst,
                                                  src = src,

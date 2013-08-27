@@ -2330,7 +2330,7 @@ struct
                                               size = size}
                                           | Size.VEC
 (*NOTE: TUCKER: Needs to be parameterized by element size*)
-                                          => Assembly.instruction_sse_movfp
+                                          => Assembly.instruction_sse_movp
                                              {instr = Instruction.SSE_MOVAPD,
                                               src = Operand.memloc src,
                                               dst = Operand.memloc dst,
@@ -2416,7 +2416,7 @@ struct
                              size = size}
                          | Size.VEC
 (*NOTE TUCKER: NEEDS to be parameterized by element size*)
-                         => Assembly.instruction_sse_movfp
+                         => Assembly.instruction_sse_movp
                             {instr = Instruction.SSE_MOVAPD,
                              src = Operand.memloc src,
                              dst = Operand.memloc dst,

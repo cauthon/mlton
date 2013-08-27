@@ -506,7 +506,7 @@ signature AMD64 =
         | SSE_HADDPD (*horizontal add*)
         | SSE_HSUBPD (*horizontal subtract*)
         (*floating point sse move instructions*)
-      datatype sse_movfp
+      datatype sse_movp
         =   SSE_MOVAPS (*Move aligned fp data*)
           | SSE_MOVUPS (*Move unaligned fp data*)
           | SSE_MOVLPS (*Move low fp value(s)*)
@@ -517,6 +517,11 @@ signature AMD64 =
           | SSE_MOVLPD (*Move low fp value(s)*)
           | SSE_MOVHPD (*Move high fp value (s)*)
           | SSE_MOVSD  (*Move scalar fp value*)
+          | SSE_MOVDQA (*move aligned double quadword*)
+          | SSE_MOVDQU (*move unaligned double quadword*)
+        (*SSE4.1*)
+          | SSE_PMOVSX (*packed move with sign extend*)
+          | SSE_PMOVZX (*packed move with zero extend*)
 (*there are also instructions to duplicate elements and move*)
         datatype sse_shuffp (*shuffle floating point*)
         = SSE_SHUFPS (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
@@ -545,12 +550,7 @@ signature AMD64 =
           | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
           | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
           | SSE_PAVG (*average of packed ints, b,w*)
-        datatype sse_imov
-          = SSE_MOVDQA (*move aligned double quadword*)
-          | SSE_MOVDQU (*move unaligned double quadword*)
-        (*SSE4.1*)
-          | SSE_PMOVSX (*packed move with sign extend*)
-          | SSE_PMOVZX (*packed move with zero extend*)
+
         datatype sse_pmd (*multiply and divide for packed ints*)
           = SSE_PCMULQDQ (*this is special, it has its own cpuid flag*)
           | SSE_PMULHW (*multiply signed words, store high 16 bits of result*)
@@ -578,9 +578,9 @@ signature AMD64 =
           | SSE_PSLL (*logical shift left, w,d,q,dq*)
           | SSE_PSRL (*logical shift right w,d,q,dq*)
           | SSE_PSRA (*arithmetic shift right, w/d*)
-      datatype sse_cmpfp
-        = SSE_CMPPS
-        | SSE_CMPPD
+        datatype sse_cmpfp
+          = SSE_CMPPS
+          | SSE_CMPPD
 (*TODO: AVX Instructions (TUCKER)
  *because there are AVX 128 bit vex incoded int instructions and
  *AVX2 256 bit vex incoded int instructions, we use a seperate prefix for
@@ -783,7 +783,26 @@ signature AMD64 =
           | SSE_IBinAP of {oper: sse_ibinap,
                            src: Operand.t,
                            dst: Operand.t,
-                           size: Size.t}
+                           size: string}
+          (* Packed SSE int binary add/sub/min/max/avg instructions,ssse3
+           *)
+          | SSSE3_IBinAP of {oper: ssse3_ibinap,
+                             src: Operand.t,
+                             dst: Operand.t,
+                             size: string}
+          (* Packed SSE int binary logical instructions
+           *)
+          | SSE_IBinLP of {oper: sse_ibinlp,
+                           src: Operand.t,
+                           dst: Operand.t,
+                           size: string}
+
+          (* Packed SSE int binary multiplication instructions
+           *)
+          | SSE_PMD of {oper: sse_pmd,
+                        src: Operand.t,
+                        dst: Operand.t,
+                        size: string}
           (* Packed SSE floating point compare*)
           | SSE_CMPFP of {oper: sse_cmpfp,
                           src: Operand.t,
@@ -791,10 +810,11 @@ signature AMD64 =
                           size: Size.t,
                           imm: Operand.t}
           (* SSE shuffle/blend w/imm8 operand*)
-(*          | SSE_ShufFp of {oper: sse_shuffp,
+          | SSE_SHUFFP of {oper: sse_shuffp,
                            src: Operand.t,
                            dst: Operand.t,
-                           imm: Operand.t}*)
+                           size: Size.t,
+                           imm: Operand.t}
           (* Scalar SSE move instruction.
            *)
           | SSE_MOVS of {src: Operand.t,
@@ -802,13 +822,7 @@ signature AMD64 =
                          size: Size.t}
           (* Packed fp SSE move instruction.
            *)
-          | SSE_MOVFP of {instr: sse_movfp,
-                         src: Operand.t,
-                         dst: Operand.t,
-                         size: Size.t}
-          (* Packed int SSE move instruction.
-           *)
-          | SSE_IMOV of {instr: sse_imov,
+          | SSE_MOVP of {instr: sse_movp,
                          src: Operand.t,
                          dst: Operand.t,
                          size: Size.t}
@@ -1202,8 +1216,20 @@ signature AMD64 =
         val instruction_sse_ibinap : {oper: Instruction.sse_ibinap,
                                      src: Operand.t,
                                      dst: Operand.t,
-                                     size: Size.t} -> t
-        val instruction_sse_movfp : {instr: Instruction.sse_movfp,
+                                     size: string} -> t
+        val instruction_ssse3_ibinap : {oper: Instruction.ssse3_ibinap,
+                                        src: Operand.t,
+                                        dst: Operand.t,
+                                        size: string} -> t
+        val instruction_sse_ibinlp : {oper: Instruction.sse_ibinlp,
+                                       src: Operand.t,
+                                       dst: Operand.t,
+                                       size: string} -> t
+        val instruction_sse_pmd : {oper: Instruction.sse_pmd,
+                                   src: Operand.t,
+                                   dst: Operand.t,
+                                   size: string} -> t
+        val instruction_sse_movp : {instr: Instruction.sse_movp,
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
@@ -1212,10 +1238,11 @@ signature AMD64 =
                                      dst: Operand.t,
                                      imm: Operand.t,
                                      size: Size.t} -> t
-        val instruction_sse_imov : {instr: Instruction.sse_imov,
-                                    src: Operand.t,
-                                    dst: Operand.t,
-                                    size: Size.t} -> t
+        val instruction_sse_shuffp : {oper: Instruction.sse_shuffp,
+                                      src: Operand.t,
+                                      dst: Operand.t,
+                                      size: Size.t,
+                                      imm: Operand.t} -> t
         val instruction_sse_movs : {src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t

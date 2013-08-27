@@ -634,7 +634,7 @@ struct
                                                         src = Operand.memloc src,
                                                         size = dstsize})::stmts
                                                  | Size.VEC =>
-                                                      (amd64.Assembly.instruction_sse_movfp
+                                                      (amd64.Assembly.instruction_sse_movp
                                                        {instr = amd64.Instruction.SSE_MOVAPD,
                                                         dst = dst,
                                                         src = Operand.memloc src,
@@ -1300,7 +1300,7 @@ struct
                                                     (prune regs, xmmregs))
                                                      else if Size.eq(size,Size.VXMM) then
                                                    (AppendList.fromList
-                                                    [Assembly.instruction_sse_movfp
+                                                    [Assembly.instruction_sse_movp
                                                      {instr = Instruction.SSE_MOVAPD,
                                                       src = arg,
                                                       dst = Operand.memloc mem,

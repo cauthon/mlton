@@ -254,7 +254,7 @@ signature AMD64_PSEUDO =
         | SSE_HADDPD (*horizontal add*)
         | SSE_HSUBPD (*horizontal subtract*)
         (*floating point sse move instructions*)
-      datatype sse_movfp
+      datatype sse_movp
         =   SSE_MOVAPS (*Move aligned fp data*)
           | SSE_MOVUPS (*Move unaligned fp data*)
           | SSE_MOVLPS (*Move low fp value(s)*)
@@ -265,6 +265,11 @@ signature AMD64_PSEUDO =
           | SSE_MOVLPD (*Move low fp value(s)*)
           | SSE_MOVHPD (*Move high fp value (s)*)
           | SSE_MOVSD  (*Move scalar fp value*)
+          | SSE_MOVDQA (*move aligned double quadword*)
+          | SSE_MOVDQU (*move unaligned double quadword*)
+          (*SSE4.1*)
+          | SSE_PMOVSX (*packed move with sign extend*)
+          | SSE_PMOVZX (*packed move with zero extend*)
 (*there are also instructions to duplicate elements and move*)
         datatype sse_shuffp (*shuffle floating point*)
         = SSE_SHUFPS (*SHUFP xmm,xmm/m128,imm8 -> xmm, elements of dst are
@@ -293,12 +298,6 @@ signature AMD64_PSEUDO =
           | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
           | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
           | SSE_PAVG (*average of packed ints, b,w*)
-        datatype sse_imov
-          = SSE_MOVDQA (*move aligned double quadword*)
-          | SSE_MOVDQU (*move unaligned double quadword*)
-        (*SSE4.1*)
-          | SSE_PMOVSX (*packed move with sign extend*)
-          | SSE_PMOVZX (*packed move with zero extend*)
         datatype sse_pmd (*multiply and divide for packed ints*)
           = SSE_PCMULQDQ (*this is special, it has its own cpuid flag*)
           | SSE_PMULHW (*multiply signed words, store high 16 bits of result*)
@@ -486,15 +485,23 @@ signature AMD64_PSEUDO =
         val instruction_sse_ibinap : {oper: Instruction.sse_ibinap,
                                      src: Operand.t,
                                      dst: Operand.t,
-                                     size: Size.t} -> t
+                                     size: string} -> t
+        val instruction_ssse3_ibinap : {oper: Instruction.ssse3_ibinap,
+                                        src: Operand.t,
+                                        dst: Operand.t,
+                                        size: string} -> t
+        val instruction_sse_ibinlp : {oper: Instruction.sse_ibinlp,
+                                       src: Operand.t,
+                                       dst: Operand.t,
+                                       size: string} -> t
+        val instruction_sse_pmd : {oper: Instruction.sse_pmd,
+                                   src: Operand.t,
+                                   dst: Operand.t,
+                                   size: string} -> t
         val instruction_sse_movs : {src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
-        val instruction_sse_movfp : {instr: Instruction.sse_movfp,
-                                    src: Operand.t,
-                                    dst: Operand.t,
-                                    size: Size.t} -> t
-        val instruction_sse_imov : {instr: Instruction.sse_imov,
+        val instruction_sse_movp : {instr: Instruction.sse_movp,
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
@@ -503,6 +510,11 @@ signature AMD64_PSEUDO =
                                      dst: Operand.t,
                                      imm: Operand.t,
                                      size: Size.t} -> t
+        val instruction_sse_shuffp : {oper: Instruction.sse_shuffp,
+                                      src: Operand.t,
+                                      dst: Operand.t,
+                                      imm: Operand.t,
+                                      size: Size.t} -> t
         val instruction_sse_comis : {src1: Operand.t,
                                      src2: Operand.t,
                                      size: Size.t} -> t

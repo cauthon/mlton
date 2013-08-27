@@ -6,4 +6,4 @@ in
   structure List
 end
   $(SML_LIB)/basis/simd/simd.mlb
-  test-move.sml
+  test-real.sml

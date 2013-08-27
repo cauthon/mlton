@@ -1,4 +1,4 @@
-(* Copyright (C) 2013 Tucker DiNapoli.
+ (* Copyright (C) 2013 Tucker DiNapoli.
  * Copyright (C) 2012 Matthew Fluet.
  * Copyright (C) 1999-2008 Henry Cejtin, Matthew Fluet, Suresh
  *    Jagannathan, and Stephen Weeks.
@@ -1848,7 +1848,7 @@ because 16 => XMMS or XMMD or XMMW and
                | SSE_MOVLHPD => str "movlhpd"
             end
       (*floating point sse move instructions*)
-      datatype sse_movfp
+      datatype sse_movp
         =   SSE_MOVAPS (*Move aligned fp data*)
           | SSE_MOVUPS (*Move unaligned fp data*)
           | SSE_MOVLPS (*Move low fp value(s)*)
@@ -1859,7 +1859,12 @@ because 16 => XMMS or XMMD or XMMW and
           | SSE_MOVLPD (*Move low fp value(s)*)
           | SSE_MOVHPD (*Move high fp value (s)*)
           | SSE_MOVSD  (*Move scalar fp value*)
-      val sse_movfp_layout
+          | SSE_MOVDQA (*move aligned double quadword*)
+          | SSE_MOVDQU (*move unaligned double quadword*)
+          (*SSE4.1*)
+          | SSE_PMOVSX (*packed move with sign extend*)
+          | SSE_PMOVZX (*packed move with zero extend*)
+      val sse_movp_layout
           = let
                open Layout
             in
@@ -1873,6 +1878,10 @@ because 16 => XMMS or XMMD or XMMW and
                 | SSE_MOVLPD => str "movlpd"
                 | SSE_MOVHPD => str "movhpd"
                 | SSE_MOVSD => str "movsd"
+                | SSE_MOVDQA => str "movdqa"
+                | SSE_MOVDQU => str "movdqu"
+                | SSE_PMOVSX => str "pmovsx"
+                | SSE_PMOVZX => str "pmovzx"
             end
       (*Now integer sse instructions*)
 (*TODO: Deal with layout issues somehow *)
@@ -1905,21 +1914,6 @@ because 16 => XMMS or XMMD or XMMW and
                 | SSE_PMINS => str "pmins"
                 | SSE_PMINU => str "pminu"
                 | SSE_PAVG => str "pavg"
-            end
-      datatype sse_imov
-        = SSE_MOVDQA (*move aligned double quadword*)
-        | SSE_MOVDQU (*move unaligned double quadword*)
-        (*SSE4.1*)
-        | SSE_PMOVSX (*packed move with sign extend*)
-        | SSE_PMOVZX (*packed move with zero extend*)
-      val sse_imov_layout
-          = let
-               open Layout
-            in
-               fn SSE_MOVDQA => str "movdqa"
-                | SSE_MOVDQU => str "movdqu"
-                | SSE_PMOVSX => str "pmovsx"
-                | SSE_PMOVZX => str "pmovzx"
             end
       datatype sse_pmd (*multiply and divide for packed ints*)
         = SSE_PCMULQDQ (*this is special, it has its own cpuid flag*)
@@ -2256,14 +2250,36 @@ because 16 => XMMS or XMMD or XMMW and
                          src: Operand.t,
                          dst: Operand.t,
                          size: Size.t}
+        (* The layout for simd words is a bit cheap, but it should work,
+         *so I guess its ok*)
         (* Packed SSE int binary add/sub/min/max/avg instructions
          *)
         | SSE_IBinAP of {oper: sse_ibinap,
                          src: Operand.t,
                          dst: Operand.t,
-                         size: Size.t}
+                         size: string}
+        (* Packed SSE int binary add/sub/min/max/avg instructions,ssse3
+         *)
+        | SSSE3_IBinAP of {oper: ssse3_ibinap,
+                           src: Operand.t,
+                           dst: Operand.t,
+                           size: string}
+        (* Packed SSE int binary logical instructions
+         *)
+        | SSE_IBinLP of {oper: sse_ibinlp,
+                         src: Operand.t,
+                         dst: Operand.t,
+                         size: string}
+
+        (* Packed SSE int binary multiplication instructions
+         *)
+        | SSE_PMD of {oper: sse_pmd,
+                         src: Operand.t,
+                         dst: Operand.t,
+                         size: string}
+
         (* Scalar SSE move instruction.
-         * TODO: Translate all SSE_MOVS into SSE_MOVFP {instr: MOVS,...}
+         * TODO: Translate all SSE_MOVS into SSE_MOVP {instr: MOVS,...}
          *)
         | SSE_MOVS of {src: Operand.t,
                        dst: Operand.t,
@@ -2276,16 +2292,10 @@ because 16 => XMMS or XMMD or XMMW and
                         imm: Operand.t}
         (* Packed fp SSE move instruction.
          *)
-        | SSE_MOVFP of {instr: sse_movfp,
+        | SSE_MOVP of {instr: sse_movp,
                         src: Operand.t,
                         dst: Operand.t,
                         size: Size.t}
-        (* Packed int SSE move instruction.
-         *)
-        | SSE_IMOV of {instr: sse_imov,
-                       src: Operand.t,
-                       dst: Operand.t,
-                       size: Size.t}
         (* Scalar SSE compare instruction.
          *)
         | SSE_COMIS of {src1: Operand.t,
@@ -2317,11 +2327,11 @@ because 16 => XMMS or XMMD or XMMW and
         | SSE_BLENDVP  of {src: Operand.t,
                            dst: Operand.t,
                            size: Size.t}
-(*        | SSE_SHUFFP of {oper: sse_shuffp,
+        | SSE_SHUFFP of {oper: sse_shuffp,
                          src: Operand.t,
                          dst: Operand.t,
-                         imm: Operand.t,
-                         dstsize: Size.t}*)
+                         size: Size.t,
+                         imm: Operand.t}
         (* Scalar SSE move data instruction.
          *)
         | SSE_MOVD of {src: Operand.t,
@@ -2356,6 +2366,20 @@ because 16 => XMMS or XMMD or XMMW and
                      size,
                      str " ",
                      oper1]
+            fun binImm (oper, size, oper1, oper2, imm)
+                = seq [oper,
+                   imm,
+                   str " ",
+                   oper1,
+                   str " ",
+                   oper2]
+            fun binSIMD (oper, size, oper1, oper2)
+                = seq [oper,
+                   str size,
+                   str " ",
+                   oper1,
+                   str " ",
+                   oper2]
           in 
             fn NOP
              => str "nop"
@@ -2543,15 +2567,31 @@ because 16 => XMMS or XMMD or XMMW and
                      Operand.layout src,
                      Operand.layout dst)
              | SSE_IBinAP {oper, src, dst, size}
-               => bin (sse_ibinap_layout oper,
-                       Size.layout size,
+               => binSIMD (sse_ibinap_layout oper,
+                       size,
                        Operand.layout src,
                        Operand.layout dst)
-             | SSE_IMOV {instr,src,dst,size}
-               => bin (sse_imov_layout instr,
-                         Operand.layout src,
-                         Operand.layout dst,
-                         Size.layout size)
+             | SSSE3_IBinAP {oper, src, dst, size}
+               => binSIMD (ssse3_ibinap_layout oper,
+                       size,
+                       Operand.layout src,
+                       Operand.layout dst)
+             | SSE_IBinLP {oper, src, dst, size}
+               => binSIMD (sse_ibinlp_layout oper,
+                       size,
+                       Operand.layout src,
+                       Operand.layout dst)
+             | SSE_PMD {oper, src, dst, size}
+               => binSIMD (sse_pmd_layout oper,
+                       size,
+                       Operand.layout src,
+                       Operand.layout dst)
+             | SSE_SHUFFP {oper, src, dst, size, imm}
+               => binImm (sse_shuffp_layout oper,
+                       Size.layout size,
+                       Operand.layout src,
+                       Operand.layout dst,
+                       Operand.layout imm)
              | SSE_BLENDVP {src,dst,size}
 (*TUCKER: NOTE: need to fix blend to make it work with different sizes*)
                => bin (str "blendvpd",
@@ -2559,7 +2599,7 @@ because 16 => XMMS or XMMD or XMMW and
                        Operand.layout dst,
                        Size.layout size)
              | SSE_CMPFP {oper,src, dst, size, imm}
-               => tert (sse_cmpfp_layout oper,
+               => binImm (sse_cmpfp_layout oper,
                         Size.layout size,
                         Operand.layout src,
                         Operand.layout dst,
@@ -2569,8 +2609,8 @@ because 16 => XMMS or XMMD or XMMW and
                      Size.layout size,
                      Operand.layout src,
                      Operand.layout dst)
-             | SSE_MOVFP {instr, src, dst, size}
-               => bin (sse_movfp_layout instr,
+             | SSE_MOVP {instr, src, dst, size}
+               => bin (sse_movp_layout instr,
                        Size.layout size,
                        Operand.layout src,
                        Operand.layout dst)
@@ -2789,13 +2829,19 @@ because 16 => XMMS or XMMD or XMMW and
            => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_IBinAP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
+           | SSSE3_IBinAP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
+           | SSE_IBinLP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
+           | SSE_PMD {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
+           | SSE_SHUFFP {src, dst, ...}
+           => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_BLENDVP  {src,dst,...}
            => {uses = [src, dst], defs = [dst], kills = []}
            | SSE_MOVS {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
-           | SSE_MOVFP {src, dst, ...}
-           => {uses = [src], defs = [dst], kills = []}
-           | SSE_IMOV {src, dst, ...}
+           | SSE_MOVP {src, dst, ...}
            => {uses = [src], defs = [dst], kills = []}
            | SSE_CMPFP {src, dst, ...}
            => {uses = [src, dst], defs = [dst], kills = []}
@@ -3049,11 +3095,17 @@ because 16 => XMMS or XMMD or XMMW and
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_IBinAP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSSE3_IBinAP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE_IBinLP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE_PMD {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
+           | SSE_SHUFFP {src, dst, ...}
+           => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_MOVS {src, dst, ...}
            => {srcs = SOME [src], dsts = SOME [dst]}
-           | SSE_MOVFP {src, dst, ...}
-           => {srcs = SOME [src, dst], dsts = SOME [dst]}
-           | SSE_IMOV {src, dst, ...}
+           | SSE_MOVP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
            | SSE_BLENDVP {src, dst, ...}
            => {srcs = SOME [src, dst], dsts = SOME [dst]}
@@ -3209,26 +3261,42 @@ because 16 => XMMS or XMMD or XMMW and
                          src = replacer {use = true, def = false} src,
                          dst = replacer {use = true, def = true} dst,
                          size = size}
+           | SSSE3_IBinAP {oper, src, dst, size}
+           => SSSE3_IBinAP {oper = oper,
+                         src = replacer {use = true, def = false} src,
+                         dst = replacer {use = true, def = true} dst,
+                         size = size}
+           | SSE_IBinLP {oper, src, dst, size}
+           => SSE_IBinLP {oper = oper,
+                         src = replacer {use = true, def = false} src,
+                         dst = replacer {use = true, def = true} dst,
+                         size = size}
+           | SSE_PMD {oper, src, dst, size}
+           => SSE_PMD {oper = oper,
+                         src = replacer {use = true, def = false} src,
+                         dst = replacer {use = true, def = true} dst,
+                         size = size}
            | SSE_MOVS {src, dst, size}
            => SSE_MOVS {src = replacer {use = true, def = false} src,
-                        dst = replacer {use = false, def = true} dst,
-                        size = size}
-           | SSE_IMOV {instr, src, dst, size}
-           => SSE_IMOV {instr = instr,
-                        src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         size = size}
            | SSE_BLENDVP {src, dst, size}
            => SSE_BLENDVP {src = replacer {use = true, def = false} src,
                            dst = replacer {use = false, def = true} dst,
                            size = size}
-           | SSE_MOVFP {instr, src, dst, size}
-           => SSE_MOVFP {instr = instr,
+           | SSE_MOVP {instr, src, dst, size}
+           => SSE_MOVP {instr = instr,
                         src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         size = size}
            | SSE_CMPFP {oper, src, dst, imm,  size}
            => SSE_CMPFP {oper = oper,
+                         src = replacer {use = true, def = false} src,
+                        dst = replacer {use = false, def = true} dst,
+                        imm = replacer {use = true, def = false} imm,
+                        size = size}
+           | SSE_SHUFFP {oper, src, dst, imm,  size}
+           => SSE_SHUFFP {oper = oper,
                          src = replacer {use = true, def = false} src,
                         dst = replacer {use = false, def = true} dst,
                         imm = replacer {use = true, def = false} imm,
@@ -3295,9 +3363,12 @@ because 16 => XMMS or XMMD or XMMW and
       val sse_binlp = SSE_BinLP
       val sse3_binap = SSE3_BinAP
       val sse_ibinap = SSE_IBinAP
+      val ssse3_ibinap = SSSE3_IBinAP
+      val sse_ibinlp = SSE_IBinLP
+      val sse_pmd = SSE_PMD
+      val sse_shuffp = SSE_SHUFFP
       val sse_movs = SSE_MOVS
-      val sse_movfp = SSE_MOVFP
-      val sse_imov = SSE_IMOV
+      val sse_movp = SSE_MOVP
       val sse_cmpfp = SSE_CMPFP
       val sse_comis = SSE_COMIS
       val sse_ucomis = SSE_UCOMIS
@@ -4022,9 +4093,12 @@ because 16 => XMMS or XMMD or XMMW and
       val instruction_sse_binlp = Instruction o Instruction.sse_binlp
       val instruction_sse3_binap = Instruction o Instruction.sse3_binap
       val instruction_sse_ibinap = Instruction o Instruction.sse_ibinap
+      val instruction_ssse3_ibinap = Instruction o Instruction.ssse3_ibinap
+      val instruction_sse_ibinlp = Instruction o Instruction.sse_ibinlp
+      val instruction_sse_pmd = Instruction o Instruction.sse_pmd
+      val instruction_sse_shuffp = Instruction o Instruction.sse_shuffp
       val instruction_sse_movs = Instruction o Instruction.sse_movs
-      val instruction_sse_movfp = Instruction o Instruction.sse_movfp
-      val instruction_sse_imov = Instruction o Instruction.sse_imov
+      val instruction_sse_movp = Instruction o Instruction.sse_movp
       val instruction_sse_cmpfp = Instruction o Instruction.sse_cmpfp
       val instruction_sse_comis = Instruction o Instruction.sse_comis
       val instruction_sse_ucomis = Instruction o Instruction.sse_ucomis

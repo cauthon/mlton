@@ -7,10 +7,7 @@
  * See the file MLton-LICENSE for details.
  *)
 (*Does What it says on the tin, allocates registers*)
-(*TUCKER: TODO: Add ymm registers
- *This might not be necessary,but I could add some stuff
- *to change the priority of allocations depending on how the
- *xmm/ymm registers are allocated *)
+
 functor amd64AllocateRegisters(S: AMD64_ALLOCATE_REGISTERS_STRUCTS) : AMD64_ALLOCATE_REGISTERS =
 struct
 
@@ -647,7 +644,7 @@ struct
                                    src'::hint_memlocs,
                                    hint_ignore)
                              else (hint_register,hint_memlocs,hint_ignore))
-                   | (Assembly.Instruction (Instruction.SSE_MOVFP
+                   | (Assembly.Instruction (Instruction.SSE_MOVP
                                             {src = Operand.MemLoc src', 
                                              dst = Operand.MemLoc dst',
                                              ...}))
@@ -2431,7 +2428,7 @@ struct
                                                src = Operand.XmmRegister register,
                                                size = size})
                                          else if (size =  Size.VXMM) then
-                                           (Assembly.instruction_sse_movfp
+                                           (Assembly.instruction_sse_movp
                                               {instr = Instruction.SSE_MOVAPD,
                                                dst = Operand.Address address,
                                                src = Operand.XmmRegister register,
@@ -2524,7 +2521,7 @@ struct
                                        [assembly,
                                         assembly_address,
                                         AppendList.single
-                                        (Assembly.instruction_sse_movfp
+                                        (Assembly.instruction_sse_movp
                                          {instr = Instruction.SSE_MOVAPD,
                                            dst = Operand.Address address,
                                           src = Operand.XmmRegister register,
@@ -2538,7 +2535,7 @@ struct
                                        [assembly,
                                         assembly_address,
                                         AppendList.single
-                                        (Assembly.instruction_sse_movfp
+                                        (Assembly.instruction_sse_movp
                                          {instr = Assembly.Instruction.SSE_MOVAPD
                                            dst = Operand.Address address,
                                           src = Operand.XmmRegister register,
@@ -3576,7 +3573,7 @@ struct
                                                        final_register,
                                                  size = size})
                                                 else if (size = Size.VXMM) then
-                                              (Assembly.instruction_sse_movfp
+                                              (Assembly.instruction_sse_movp
                                                  { instr = Instruction.SSE_MOVAPD,
                                                    src = Operand.xmmregister register,
                                                    dst = Operand.xmmregister 
@@ -3648,7 +3645,7 @@ struct
                                                        final_register,
                                                  size = size})
                                                 else if (size = Size.VXMM) then
-                                              (Assembly.instruction_sse_movfp
+                                              (Assembly.instruction_sse_movp
                                                  { instr = Instruction.SSE_MOVAPD,
                                                    src = Operand.xmmregister register,
                                                    dst = Operand.xmmregister 
@@ -3763,7 +3760,7 @@ struct
                                                        register',
                                                  size = size})
                                                 else if (size = Size.VXMM) then
-                                              (Assembly.instruction_sse_movfp
+                                              (Assembly.instruction_sse_movp
                                                  { instr = Instruction.SSE_MOVAPD,
                                                    src = Operand.address address,
                                                    dst = Operand.xmmregister 
@@ -9403,7 +9400,7 @@ struct
                 end
 
              | SSE_BinAP {oper, src, dst, size}
-               (* SSE packed binary arithmetic instructions.
+               (* SSE packed binary floating point arithmetic instructions.
                 * Require src/dst operands as follows:
                 *
                 *              dst
@@ -9472,6 +9469,288 @@ struct
              in
                default ()
              end
+             | SSE_IBinAP {oper, src, dst, size}
+               (* SSE packed binary integer arithmetic instructions.
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg
+                *      xmm      X
+                *  src imm
+                *      lab
+                *      add      X
+                *)
+               => let
+               val {uses,defs,kills} 
+                   = Instruction.uses_defs_kills instruction
+               val {assembly = assembly_pre,
+                    registerAllocation}
+                   = RA.pre {uses = uses,
+                             defs = defs,
+                             kills = kills,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+               fun default ()
+                   = let
+                 val {final_src,
+                      final_dst,
+                      assembly_src_dst,
+                      registerAllocation}
+                     = allocateXmmSrcDst {src = src,
+                                          dst = dst,
+                                          move_dst = true,
+                                          size = Size.VXMM,
+                                          info = info,
+                                          registerAllocation = registerAllocation}
+
+                 val instruction 
+                     = Instruction.SSE_IBinAP
+                         {oper = oper,
+                          src = final_src,
+                          dst = final_dst,
+                          size = size}
+
+                 val {uses = final_uses,
+                      defs = final_defs,
+                      ...}
+                     = Instruction.uses_defs_kills instruction
+
+                 val {assembly = assembly_post,
+                      registerAllocation}
+                     = RA.post {uses = uses,
+                                final_uses = final_uses,
+                                defs = defs,
+                                final_defs = final_defs,
+                                kills = kills,
+                                info = info,
+                                registerAllocation = registerAllocation}
+               in
+                 {assembly
+                  = AppendList.appends 
+                      [assembly_pre,
+                       assembly_src_dst,
+                       AppendList.single
+                         (Assembly.instruction instruction),
+                       assembly_post],
+                  registerAllocation = registerAllocation}
+               end
+             in
+               default ()
+             end
+             | SSSE3_IBinAP {oper, src, dst, size}
+               (* SSE packed binary integer arithmetic instructions.
+                * Instructions from the SSSE3 instruction set.
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg
+                *      xmm      X
+                *  src imm
+                *      lab
+                *      add      X
+                *)
+               => let
+               val {uses,defs,kills} 
+                   = Instruction.uses_defs_kills instruction
+               val {assembly = assembly_pre,
+                    registerAllocation}
+                   = RA.pre {uses = uses,
+                             defs = defs,
+                             kills = kills,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+               fun default ()
+                   = let
+                 val {final_src,
+                      final_dst,
+                      assembly_src_dst,
+                      registerAllocation}
+                     = allocateXmmSrcDst {src = src,
+                                          dst = dst,
+                                          move_dst = true,
+                                          size = Size.VXMM,
+                                          info = info,
+                                          registerAllocation = registerAllocation}
+
+                 val instruction 
+                     = Instruction.SSSE3_IBinAP
+                         {oper = oper,
+                          src = final_src,
+                          dst = final_dst,
+                          size = size}
+
+                 val {uses = final_uses,
+                      defs = final_defs,
+                      ...}
+                     = Instruction.uses_defs_kills instruction
+
+                 val {assembly = assembly_post,
+                      registerAllocation}
+                     = RA.post {uses = uses,
+                                final_uses = final_uses,
+                                defs = defs,
+                                final_defs = final_defs,
+                                kills = kills,
+                                info = info,
+                                registerAllocation = registerAllocation}
+               in
+                 {assembly
+                  = AppendList.appends 
+                      [assembly_pre,
+                       assembly_src_dst,
+                       AppendList.single
+                         (Assembly.instruction instruction),
+                       assembly_post],
+                  registerAllocation = registerAllocation}
+               end
+             in
+               default ()
+             end
+             | SSE_IBinLP {oper, src, dst, size}
+               (* SSE packed binary integer logical instructions.
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg
+                *      xmm      X
+                *  src imm
+                *      lab
+                *      add      X
+                *)
+               => let
+               val {uses,defs,kills} 
+                   = Instruction.uses_defs_kills instruction
+               val {assembly = assembly_pre,
+                    registerAllocation}
+                   = RA.pre {uses = uses,
+                             defs = defs,
+                             kills = kills,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+               fun default ()
+                   = let
+                 val {final_src,
+                      final_dst,
+                      assembly_src_dst,
+                      registerAllocation}
+                     = allocateXmmSrcDst {src = src,
+                                          dst = dst,
+                                          move_dst = true,
+                                          size = Size.VXMM,
+                                          info = info,
+                                          registerAllocation = registerAllocation}
+
+                 val instruction 
+                     = Instruction.SSE_IBinLP
+                         {oper = oper,
+                          src = final_src,
+                          dst = final_dst,
+                          size = size}
+
+                 val {uses = final_uses,
+                      defs = final_defs,
+                      ...}
+                     = Instruction.uses_defs_kills instruction
+
+                 val {assembly = assembly_post,
+                      registerAllocation}
+                     = RA.post {uses = uses,
+                                final_uses = final_uses,
+                                defs = defs,
+                                final_defs = final_defs,
+                                kills = kills,
+                                info = info,
+                                registerAllocation = registerAllocation}
+               in
+                 {assembly
+                  = AppendList.appends 
+                      [assembly_pre,
+                       assembly_src_dst,
+                       AppendList.single
+                         (Assembly.instruction instruction),
+                       assembly_post],
+                  registerAllocation = registerAllocation}
+               end
+             in
+               default ()
+             end
+             | SSE_PMD {oper, src, dst, size}
+               (* SSE packed integer multiplication instructions.
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg
+                *      xmm      X
+                *  src imm
+                *      lab
+                *      add      X
+                *)
+               => let
+               val {uses,defs,kills} 
+                   = Instruction.uses_defs_kills instruction
+               val {assembly = assembly_pre,
+                    registerAllocation}
+                   = RA.pre {uses = uses,
+                             defs = defs,
+                             kills = kills,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+               fun default ()
+                   = let
+                 val {final_src,
+                      final_dst,
+                      assembly_src_dst,
+                      registerAllocation}
+                     = allocateXmmSrcDst {src = src,
+                                          dst = dst,
+                                          move_dst = true,
+                                          size = Size.VXMM,
+                                          info = info,
+                                          registerAllocation = registerAllocation}
+
+                 val instruction 
+                     = Instruction.SSE_PMD
+                         {oper = oper,
+                          src = final_src,
+                          dst = final_dst,
+                          size = size}
+
+                 val {uses = final_uses,
+                      defs = final_defs,
+                      ...}
+                     = Instruction.uses_defs_kills instruction
+
+                 val {assembly = assembly_post,
+                      registerAllocation}
+                     = RA.post {uses = uses,
+                                final_uses = final_uses,
+                                defs = defs,
+                                final_defs = final_defs,
+                                kills = kills,
+                                info = info,
+                                registerAllocation = registerAllocation}
+               in
+                 {assembly
+                  = AppendList.appends 
+                      [assembly_pre,
+                       assembly_src_dst,
+                       AppendList.single
+                         (Assembly.instruction instruction),
+                       assembly_post],
+                  registerAllocation = registerAllocation}
+               end
+             in
+               default ()
+             end
+
              | SSE3_BinAP {oper, src, dst, size}
                (* SSE packed binary arithmetic instructions.
                 * From the SSE3 instruction set.
@@ -9514,6 +9793,149 @@ struct
                          {oper = oper,
                           src = final_src,
                           dst = final_dst,
+                          size = size}
+
+                 val {uses = final_uses,
+                      defs = final_defs,
+                      ...}
+                     = Instruction.uses_defs_kills instruction
+
+                 val {assembly = assembly_post,
+                      registerAllocation}
+                     = RA.post {uses = uses,
+                                final_uses = final_uses,
+                                defs = defs,
+                                final_defs = final_defs,
+                                kills = kills,
+                                info = info,
+                                registerAllocation = registerAllocation}
+               in
+                 {assembly
+                  = AppendList.appends 
+                      [assembly_pre,
+                       assembly_src_dst,
+                       AppendList.single
+                         (Assembly.instruction instruction),
+                       assembly_post],
+                  registerAllocation = registerAllocation}
+               end
+             in
+               default ()
+             end
+
+             | SSE_SHUFFP {oper, src, dst, imm, size}
+               (* SSE packed floating point  shuffle
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg
+                *      xmm      X
+                *  src imm
+                *      lab
+                *      add      X
+                *)
+               => let
+               val {uses,defs,kills} 
+                   = Instruction.uses_defs_kills instruction
+               val {assembly = assembly_pre,
+                    registerAllocation}
+                   = RA.pre {uses = uses,
+                             defs = defs,
+                             kills = kills,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+               fun default ()
+                   = let
+                 val {final_src,
+                      final_dst,
+                      assembly_src_dst,
+                      registerAllocation}
+                     = allocateXmmSrcDst {src = src,
+                                          dst = dst,
+                                          move_dst = true,
+                                          size = size,
+                                          info = info,
+                                          registerAllocation = registerAllocation}
+
+                 val instruction 
+                     = Instruction.SSE_SHUFFP
+                         {oper = oper,
+                          src = final_src,
+                          dst = final_dst,
+                          imm = imm,
+                          size = size}
+
+                 val {uses = final_uses,
+                      defs = final_defs,
+                      ...}
+                     = Instruction.uses_defs_kills instruction
+
+                 val {assembly = assembly_post,
+                      registerAllocation}
+                     = RA.post {uses = uses,
+                                final_uses = final_uses,
+                                defs = defs,
+                                final_defs = final_defs,
+                                kills = kills,
+                                info = info,
+                                registerAllocation = registerAllocation}
+               in
+                 {assembly
+                  = AppendList.appends 
+                      [assembly_pre,
+                       assembly_src_dst,
+                       AppendList.single
+                         (Assembly.instruction instruction),
+                       assembly_post],
+                  registerAllocation = registerAllocation}
+               end
+             in
+               default ()
+             end
+             | SSE_CMPFP {oper, src, dst, imm, size}
+               (* SSE packed floating point  shuffle
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg
+                *      xmm      X
+                *  src imm
+                *      lab
+                *      add      X
+                *)
+               => let
+               val {uses,defs,kills} 
+                   = Instruction.uses_defs_kills instruction
+               val {assembly = assembly_pre,
+                    registerAllocation}
+                   = RA.pre {uses = uses,
+                             defs = defs,
+                             kills = kills,
+                             info = info,
+                             registerAllocation = registerAllocation}
+
+               fun default ()
+                   = let
+                 val {final_src,
+                      final_dst,
+                      assembly_src_dst,
+                      registerAllocation}
+                     = allocateXmmSrcDst {src = src,
+                                          dst = dst,
+                                          move_dst = true,
+                                          size = size,
+                                          info = info,
+                                          registerAllocation = registerAllocation}
+
+                 val instruction 
+                     = Instruction.SSE_CMPFP
+                         {oper = oper,
+                          src = final_src,
+                          dst = final_dst,
+                          imm = imm,
                           size = size}
 
                  val {uses = final_uses,
@@ -9949,7 +10371,7 @@ struct
                                     | NONE => default ())
                      | NONE => default ()
                 end
-             | SSE_MOVFP {instr, src, dst, size}
+             | SSE_MOVP {instr, src, dst, size}
              => let
                   val {uses,defs,kills} 
                     = Instruction.uses_defs_kills instruction
@@ -9976,7 +10398,7 @@ struct
                              registerAllocation = registerAllocation}
 
                         val instruction
-                          = Instruction.SSE_MOVFP
+                          = Instruction.SSE_MOVP
                             {instr = instr,
                              src = final_src,
                              dst = final_dst,
@@ -10066,7 +10488,7 @@ struct
                              registerAllocation = registerAllocation}
 
                         val instruction
-                          = Instruction.SSE_MOVFP
+                          = Instruction.SSE_MOVP
                             {instr = instr,
                              src = final_src,
                              dst = final_dst,
