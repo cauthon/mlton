@@ -8,9 +8,9 @@ sig
   type simdReal
   type elt
   val elements:Int32.int
-  val fromArray:elt array -> simdReal
+(*  val fromArray:elt array -> simdReal*)
   val toArray:elt array * simdReal -> unit
-  val fromArrayUnsafe:elt array * Int32.int -> simdReal
+(*  val fromArrayUnsafe:elt array * Int64.int -> simdReal*)
   val toArrayUnsafe:elt array * simdReal * Int32.int -> unit
   val zero:elt
 end
@@ -45,16 +45,17 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     open Simd
     local
       open Common
+      val fromArrayUnsafe = fromArray
     in
       val elements = elements
-      val arrElements = elements-1 
+      val arrElements = elements-1
       val toArray = toArray
       fun fromArrayOffset (a,i) = 
-          if (Array.length a <= i + arrElements) 
-             orelse (i < 0) then
-            raise Subscript
-          else
-            fromArrayUnsafe (a,i)
+            if (Array.length a <= i + arrElements)
+               orelse (i < 0) then
+              raise Subscript
+            else
+              fromArrayUnsafe (a,i)
       val fromArray = fn x => fromArrayUnsafe(x,0)
       fun toArrayOffset (a,s,i) = 
           if (Array.length a <= i + arrElements) 

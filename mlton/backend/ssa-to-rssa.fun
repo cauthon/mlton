@@ -1269,18 +1269,41 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                               fun subSimdReal s =
                                  let
                                     val ty = Type.simdReal s
+                                    val size = a 1
+(*a n = Operand.Var*)
                                  in
-                                    move (ArrayOffset {base = a 0,
-                                                       index = a 1,
-                                                       offset = Bytes.zero,
-                                                       scale = Type.scale ty,
-                                                       ty = ty})
+                                   move (ArrayOffset {base = a 0,
+                                                      index = size,
+                                                      offset = Bytes.zero(*Offset {
+                                                        base = size,
+                                                        offset = Bytes.zero,
+                                                        ty = ty}*),
+                                                      scale = Scale.Eight,
+                                                      ty = ty})
+                                                      
+                                    (*move (ArrayOffset {base = a 0,(*operand.t*)
+                                                       index = Offset {
+                                                         base = Operand.zero(WordSize.W64),
+                                                         offset = Bytes.fromWord(
+                                                         ,
+                                                         ty = ty}
+
+                                                       offset = Bytes.*((a 1),size),
+                                                       scale = Scale.One,
+                                                       ty = ty})*)
                                  end
 
                               fun subSimdWord s =
                                  let
                                     val ty = Type.simdWord s
+                                    val size = Type.bytes ty
                                  in
+               (*                     move (ArrayOffset {base = a 0,
+                                                       index = Bytes.zero,
+                                                       offset = Bytes.*((a 1),size),
+                                                       scale = Scale.One,
+                                                       ty = ty})*)
+                                 (* in *)
                                     move (ArrayOffset {base = a 0,
                                                        index = a 1,
                                                        offset = Bytes.zero,
@@ -1594,8 +1617,8 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                     a 0,
                                                     EnsuresBytesFree)),
                                            func = CFunction.threadSwitchTo ()}
-(*                               | Simd_Real_fromArray s => subSimdReal s
-                               | Simd_Word_fromArray s => subSimdWord s*)
+                               | Simd_Real_fromArray s => subSimdReal s
+                               | Simd_Word_fromArray s => subSimdWord s
                                | Vector_length => arrayOrVectorLength ()
                                | Weak_canGet =>
                                     ifIsWeakPointer

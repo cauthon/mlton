@@ -23,6 +23,7 @@ local
                val <= : t * t -> bool
                val > : t * t -> bool
                val >= : t * t -> bool
+(*               val * : t * t -> t*)
                (* val align: t * {alignment: t} -> t *)
                val alignDown: t * {alignment: t} -> t
                (* val alignWord32: t -> t *)
@@ -70,6 +71,7 @@ local
                val <= : t * t -> bool
                val > : t * t -> bool
                val >= : t * t -> bool
+(*               val * : t * t -> t*)
                val align: t * {alignment: t} -> t
                (* val alignDown: t * {alignment: t} -> t *)
                (* val alignWord8: t -> t *)

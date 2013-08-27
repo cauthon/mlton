@@ -29,11 +29,11 @@ end
 functor SoftwareSimdReal(S: SOFTWARE_SIMD_REAL_STRUCTS):SIMD_REAL =
 struct
   open S
-  type elt = real
+  type elt = S.elt
   type simdReal = real*real*real*real
   fun toStringGeneric f s =
       let
-        fun mane (ls,str) =
+        fun make (ls,str) =
             case ls of
                 x::[] => concat ("("::(f x)::str)
               | x::xs => make(xs,(","::(f x)::str))
@@ -47,26 +47,26 @@ struct
   val fromArray = fn x => fromArray (x,0)
   val toArray = fn (x,y) => fromArray (x,y,0)
   val fromArrayOffset = fromArray
-  fun toList s as (a,b,c,d) = [a,b,c,d]
+  fun toList (a,b,c,d) = [a,b,c,d]
   fun fromList (a::b::c::d::_) = (a,b,c,d)
   fun mkBinOp f = fn (x,y) => simdBinOp (x,y,f)
   val add = mkBinOp Real.+
   val sub = mkBinOp Real.-
   val mul = mkBinOp Real.*
-  val div = mkBinOp Real.div
+  val div = mkBinOp Real./
 (*kind of a hack here to do a one argument function, but since its
  *the only one it should be fine*)
   local
-    val tempSqrt (x,y) => Real.Math.sqrt x
+    fun tempSqrt (x,y) = Real.Math.sqrt x
   in
-  fun sqrt s = simdBinOp(s,s,tempSqrt)
+    fun sqrt s = simdBinOp(s,s,tempSqrt)
   end
   val min = mkBinOp Real.min
   val max = mkBinOp Real.max
   local
 (*this might need to be part of the functor argument because 
  *things work differently for 128 and 256 bit values*)
-    fun hop (s1:simdReal,s2:simdReal,f:(elt*elt->elt)):simdReal =
+    fun hop (s1:simdReal,s2:simdReal,f:(S.elt*S.elt->S.elt)):simdReal =
         let
           val l1 = toList s1
           val l2 = toList s2
@@ -77,8 +77,8 @@ struct
                           | ([],(n::m::y),z) => doit([],y,(f(n,m)::z))
         in doit (l1,l2,[]) end
   in
-  val hadd = fn (x,y) => hop(x,y,Real.+)
-  val hsub = fn (x,y) => hop(x,y,Real.-)
+    val hadd = fn (x,y) => hop(x,y,Real.+)
+    val hsub = fn (x,y) => hop(x,y,Real.-)
   end
   fun addsub (s1,s2) =
       let 
@@ -99,12 +99,13 @@ struct
   val orb = mkBinOp(simdBinLp Word.orb)
   val xorb = mkBinOp(simdBinLp Word.xorb)
   val andnb = mkBinop(simbBinLp Word.notb o Word.andb)
+  end
   local
     open Word8
     infix 4 >>
   in
     fun decodeShuffleConst(w:word) =
-        ((andb(w,192)>>0w6),(andb(w,48)>>0w4),(andb(w,12)>>0w2),andb(w,3))
+        ((andb(w,0w192)>>0w6),(andb(w,0w48)>>0w4),(andb(w,0w12)>>0w2),andb(w,0w3))
   end
   fun primitiveShuffle(s1,s2,w) = 
       shuffle(s1,s2,decodeShuffleConst(w))                      
@@ -112,14 +113,14 @@ struct
                | ne  | nlt | ngt | nle | nge | unord
   fun cmp (s1:simdReal,s2:simdReal,c:cmp) =
       let
-        fun IEEECmp (ord:IEEEReal.real_order,not:bool->bool) =
-            fn(x,y)
-              if not(ord = Real.compareReal(x,y)) then
+        fun IEEECmp (order:IEEEReal.real_order,not:bool->bool) =
+            fn(x,y) =>
+              if not(order = Real.compareReal(x,y)) then
                 negNaN else posZero
         val t:bool->bool = fn x => x
         val f:bool->bool = Bool.not
-        fun doit (ord:IEEEReal.real_order,not:bool->bool):simdReal =
-            simdBinOp(s1,s2,(IEEECmp(ord,not)))
+        fun doit (order:IEEEReal.real_order,not:bool->bool):simdReal =
+            simdBinOp(s1,s2,(IEEECmp(order,not)))
       in            
       case c of
           eq => doit(IEEEReal.EQUAL,t)
@@ -152,7 +153,8 @@ struct
   in
     cmp(s1,s2,imm)
   end
-structure Simd128_Real32 = SoftwareSimdReal(
+end
+structure Simd128_Real32_Software = SoftwareSimdReal(
  struct
   structure Real = Real32
   structure Word = Word32
@@ -188,8 +190,9 @@ structure Simd128_Real32 = SoftwareSimdReal(
            | _ => raise Fail "Out of bounds shuffle index"
    in
      (select(s1,w1),select(s1,w2),select(s2,w3),select(s2,w4))
-   end)
-structure Simd128_Real64 = SoftwareSimdReal(
+   end
+end)
+structure Simd128_Real64_Software = SoftwareSimdReal(
  struct
   structure Real = Real64
   structure Word = Word64
@@ -222,4 +225,5 @@ structure Simd128_Real64 = SoftwareSimdReal(
            | _ => raise Fail "Out of bounds shuffle index"
    in
      (select(s1,w1),select(s2,w2))
-   end)
+   end
+end)

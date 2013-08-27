@@ -1791,8 +1791,8 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => 
                      (twoArgs (array (real (simdRealtoReal s)),simdReal s), unit))
        | Simd_Real_fromArray s =>
-         noTargs (fn () => (twoArgs (array (real (simdRealtoReal s)),
-                                     seqIndex), simdReal s))
+         noTargs (fn () => (twoArgs (array (real (simdRealtoReal s)),word32),
+                            simdReal s))
        | Simd_Real_toScalar s =>
          noTargs (fn () => (oneArg (simdReal s), real (simdRealtoReal s)))
        | Simd_Real_fromScalar s =>

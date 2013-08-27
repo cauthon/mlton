@@ -5,5 +5,7 @@ local
 in
   structure List
 end
+  $(SML_LIB)/basis/basis.mlb
+  $(SML_LIB)/basis/mlton.mlb
   $(SML_LIB)/basis/simd/simd.mlb
   test-real.sml

@@ -21,14 +21,13 @@ val toString =
     | ThirtyTwo => "32"*)
 
 val layout = Layout.str o toString
-
+(* make this an option, if we have an invalid scale
+   do explicit multiplication*)
 val fromInt: int -> t option =
    fn 1 => SOME One
     | 2 => SOME Two
     | 4 => SOME Four
     | 8 => SOME Eight
-(*    | 16 => SOME Eight
-    | 32 => SOME Eight*)
     | _ => NONE
 
 val fromBytes: Bytes.t -> t option =
