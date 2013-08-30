@@ -23,14 +23,14 @@ sig
   val fromWord:Word.word -> Real.real
   val shuffle:simdReal*simdReal*
               (Word8.word*Word8.word*Word8.word*Word8.word) -> simdReal
-  sharing type Real.real = elt
+  sharing type elt = Real.real
 end
 
 functor SoftwareSimdReal(S: SOFTWARE_SIMD_REAL_STRUCTS):SIMD_REAL =
 struct
   open S
   type elt = S.elt
-  type simdReal = real*real*real*real
+  type simdReal = S.simdReal
   fun toStringGeneric f s =
       let
         fun make (ls,str) =
@@ -45,15 +45,17 @@ struct
                toStringGeneric (Real.fmt f) s
   val toStringScalar = Real.toString o #1
   val fromArray = fn x => fromArray (x,0)
-  val toArray = fn (x,y) => fromArray (x,y,0)
+  val toArray = fn (x,y) => toArray (x,y,0)
   val fromArrayOffset = fromArray
-  fun toList (a,b,c,d) = [a,b,c,d]
-  fun fromList (a::b::c::d::_) = (a,b,c,d)
+  fun toList (s:simdReal as (a,b,c,d)):elt list = [a,b,c,d]
+  fun fromList (a::b::c::d::_):simdReal = (a,b,c,d)
   fun mkBinOp f = fn (x,y) => simdBinOp (x,y,f)
   val add = mkBinOp Real.+
   val sub = mkBinOp Real.-
   val mul = mkBinOp Real.*
   val div = mkBinOp Real./
+  val min = mkBinOp Real.min
+  val max = mkBinOp Real.max
 (*kind of a hack here to do a one argument function, but since its
  *the only one it should be fine*)
   local
@@ -61,8 +63,6 @@ struct
   in
     fun sqrt s = simdBinOp(s,s,tempSqrt)
   end
-  val min = mkBinOp Real.min
-  val max = mkBinOp Real.max
   local
 (*this might need to be part of the functor argument because 
  *things work differently for 128 and 256 bit values*)
@@ -70,7 +70,7 @@ struct
         let
           val l1 = toList s1
           val l2 = toList s2
-          val doit = fn (x,y,z) =>
+          val rec  doit = fn (x,y,z) =>
                         case (x,y,z) of
                             ([],[],z) => fromList z
                           | ((n::m::x),y,z) => doit(x,y,(f(n,m)::z))
@@ -98,7 +98,7 @@ struct
   val andb = mkBinOp(simdBinLp Word.andb)
   val orb = mkBinOp(simdBinLp Word.orb)
   val xorb = mkBinOp(simdBinLp Word.xorb)
-  val andnb = mkBinop(simbBinLp Word.notb o Word.andb)
+  val andnb = mkBinOp(simdBinLp (Word.andb o Word.notb))
   end
   local
     open Word8
@@ -159,7 +159,7 @@ structure Simd128_Real32_Software = SoftwareSimdReal(
   structure Real = Real32
   structure Word = Word32
   open Real
-  type elt = real
+  type elt = Real32.real
   type simdReal = real*real*real*real
   val elements = 4
   val vecSize = 128
@@ -197,8 +197,8 @@ structure Simd128_Real64_Software = SoftwareSimdReal(
   structure Real = Real64
   structure Word = Word64
   open Real
-  type elt = real
-  type simdReal = real*real
+  type elt = Rea64.real
+  type simdReal = real*real*real*real
   val elements = 2
   val vecSize = 128
   val realSize = 64

@@ -480,7 +480,7 @@ signature AMD64 =
           | SSE_SUBPD
           | SSE_MULPD
           | SSE_DIVPD
-          | SSE_MAXPD
+         | SSE_MAXPD
           | SSE_MINPD
         (* Scalar SSE unary arithmetic instructions. *)
         datatype sse_unas

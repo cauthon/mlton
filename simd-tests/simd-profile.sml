@@ -19,6 +19,17 @@ fun time (test,message:string) =
     in
       TextIO.print str
     end
+fun time32 (test,message:string) =
+    let
+      val timer = Timer.startCPUTimer()
+      val x = test()
+      val stop = Timer.checkCPUTimes(timer)
+      val _ = TextIO.print ("Sum = "^Real32.toString x^"\n")
+      val str = format_timer(#usr(#nongc(stop)),#sys(#nongc(stop)),
+                             #usr(#gc(stop)),#sys(#gc(stop)),message)
+    in
+      TextIO.print str
+    end
 (*functor SimdTest (structure S:SIMD_REAL
                   structure R:REAL
                   sharing type S.elt = R.real) =
@@ -73,12 +84,57 @@ fun simple_loop (r:real array) =
       else acc(Simd128_Real64.add(Simd128_Real64.fromArrayOffset(r,index),
                                   sum),
                                   index+2)
-    in acc(Simd128_Real64.fromArray(r),4) end
+    in acc(Simd128_Real64.fromArray(r),2) end
+local
+  type real = Real32.real
+  open Simd128_Real32
+in
+fun dot (A:real array,B:real array,len:int) = 
+    let
+      val sum = ref (0.0:real)
+      val temp = Array.array(4,0.0:real)
+      fun loop (i:int) =
+          if (i+8) > len then i
+          else
+            let
+              val n = fromArrayOffset(A,i)
+              val m = fromArrayOffset(B,i)
+              val n = mul(n,m)
+              val l = fromArrayOffset(A,i+4)
+              val m = fromArrayOffset(B,i+4)
+              val l = mul(m,l)
+              val m = hadd(n,l)
+              val _ = toArray(temp,m)
+              val _ = sum:=Array.foldl Real32.+ (!sum) temp
+      in loop(i+8) end
+      fun fin (i:int) =
+          if i >= len then (!sum)
+          else (sum:= (!sum)+(Real32.*(Array.sub(A,i),Array.sub(B,i)));fin(i+1))
+    in
+      fin(loop(0))
+    end
+fun software_dot (A:real array,B:real array,len:int) =
+    let 
+      val index = ref 0
+      val sum = ref (0.0:real)
+      val _ = while ((!index)<len) do
+                    (sum:=(!sum)+(Array.sub(A,(!index))*Array.sub(B,(!index)));index:=(!index)+1)
+    in 
+      !sum
+end
+end
 val test_arr = Array.tabulate (100000000,Real64.fromInt)
+val test_arr2 = Array.tabulate (100000000,fn x => Real64.fromInt(100000000-x))
+val test32_arr = Array.tabulate (100000000,Real32.fromInt)
+val test32_arr2 = Array.tabulate (100000000,fn x => Real32.fromInt(100000000-x))
 val simple_test = fn () => simple_loop(test_arr)
+val dot_test = fn () => dot(test32_arr,test32_arr2,100000000)
+val dot_test_software = fn () => software_dot(test32_arr,test32_arr2,100000000)
 (*structure testC = SimdTest(structure S = Simd128_Real32
                            structure R = Real32)*)
 (*structure testSoftware = SimdTest(Simd128_Real32_Software,Real32)*)
 val _ = time(simple_test,"Testing the C backend:\n")
+val _ = time32(dot_test,"Testing the C backend dot product:\n")
 val _ = time(fn () =>(Array.foldl Real64.+ 0.0 test_arr),"Testing Software:\n")
+val _ = time32(dot_test_software,"Testing Software dot:\n")
 (*val _ = time(testSoftware.timeSum,"Testing the C backend:\n")*)

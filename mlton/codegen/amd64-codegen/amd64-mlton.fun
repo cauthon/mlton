@@ -967,6 +967,110 @@ struct
                     size = size}],
                 transfer = NONE}]
             end
+        fun ssse3_ibinap (oper,size)
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+              val _
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize)
+              val instr = Instruction.SSE_MOVDQA
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movp 
+                   {instr = instr,
+                    dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_ssse3_ibinap
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
+                    size = size}],
+                transfer = NONE}]
+            end
+        fun sse_pmd (oper,size)
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+              val _
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize)
+              val instr = Instruction.SSE_MOVDQA
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movp
+                   {instr = instr,
+                    dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_sse_pmd
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
+                    size = size}],
+                transfer = NONE}]
+            end
+        fun sse_ibinlp (oper,size)
+          = let
+              val ((src1,src1size),
+                   (src2,src2size)) = getSrc2 ()
+              val (dst,dstsize) = getDst1 ()
+              val _
+                = Assert.assert
+                  ("amd64MLton.prim: binal, dstsize/src1size/src2size",
+                   fn () => src1size = dstsize andalso
+                            src2size = dstsize)
+              (* Reverse src1/src2 whepn src1 and src2 are temporaries
+               * and the oper is commutative.
+               *)
+              val mov = Instruction.SSE_MOVDQA
+              val (src1,src2)
+                = if (oper = Instruction.SSE_PAND)
+                     orelse
+                     (oper = Instruction.SSE_PANDN)
+                     orelse
+                     (oper = Instruction.SSE_POR)
+                     orelse
+                     (oper = Instruction.SSE_PXOR)
+                    then case (Operand.deMemloc src1, Operand.deMemloc src2)
+                           of (SOME memloc_src1, SOME memloc_src2)
+                            => if amd64Liveness.track memloc_src1
+                                  andalso
+                                  amd64Liveness.track memloc_src2
+                                 then (src2,src1)
+                                 else (src1,src2)
+                            | _ => (src1,src2)
+                    else (src1,src2)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movp
+                   {instr = mov,
+                    dst = dst,
+                    src = src1,
+                    size = src1size},
+                   Assembly.instruction_sse_ibinlp
+                   {oper = oper,
+                    dst = dst,
+                    src = src2,
+                    size = size}],
+                transfer = NONE}]
+            end
         fun sse_cmpfp (oper,mov) 
           = let
               val ((src1,src1size),
@@ -1524,44 +1628,195 @@ struct
                  | V128R64 => sse_movp Instruction.SSE_MOVSD
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
 (*
-\(^[[:space:]]\)+| Simd_Word_\([[:alnum:]]+\) s => true$
-\1| Simd_Word_\2 s =>
-\1  (case s of
-\1      V128W8 => ... sse_\2 (Instruction.(upcase \2),"b")
-\1    | V128W16 => ... sse_\2 (Instruction.(upcase \2),"w")
-\1    | V128W32 => ... sse_\2 (Instruction.(upcase \2),"d")
-\1    | V128W64 => ... sse_\2 (Instruction.(upcase \2),"q")
-\1    | _ => Error.bug "amd64.mlton, avx2 unimplemented")
-      
-             | Simd_Word_abs s => true
-             | Simd_Word_add s => true
-             | Simd_Word_adds (s,g) => true
-             | Simd_Word_andb s => true
-             | Simd_Word_andnb s => true
-             | Simd_Word_cmpeq s => true
-             | Simd_Word_cmpgt s => true
-             | Simd_Word_fromArray s => true
-             | Simd_Word_fromScalar s => true
-             | Simd_Word_hadd s => true
-             | Simd_Word_hsub s => true
+(while (re-search-forward
+"^\\([[:space:]]\\)+| Simd_Word_\\([[:alnum:]]+\\) s => true$" (mark)
+nil)
+  (replace-match
+(format "\\1| Simd_Word_\\2 s =>
+\\1  (case s of
+\\1      V128W8 => ... sse_\\2 (Instruction.%s,\"b\")
+\\1    | V128W16 => ... sse_\\2 (Instruction.%s,\"w\")
+\\1    | V128W32 => ... sse_\\2 (Instruction.%s,\"d\")
+\\1    | V128W64 => ... sse_\\2 (Instruction.%s,\"q\")
+\\1    | _ => Error.bug \"amd64.mlton, avx2 unimplemented\")" (upcase "\\2") (upcase "\\2") (upcase "\\2") (upcase "\\2"))
+nil nil))*)
+(* | Simd_Word_abs s =>
+   (case s of
+       V128W8 => ... sse_abs (Instruction.ABS,"b")
+     | V128W16 => ... sse_abs (Instruction.ABS,"w")
+     | V128W32 => ... sse_abs (Instruction.ABS,"d")
+     | V128W64 => ... sse_abs (Instruction.ABS,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")*)
+(* | Simd_Word_add s =>
+   (case s of
+       V128W8 => sse_ibinap (Instruction.PADD,"b")
+     | V128W16 => sse_ibinap (Instruction.PADD,"w")
+     | V128W32 => sse_ibinap (Instruction.PADD,"d")
+     | V128W64 => sse_ibinap (Instruction.PADD,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_adds (s,g) => 
+   (case g of
+        true => case s of(
+                V128W8 =>)
+                       | false => case s of())
+ | Simd_Word_andb s =>
+   (case s of
+       V128W8 => sse_ibinlp (Instruction.PAND,"")
+     | V128W16 => sse_ibinlp (Instruction.PAND,"")
+     | V128W32 => sse_ibinlp (Instruction.PAND,"")
+     | V128W64 => sse_ibinlp (Instruction.PAND,"")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_andnb s =>
+   (case s of
+       V128W8 => sse_ibinlp (Instruction.PANDN,"")
+     | V128W16 => sse_ibinlp (Instruction.PANDN,"")
+     | V128W32 => sse_ibinlp (Instruction.PANDN,"")
+     | V128W64 => sse_ibinlp (Instruction.PANDN,"")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_cmpeq s =>
+   (case s of
+       V128W8 => sse_cmpeq (Instruction.cmpeq,"b")
+     | V128W16 => sse_cmpeq (Instruction.cmpeq,"w")
+     | V128W32 => sse_cmpeq (Instruction.cmpeq,"d")
+     | V128W64 => sse_cmpeq (Instruction.cmpeq,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_cmpgt s =>
+   (case s of
+       V128W8 => sse_cmpgt (Instruction.cmpgt,"b")
+     | V128W16 => sse_cmpgt (Instruction.cmpgt,"w")
+     | V128W32 => sse_cmpgt (Instruction.cmpgt,"d")
+     | V128W64 => sse_cmpgt (Instruction.cmpgt,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_fromArray s =>
+   (case s of
+       V128W8 => sse_movp (Instruction.MOVDQA,"b")
+     | V128W16 => sse_movp (Instruction.MOVDQA,"w")
+     | V128W32 => sse_movp (Instruction.MOVDQA,"d")
+     | V128W64 => sse_movp (Instruction.MOVDQA,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_fromScalar s =>
+   (case s of
+       V128W8 => sse_movp (Instruction.MOVP,"b")
+     | V128W16 => sse_movp (Instruction.MOVP,"w")
+     | V128W32 => sse_movp (Instruction.MOVP,"d")
+     | V128W64 => sse_movp (Instruction.MOVP,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_hadd s =>
+   (case s of
+       V128W8 => sse_hadd (Instruction.hadd,"b")
+     | V128W16 => sse_hadd (Instruction.hadd,"w")
+     | V128W32 => sse_hadd (Instruction.hadd,"d")
+     | V128W64 => sse_hadd (Instruction.hadd,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_hsub s =>
+   (case s of
+       V128W8 => sse_hsub (Instruction.hsub,"b")
+     | V128W16 => sse_hsub (Instruction.hsub,"w")
+     | V128W32 => sse_hsub (Instruction.hsub,"d")
+     | V128W64 => sse_hsub (Instruction.hsub,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
              | Simd_Word_max (s,g) => true
              | Simd_Word_min (s,g) => true
-             | Simd_Word_mul32 s => true
+ | Simd_Word_mul32 s =>
+   (case s of
+       V128W8 => sse_mul32 (Instruction.mul32,"b")
+     | V128W16 => sse_mul32 (Instruction.mul32,"w")
+     | V128W32 => sse_mul32 (Instruction.mul32,"d")
+     | V128W64 => sse_mul32 (Instruction.mul32,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
              | Simd_Word_mulhi (s,g) => true
-             | Simd_Word_mullo s => true
-             | Simd_Word_orb s => true
-             | Simd_Word_sar s => true
-             | Simd_Word_sari s => true
-             | Simd_Word_shuffle s => true
-             | Simd_Word_sll s => true
-             | Simd_Word_slli s => true
-             | Simd_Word_slr s => true
-             | Simd_Word_slri s => true
-             | Simd_Word_sub s => true
-             | Simd_Word_subs (s,g) => true
-             | Simd_Word_toArray s => true
-             | Simd_Word_toScalar s => true
-             | Simd_Word_xorb s => true*)
+ | Simd_Word_mullo s =>
+   (case s of
+       V128W8 => sse_mullo (Instruction.mullo,"b")
+     | V128W16 => sse_mullo (Instruction.mullo,"w")
+     | V128W32 => sse_mullo (Instruction.mullo,"d")
+     | V128W64 => sse_mullo (Instruction.mullo,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_orb s =>
+   (case s of
+       V128W8 => sse_ibinlp (Instruction.POR,"")
+     | V128W16 => sse_ibinlp (Instruction.POR,"")
+     | V128W32 => sse_ibinlp (Instruction.POR,"")
+     | V128W64 => sse_ibinlp (Instruction.POR,"")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_sar s =>
+   (case s of
+       V128W8 => sse_binlp (Instruction.PSAR,"b")
+     | V128W16 => sse_binlp (Instruction.PSAR,"w")
+     | V128W32 => sse_binlp (Instruction.PSAR,"d")
+     | V128W64 => sse_binlp (Instruction.PSAR,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_sari s =>
+   (case s of
+       V128W8 => sse_sari (Instruction.sari,"b")
+     | V128W16 => sse_sari (Instruction.sari,"w")
+     | V128W32 => sse_sari (Instruction.sari,"d")
+     | V128W64 => sse_sari (Instruction.sari,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_shuffle s =>
+   (case s of
+       V128W8 => sse_shuffle (Instruction.shuffle,"b")
+     | V128W16 => sse_shuffle (Instruction.shuffle,"w")
+     | V128W32 => sse_shuffle (Instruction.shuffle,"d")
+     | V128W64 => sse_shuffle (Instruction.shuffle,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_sll s =>
+   (case s of
+       V128W8 => sse_ibinlp (Instruction.PSLL,"b")
+     | V128W16 => sse_ibinlp (Instruction.PSLL,"w")
+     | V128W32 => sse_ibinlp (Instruction.PSLL,"d")
+     | V128W64 => sse_ibinlp (Instruction.PSLL,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_slli s =>
+   (case s of
+       V128W8 => sse_slli (Instruction.slli,"b")
+     | V128W16 => sse_slli (Instruction.slli,"w")
+     | V128W32 => sse_slli (Instruction.slli,"d")
+     | V128W64 => sse_slli (Instruction.slli,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_ibinlp s =>
+   (case s of
+       V128W8 => sse_ibinlp (Instruction.PSLR,"b")
+     | V128W16 => sse_ibinlp (Instruction.PSLR,"w")
+     | V128W32 => sse_ibinlp (Instruction.PSLR,"d")
+     | V128W64 => sse_ibinlp (Instruction.PSLR,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_slri s =>
+   (case s of
+       V128W8 => sse_slri (Instruction.slri,"b")
+     | V128W16 => sse_slri (Instruction.slri,"w")
+     | V128W32 => sse_slri (Instruction.slri,"d")
+     | V128W64 => sse_slri (Instruction.slri,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_sub s =>
+   (case s of
+       V128W8 => sse_ibinap (Instruction.PSUB,"b")
+     | V128W16 => sse_ibinap (Instruction.PSUB,"w")
+     | V128W32 => sse_ibinap (Instruction.PSUB,"d")
+     | V128W64 => sse_ibinap (Instruction.PSUB,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_subs (s,g) => true
+ | Simd_Word_toArray s =>
+   (case s of
+       V128W8 => sse_movp (Instruction.MOVP,"b")
+     | V128W16 => sse_movp (Instruction.MOVP,"w")
+     | V128W32 => sse_movp (Instruction.MOVP,"d")
+     | V128W64 => sse_movp (Instruction.MOVP,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_toScalar s =>
+   (case s of
+       V128W8 => sse_movp (Instruction.MOVP,"b")
+     | V128W16 => sse_movp (Instruction.MOVP,"w")
+     | V128W32 => sse_movp (Instruction.MOVP,"d")
+     | V128W64 => sse_movp (Instruction.MOVP,"q")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")
+ | Simd_Word_xorb s =>
+   (case s of
+       V128W8 => sse_ibinlp (Instruction.PXOR,"")
+     | V128W16 => sse_ibinlp (Instruction.PXOR,"")
+     | V128W32 => sse_ibinlp (Instruction.PXOR,"")
+     | V128W64 => sse_ibinlp (Instruction.PXOR,"")
+     | _ => Error.bug "amd64.mlton, avx2 unimplemented")*)
              | Word_add _ => binal Instruction.ADD
              | Word_andb _ => binal Instruction.AND
              | Word_castToReal _ => sse_movd ()

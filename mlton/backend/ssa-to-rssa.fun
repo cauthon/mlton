@@ -1203,7 +1203,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                 make: Label.t -> Statement.t list * Transfer.t) =
                         let
                            val l = newBlock {args = args,
-                                             kind = kind,
+                                            kind = kind,
                                              statements = Vector.fromList ss,
                                              transfer = t}
                            val (ss, t) = make l
@@ -1270,46 +1270,116 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                  let
                                     val ty = Type.simdReal s
                                     val size = a 1
-(*a n = Operand.Var*)
+                                    val index = Var.newNoname()
                                  in
-                                   move (ArrayOffset {base = a 0,
-                                                      index = size,
-                                                      offset = Bytes.zero(*Offset {
-                                                        base = size,
-                                                        offset = Bytes.zero,
-                                                        ty = ty}*),
-                                                      scale = Scale.Eight,
-                                                      ty = ty})
-                                                      
-                                    (*move (ArrayOffset {base = a 0,(*operand.t*)
-                                                       index = Offset {
-                                                         base = Operand.zero(WordSize.W64),
-                                                         offset = Bytes.fromWord(
-                                                         ,
-                                                         ty = ty}
-
-                                                       offset = Bytes.*((a 1),size),
-                                                       scale = Scale.One,
-                                                       ty = ty})*)
+                                   adds [Statement.PrimApp
+                                      {args = (Vector.new2
+                                                 (size,
+                                                  (Operand.word
+                                                     (WordX.fromIntInf
+                                                        (Bytes.toIntInf 
+                                                           (Type.bytes ty),
+                                                      WordSize.word32))))),
+                                       dst = SOME (index,Type.word  WordSize.word32),
+                                       prim = Prim.wordMul (WordSize.word32,{signed = false})},
+                                    Statement.Bind {dst = (valOf var, ty),
+                                         isMutable = false,
+                                         src = (ArrayOffset {
+                                                   base = a 0,
+                                                   index = Operand.Var
+                                                             {var=index,
+                                                              ty=Type.word
+                                                              WordSize.word32},
+                                                   offset = Bytes.zero,
+                                                   scale = Scale.One,
+                                                   ty = ty})}]
+                                 end
+                              fun updateSimdReal s =
+                                 let
+                                    val ty = Type.simdReal s
+                                    val size = a 1
+                                    val index = Var.newNoname()
+                                 in
+                                   adds [Statement.PrimApp
+                                      {args = (Vector.new2
+                                                 (size,
+                                                  (Operand.word
+                                                     (WordX.fromIntInf
+                                                        (Bytes.toIntInf 
+                                                           (Type.bytes ty),
+                                                      WordSize.word32))))),
+                                       dst = SOME (index,Type.word  WordSize.word32),
+                                       prim = Prim.wordMul (WordSize.word32,{signed= false})},
+                                    Statement.Move {dst= 
+                                                    (ArrayOffset 
+                                                    {base = a 0,
+                                                     index = Operand.Var
+                                                             {var=index,
+                                                              ty=Type.word
+                                                              WordSize.word32},
+                                                     offset = Bytes.zero,
+                                                     scale = Scale.One,
+                                                     ty = ty}),
+                                                    src = a 2}]
                                  end
 
                               fun subSimdWord s =
                                  let
                                     val ty = Type.simdWord s
-                                    val size = Type.bytes ty
+                                    val size = a 1
+                                    val index = Var.newNoname()
                                  in
-               (*                     move (ArrayOffset {base = a 0,
-                                                       index = Bytes.zero,
-                                                       offset = Bytes.*((a 1),size),
-                                                       scale = Scale.One,
-                                                       ty = ty})*)
-                                 (* in *)
-                                    move (ArrayOffset {base = a 0,
-                                                       index = a 1,
-                                                       offset = Bytes.zero,
-                                                       scale = Type.scale ty,
-                                                       ty = ty})
+                                   adds [Statement.PrimApp
+                                      {args = (Vector.new2
+                                                 (size,
+                                                  (Operand.word
+                                                     (WordX.fromIntInf
+                                                        (Bytes.toIntInf 
+                                                           (Type.bytes ty),
+                                                      WordSize.word32))))),
+                                       dst = SOME (index,Type.word  WordSize.word32),
+                                       prim = Prim.wordMul (WordSize.word32,{signed= false})},
+                                    Statement.Bind {dst = (valOf var, ty),
+                                         isMutable = false,
+                                         src = (ArrayOffset {
+                                                   base = a 0,
+                                                   index = Operand.Var
+                                                             {var=index,
+                                                              ty=Type.word
+                                                              WordSize.word32},
+                                                   offset = Bytes.zero,
+                                                   scale = Scale.One,
+                                                   ty = ty})}]
                                  end
+                              fun updateSimdWord s =
+                                 let
+                                    val ty = Type.simdWord s
+                                    val size = a 1
+                                    val index = Var.newNoname()
+                                 in
+                                   adds [Statement.PrimApp
+                                      {args = (Vector.new2
+                                                 (size,
+                                                  (Operand.word
+                                                     (WordX.fromIntInf
+                                                        (Bytes.toIntInf 
+                                                           (Type.bytes ty),
+                                                      WordSize.word32))))),
+                                       dst = SOME (index,Type.word WordSize.word32),
+                                       prim = Prim.wordMul (WordSize.word32,{signed= false})},
+                                    Statement.Move {dst= 
+                                                    (ArrayOffset 
+                                                    {base = a 0,
+                                                     index = Operand.Var
+                                                             {var=index,
+                                                              ty=Type.word
+                                                              WordSize.word32},
+                                                     offset = Bytes.zero,
+                                                     scale = Scale.One,
+                                                     ty = ty}),
+                                                    src = a 2}]
+                                 end
+
 
                               fun dst () =
                                  case var of
@@ -1500,6 +1570,10 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                      dst = NONE,
                                                      prim = prim})
                                     end
+                               | Simd_Real_fromArray s => subSimdReal s
+                               | Simd_Real_toArray s => updateSimdReal s
+                               | Simd_Word_fromArray s => subSimdWord s
+                               | Simd_Word_toArray s => updateSimdWord s
                                  | Thread_atomicBegin =>
                                    (* gcState.atomicState++;
                                      * if (gcState.signalsInfo.signalIsPending)
@@ -1617,8 +1691,6 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                     a 0,
                                                     EnsuresBytesFree)),
                                            func = CFunction.threadSwitchTo ()}
-                               | Simd_Real_fromArray s => subSimdReal s
-                               | Simd_Word_fromArray s => subSimdWord s
                                | Vector_length => arrayOrVectorLength ()
                                | Weak_canGet =>
                                     ifIsWeakPointer
@@ -1698,7 +1770,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                              ty = ty}),
                                                      src = a 2})
                                        end
-                               | Word8Array_subSimdReal s => subSimdReal s
+(*                               | Word8Array_subSimdReal s => subSimdReal s
                                | Word8Array_updateSimdReal s =>
                                        let
                                           val ty = Type.simdReal s
@@ -1711,7 +1783,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                                              ty = ty}),
                                                      src = a 2})
                                        end
-(*
+*)(*
                                | Word8Array_subSimdWord s => subSimdWord s
                                | Word8Array_updateSimdWord s =>
                                        let
