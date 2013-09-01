@@ -56,7 +56,7 @@ signature AMD64_PSEUDO =
 
     structure Scale :
       sig
-        datatype t = One | Two | Four | Eight | Sixteen | ThirtyTwo
+        datatype t = One | Two | Four | Eight (*| Sixteen | ThirtyTwo*)
         val fromBytes : int -> t
         val fromCType : CType.t -> t
       end

@@ -72,6 +72,7 @@ fun time32 (test,message:string) =
           simdSum(r,arr)
         end
 end*)
+
 fun simple_loop (r:real array) =
     let
       val temp = Array.array(2,0.0:real)
@@ -87,31 +88,30 @@ fun simple_loop (r:real array) =
     in acc(Simd128_Real64.fromArray(r),2) end
 local
   type real = Real32.real
-  open Simd128_Real32
+  structure S = Simd128_Real32
 in
 fun dot (A:real array,B:real array,len:int) = 
     let
       val sum = ref (0.0:real)
       val temp = Array.array(4,0.0:real)
-      fun loop (i:int) =
-          if (i+8) > len then i
+      val index = ref 0
+      fun loop () =
+          if ((!index)+8) > len orelse ((!index)+8) > 100000000 then (!index)
           else
             let
-              val n = fromArrayOffset(A,i)
-              val m = fromArrayOffset(B,i)
-              val n = mul(n,m)
-              val l = fromArrayOffset(A,i+4)
-              val m = fromArrayOffset(B,i+4)
-              val l = mul(m,l)
-              val m = hadd(n,l)
-              val _ = toArray(temp,m)
-              val _ = sum:=Array.foldl Real32.+ (!sum) temp
-      in loop(i+8) end
+              val n = S.mul(S.fromArrayOffset(A,(!index)),S.fromArrayOffset(B,(!index)))
+              val _ = index:=(!index)+4
+              val l = S.mul(S.fromArrayOffset(A,(!index)),S.fromArrayOffset(B,(!index)))
+              val m = S.hadd(n,l)
+              val _ = index:=(!index)+4
+              val _ = S.toArray(temp,m)
+              val _ = sum:=(!sum)+Array.sub(temp,0)+Array.sub(temp,1)+Array.sub(temp,2)+Array.sub(temp,3)
+      in loop() end
       fun fin (i:int) =
           if i >= len then (!sum)
           else (sum:= (!sum)+(Real32.*(Array.sub(A,i),Array.sub(B,i)));fin(i+1))
     in
-      fin(loop(0))
+      fin(loop())
     end
 fun software_dot (A:real array,B:real array,len:int) =
     let 

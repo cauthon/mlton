@@ -174,7 +174,7 @@ local
       fn (f,name) => fn (w, w', s) =>
       if WordSize.equals (size w, size w')
          then make (f (toIntInfSg (w, s), toIntInfSg (w', s)), size w)
-      else Error.bug (concat ["WordX.", name])
+      else Error.bug (concat ["WordX.", name,": operands were (",toString w,",",toString w',")","Sizes were: (",WordSize.toString(size w),",",WordSize.toString(size w'),")"])
 in
    val op div = make (IntInf.div, "div")
    val op mod = make (IntInf.mod, "mod")

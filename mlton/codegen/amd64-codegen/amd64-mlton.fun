@@ -91,13 +91,13 @@ struct
          | Simd_Real_andn  _ => true(*
          | Simd_Real_cmp _ => true*)
          | Simd_Real_div  _ => true
-(*       | Simd_Real_hadd  _ => true
-         | Simd_Real_hsub  _ => true*)
+         | Simd_Real_hadd  _ => true
+        (* | Simd_Real_hsub  _ => true*)
          | Simd_Real_max  _ => true
          | Simd_Real_min  _ => true
          | Simd_Real_mul  _ => true
          | Simd_Real_or  _ => true
-(*         | Simd_Real_shuffle _ => true
+(*       | Simd_Real_shuffle _ => true
          | Simd_Real_sqrt  _ => true*)
          | Simd_Real_sub  _ => true
          | Simd_Real_xor  _ => true

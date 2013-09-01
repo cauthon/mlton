@@ -9,7 +9,7 @@ sig
   type elt
   val elements:Int32.int
 (*  val fromArray:elt array -> simdReal*)
-  val toArray:elt array * simdReal -> unit
+(*  val toArray:elt array * simdReal -> unit*)
 (*  val fromArrayUnsafe:elt array * Int64.int -> simdReal*)
   val toArrayUnsafe:elt array * simdReal * Int32.int -> unit
   val zero:elt
@@ -46,20 +46,23 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     local
       open Common
       val fromArrayUnsafe = fromArray
+(*      type int = Int64.int*)
     in
       val elements = elements
       val arrElements = elements-1
       val toArray = toArray
       fun fromArrayOffset (a,i) = 
-            if (Array.length a <= i + arrElements)
-               orelse (i < 0) then
+(*            if (Int64.<=((Int64.fromInt(Array.length a)),(Int64.+(i,arrElements))))
+               orelse (Int64.<(i,0)) then*)
+          if (Array.length a <= (i + arrElements)) orelse (i < 0) then
               raise Subscript
             else
-              fromArrayUnsafe (a,i)
-      val fromArray = fn x => fromArrayUnsafe(x,0)
+              fromArrayUnsafe (a,Int64.fromInt(i))
+      val fromArray = fn x => fromArrayUnsafe(x,0:Int64.int)
       fun toArrayOffset (a,s,i) = 
-          if (Array.length a <= i + arrElements) 
-             orelse (i < 0) then
+(*          if (Int64.<=((Int64.fromInt(Array.length a)),(Int64.+(i,arrElements))))
+             orelse (Int64.<(i,0)) then*)
+          if (Array.length a <= (i + arrElements)) orelse (i < 0) then
             raise Subscript
           else
             toArrayUnsafe (a,s,i)
@@ -71,7 +74,7 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
           if n = 0 then
             concat ("("::f(Array.sub(temp,n))::s)
           else make((","::f(Array.sub(temp,n))::s),(n-1))
-    in make ([")"],arrElements) end
+    in make ([")"],elements-1) end
     val toString = toStringGeneric Real.toString
     val fmt = fn f => fn s =>
                  toStringGeneric (Real.fmt f) s
@@ -109,7 +112,7 @@ structure Simd128_Real32 : SIMD_REAL = SimdReal(
     structure Common = 
        struct
           type simdReal = Simd.simdReal
-          type elt = Real.real
+          type elt = Real.real                       
           val elements = 4
           val zero = 0.0:Real32.real
           local
@@ -138,6 +141,7 @@ structure Simd128_Real64 : SIMD_REAL = SimdReal(
           type elt = Real.real
           local
             type real = elt
+
           in
           val elements = 2
           val zero = 0.0:Real64.real

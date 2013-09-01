@@ -1237,6 +1237,11 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                       | S.Exp.PrimApp {args, prim} =>
                            let
                               val prim = translatePrim prim
+                              val simdRealtoReal =
+                               fn SimdRealSize.V128R32 => RealSize.R32
+                                | SimdRealSize.V128R64 => RealSize.R64
+                                | SimdRealSize.V256R32 => RealSize.R32
+                                | SimdRealSize.V256R64 => RealSize.R64
                               fun arg i = Vector.sub (args, i)
                               fun a i = varOp (arg i)
                               fun cast () =
@@ -1269,115 +1274,53 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                               fun subSimdReal s =
                                  let
                                     val ty = Type.simdReal s
-                                    val size = a 1
-                                    val index = Var.newNoname()
+                                    val elemTy = Type.real(simdRealtoReal s)
                                  in
-                                   adds [Statement.PrimApp
-                                      {args = (Vector.new2
-                                                 (size,
-                                                  (Operand.word
-                                                     (WordX.fromIntInf
-                                                        (Bytes.toIntInf 
-                                                           (Type.bytes ty),
-                                                      WordSize.word32))))),
-                                       dst = SOME (index,Type.word  WordSize.word32),
-                                       prim = Prim.wordMul (WordSize.word32,{signed = false})},
-                                    Statement.Bind {dst = (valOf var, ty),
-                                         isMutable = false,
-                                         src = (ArrayOffset {
-                                                   base = a 0,
-                                                   index = Operand.Var
-                                                             {var=index,
-                                                              ty=Type.word
-                                                              WordSize.word32},
-                                                   offset = Bytes.zero,
-                                                   scale = Scale.One,
-                                                   ty = ty})}]
+                                    move (ArrayOffset {base = a 0,
+                                                       index = a 1,
+                                                       offset = Bytes.zero,
+                                                       scale = Type.scale elemTy,
+                                                       ty = ty})
                                  end
                               fun updateSimdReal s =
                                  let
                                     val ty = Type.simdReal s
-                                    val size = a 1
-                                    val index = Var.newNoname()
+                                    val elemTy = Type.real(simdRealtoReal s)
                                  in
-                                   adds [Statement.PrimApp
-                                      {args = (Vector.new2
-                                                 (size,
-                                                  (Operand.word
-                                                     (WordX.fromIntInf
-                                                        (Bytes.toIntInf 
-                                                           (Type.bytes ty),
-                                                      WordSize.word32))))),
-                                       dst = SOME (index,Type.word  WordSize.word32),
-                                       prim = Prim.wordMul (WordSize.word32,{signed= false})},
-                                    Statement.Move {dst= 
+                                    add (Statement.Move {dst= 
                                                     (ArrayOffset 
                                                     {base = a 0,
-                                                     index = Operand.Var
-                                                             {var=index,
-                                                              ty=Type.word
-                                                              WordSize.word32},
+                                                     index = Operand.zero WordSize.word64,
                                                      offset = Bytes.zero,
-                                                     scale = Scale.One,
+                                                     scale = Type.scale elemTy,
                                                      ty = ty}),
-                                                    src = a 2}]
+                                                    src = a 1})
                                  end
 
                               fun subSimdWord s =
                                  let
                                     val ty = Type.simdWord s
-                                    val size = a 1
-                                    val index = Var.newNoname()
+                                    val elemTy = Type.word(WordSize.fromBytes(SimdWordSize.bytes s))
                                  in
-                                   adds [Statement.PrimApp
-                                      {args = (Vector.new2
-                                                 (size,
-                                                  (Operand.word
-                                                     (WordX.fromIntInf
-                                                        (Bytes.toIntInf 
-                                                           (Type.bytes ty),
-                                                      WordSize.word32))))),
-                                       dst = SOME (index,Type.word  WordSize.word32),
-                                       prim = Prim.wordMul (WordSize.word32,{signed= false})},
-                                    Statement.Bind {dst = (valOf var, ty),
-                                         isMutable = false,
-                                         src = (ArrayOffset {
-                                                   base = a 0,
-                                                   index = Operand.Var
-                                                             {var=index,
-                                                              ty=Type.word
-                                                              WordSize.word32},
-                                                   offset = Bytes.zero,
-                                                   scale = Scale.One,
-                                                   ty = ty})}]
+                                    move (ArrayOffset {base = a 0,
+                                                       index = a 1,
+                                                       offset = Bytes.zero,
+                                                       scale = Type.scale elemTy,
+                                                       ty = ty})
                                  end
                               fun updateSimdWord s =
                                  let
                                     val ty = Type.simdWord s
-                                    val size = a 1
-                                    val index = Var.newNoname()
+                                    val elemTy =  Type.word(WordSize.fromBytes(SimdWordSize.bytes s))
                                  in
-                                   adds [Statement.PrimApp
-                                      {args = (Vector.new2
-                                                 (size,
-                                                  (Operand.word
-                                                     (WordX.fromIntInf
-                                                        (Bytes.toIntInf 
-                                                           (Type.bytes ty),
-                                                      WordSize.word32))))),
-                                       dst = SOME (index,Type.word WordSize.word32),
-                                       prim = Prim.wordMul (WordSize.word32,{signed= false})},
-                                    Statement.Move {dst= 
+                                    add (Statement.Move {dst= 
                                                     (ArrayOffset 
                                                     {base = a 0,
-                                                     index = Operand.Var
-                                                             {var=index,
-                                                              ty=Type.word
-                                                              WordSize.word32},
+                                                     index =  Operand.zero WordSize.word64,
                                                      offset = Bytes.zero,
-                                                     scale = Scale.One,
+                                                     scale = Type.scale elemTy,
                                                      ty = ty}),
-                                                    src = a 2}]
+                                                    src = a 1})
                                  end
 
 

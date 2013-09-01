@@ -1633,6 +1633,7 @@ fun 'a checkApp (prim: 'a t,
       val simdWordtoWord = WordSize.fromBits o SimdWordSize.wordBits
       val word8 = word WordSize.word8
       val word32 = word WordSize.word32
+      val word64 = word WordSize.word64
       fun intInfBinary () =
          noTargs (fn () => (threeArgs (intInf, intInf, csize), intInf))
       fun intInfShift () =
@@ -1791,7 +1792,7 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => 
                      (twoArgs (array (real (simdRealtoReal s)),simdReal s), unit))
        | Simd_Real_fromArray s =>
-         noTargs (fn () => (twoArgs (array (real (simdRealtoReal s)),word32),
+         noTargs (fn () => (twoArgs (array (real (simdRealtoReal s)),word64),
                             simdReal s))
        | Simd_Real_toScalar s =>
          noTargs (fn () => (oneArg (simdReal s), real (simdRealtoReal s)))
@@ -1831,7 +1832,7 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => (oneArg (simdWord w), word (simdWordtoWord w)))
        | Simd_Word_fromArray w =>
          noTargs (fn () => (twoArgs (array (word (simdWordtoWord w)),
-                            seqIndex), simdWord w))
+                            word64), simdWord w))
        | Simd_Word_toArray w =>
          noTargs (fn () => (twoArgs (array (word (simdWordtoWord w)),
                                        (simdWord w)),unit))

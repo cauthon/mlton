@@ -223,14 +223,14 @@ struct
   val applyFFTempXmmRegArgX = Label.fromString "applyFFTempXmmRegArgX"
   fun applyFFTempXmmRegArgXContents i
     = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgX,
-                  index = Immediate.int i,
+                  index = Immediate.int (i*2),
                   scale = Scale.Eight,
                   size = Size.VXMM,
                   class = Classes.CArg}
   val applyFFTempXmmRegArgY = Label.fromString "applyFFTempXmmRegArgY"
   fun applyFFTempXmmRegArgYContents i
     = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgY,
-                  index = Immediate.int i,
+                  index = Immediate.int (i*4),
                   scale = Scale.Eight,
                   size = Size.VYMM,
                   class = Classes.CArg}
@@ -281,7 +281,6 @@ struct
              | Word16 => w "16"
              | Word32 => w "32"
              | Word64 => w "64"
-(*TUCKER: not sure if I actually need to insert this*)
              | Simd128_Real32 => v "128_Real32"
              | Simd128_Real64 => v "128_Real64"
              | Simd128_Word8 => v "128_Word8"

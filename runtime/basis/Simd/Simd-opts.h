@@ -369,7 +369,7 @@ _mm_storeu_si128(retval,_mm_##opcode##_##sign##size (x,imm));}*/
 #define simdArrayOffset(size,opcode,suffix,type,vsize,avx)              \
   MLTON_CODEGEN_STATIC_INLINE                                           \
   Simd##vsize##_Real##size##_t                                          \
-  Simd##vsize##_Real##size##_fromArray (Array(Real##size##_t) r,Int32_t i){ \
+  Simd##vsize##_Real##size##_fromArray (Array(Real##size##_t) r,Int64_t i){ \
     return _mm##avx##_##opcode##_##suffix ((type*)(r + (i*size/8)));    \
   }
 simdArrayOffset(32,load,ps,float,128,)
@@ -377,7 +377,7 @@ simdArrayOffset(32,load,ps,float,128,)
 #define simdArrayStore(size,opcode,suffix,type,vsize,avx)              \
   MLTON_CODEGEN_STATIC_INLINE                                       \
   void Simd##vsize##_Real##size##_toArray\
-  (Array(Real##size##_t) r,Simd##vsize##_Real##size##_t s,Int32_t i){   \
+  (Array(Real##size##_t) r,Simd##vsize##_Real##size##_t s,Int64_t i){   \
     return _mm##avx##_##opcode##_##suffix ((type*)(r + (i*size/8)),s);  \
   }
 simdArrayStore(32,store,ps,float,128,)

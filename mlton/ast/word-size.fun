@@ -24,7 +24,7 @@ fun fromBits (b: Bits.t): t =
    if Bits.>= (b, Bits.zero)
       then T b
    else Error.bug (concat ["WordSize.fromBits: strange word size: ", Bits.toString b])
-
+val fromBytes = fromBits o Bytes.toBits
 fun isValidSize (i: int) =
    (1 <= i andalso i <= 32) orelse i = 64 (*orelse i = 128 orelse i = 256*)
 

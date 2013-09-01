@@ -699,8 +699,7 @@ because 16 => XMMS or XMMD or XMMW and
   structure Scale = 
     struct
       datatype t 
-        = One | Two | Four | Eight | Sixteen | ThirtyTwo
-
+        = One | Two | Four | Eight (*| Sixteen | ThirtyTwo*)
       val layout
         = let
             open Layout
@@ -745,7 +744,7 @@ because 16 => XMMS or XMMD or XMMW and
              | Simd128_Word32 => Eight
              | Simd128_Word64 => Eight
              | Simd256_Real32 => Eight
-             | Simd256_Real64 => Eight
+ (*            | Simd256_Real64 => Eight*)
 (*             | Simd256_WordX => ThirtyTwo*)
       end
 
@@ -756,10 +755,10 @@ because 16 => XMMS or XMMD or XMMW and
            | Two => WordX.fromIntInf (2, WordSize.word64)
            | Four => WordX.fromIntInf (4, WordSize.word64)
            | Eight => WordX.fromIntInf (8, WordSize.word64)
-(*TUCKER: ? should these be as they are or WordSize.word64*)
-(*           | Sixteen => WordX.fromIntInf (16, WordSize.word64)
-           | ThirtyTwo => WordX.fromIntInf (32, WordSize.word64)*)
+(*           | Sixteen => WordX.fromIntInf (1, WordSize.word64)
+           | ThirtyTwo => WordX.fromIntInf (1, WordSize.word64)*)
       val toImmediate = Immediate.word o toWordX
+      val toString = WordX.toString o toWordX
     end
 
   structure Address =
@@ -1209,10 +1208,10 @@ because 16 => XMMS or XMMD or XMMW and
 
       fun scaleImmediate (imm, scale) =
         case Immediate.destruct imm of
-           Immediate.Word w => Immediate.word (WordX.mul (w, 
+            Immediate.Word w =>            Immediate.word (WordX.mul (w, 
                                                           Scale.toWordX scale, 
                                                           {signed = true}))
-         | _ => Error.bug "amd64.MemLoc.scaleImmediate"
+         | _ => Error.bug (concat["amd64.MemLoc.scaleImmediate: scale=",Scale.toString(scale)])
 
       fun addImmediate (imm1, imm2) =
         case (Immediate.destruct imm1, Immediate.destruct imm2) of

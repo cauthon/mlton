@@ -250,12 +250,13 @@ signature AMD64 =
     structure Scale : 
       sig
         datatype t 
-          = One | Two | Four | Eight | Sixteen | ThirtyTwo
+          = One | Two | Four | Eight (*| Sixteen | ThirtyTwo*)
         val eq : t * t -> bool
         val toWordX : t -> WordX.t
         val toImmediate : t -> Immediate.t
         val fromBytes : int -> t
         val fromCType : CType.t -> t
+        val toString: t -> string
       end
 
     structure Address :
