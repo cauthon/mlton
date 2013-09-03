@@ -223,9 +223,9 @@ struct
   val applyFFTempXmmRegArgX = Label.fromString "applyFFTempXmmRegArgX"
   fun applyFFTempXmmRegArgXContents i
     = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgX,
-                  index = Immediate.int (i*2),
+                  index = Immediate.int i,
                   scale = Scale.Eight,
-                  size = Size.VXMM,
+                  size = Size.VYMM,
                   class = Classes.CArg}
   val applyFFTempXmmRegArgY = Label.fromString "applyFFTempXmmRegArgY"
   fun applyFFTempXmmRegArgYContents i

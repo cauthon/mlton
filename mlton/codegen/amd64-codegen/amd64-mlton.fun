@@ -105,8 +105,8 @@ struct
          | Simd_Real_cmplt _ => true
          | Simd_Real_cmpgt _ => true*)
          | Simd_Real_fromArray _ => true
-(*         | Simd_Real_toArray _ => true
-         | Simd_Real_fromScalar _ => true
+         | Simd_Real_toArray _ => true
+(*         | Simd_Real_fromScalar _ => true
          | Simd_Real_toScalar _ => true*)
 (*         | Simd_Word_abs _ => true
          | Simd_Word_add _ => true

@@ -52,6 +52,8 @@ val thread = objptr
 
 val equals: t * t -> bool = op =
 
+
+        
 fun memo (f: t -> 'a): t -> 'a =
    let
       val cpointer = f CPointer

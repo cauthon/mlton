@@ -225,13 +225,35 @@ struct
                   val ty = Machine.Type.toCType (Register.ty r)
                   val index = Machine.Register.index r
                   val base = amd64.Immediate.label (amd64MLton.local_base ty)
+                  fun isSimd128 (s):bool =
+                      case s of
+                          Simd128_Real32 => true
+                        | Simd128_Real64 => true
+                        | Simd128_Word8 => true
+                        | Simd128_Word16 => true
+                        | Simd128_Word32 => true
+                        | Simd128_Word64 => true
+                        | _ => false
+                  fun isSimd256 (s):bool =
+                      case s of
+                          Simd256_Real32 => true
+                        | Simd256_Real64 => true
+                        | _ => false
                   val origin =
-                     amd64.MemLoc.imm
-                     {base = base,
-                      index = amd64.Immediate.int index,
-                      scale = amd64.Scale.fromCType ty,
-                      size = amd64.Size.BYTE,
-                      class = amd64MLton.Classes.Locals}
+                      (if (isSimd128 ty) then
+                        amd64.MemLoc.imm
+                          {base = base,
+                           index = amd64.Immediate.int (index*2),
+                           scale = amd64.Scale.fromCType ty,
+                           size = amd64.Size.BYTE,
+                           class = amd64MLton.Classes.Locals}
+                       else
+                         amd64.MemLoc.imm
+                           {base = base,
+                            index = amd64.Immediate.int index,
+                            scale = amd64.Scale.fromCType ty,
+                            size = amd64.Size.BYTE,
+                            class = amd64MLton.Classes.Locals})
                   val sizes = amd64.Size.fromCType ty
                in
                   (#1 o Vector.mapAndFold)
