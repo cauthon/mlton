@@ -520,6 +520,8 @@ signature AMD64 =
           | SSE_MOVSD  (*Move scalar fp value*)
           | SSE_MOVDQA (*move aligned double quadword*)
           | SSE_MOVDQU (*move unaligned double quadword*)
+          | SSE_MOVDW
+          | SSE_MOVQ
         (*SSE4.1*)
           | SSE_PMOVSX (*packed move with sign extend*)
           | SSE_PMOVZX (*packed move with zero extend*)

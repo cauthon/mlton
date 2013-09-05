@@ -3,10 +3,94 @@
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
-
-
-
-structure Simd128_Word8 : SIMD_WORD =
+signature SIMD_WORD_STRUCTS =
+sig
+  type simdWord
+  type elt
+  structure Word:WORD
+  structure Simd:PRIM_SIMD_WORD
+  val zero:elt
+  val elements:Int32.int
+  sharing type Word.word = Simd.elt = elt
+  sharing type Simd.simdWord = simdWord
+end
+functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
+   struct        
+   open S
+   open Simd
+   val fromArrayUnsafe = fromArray
+   val fromArray = fn x => fromArrayUnsafe(x,0:Int64.int)
+   fun fromArrayOffset (a,i) =
+       if (Array.length a <= (i + elements-1)) orelse (i <0)
+       then raise Subscript
+       else if (Int32.mod(i,elements) = 0)
+       then fromArrayUnsafe(a,Int64.fromInt(i))
+       (*Deal with unaligned index
+        *we copy the desired elements to a new array, and load from that*)
+       else let
+         val temp = Primitive.Array.arrayUnsafe(Int64.fromInt(elements))
+         (*I assume this'll be optimized into a simple loop*)
+         fun loop (j) = 
+             if j = elements then ()
+             else (Primitive.Array.updateUnsafe(temp,Int64.fromInt(j),Array.sub(a,(i+j)));
+                   loop(j+1))
+         val _ = loop(0)
+       in fromArrayUnsafe(temp,Int64.fromInt(0)) end
+   local
+     type word = elt
+     structure Array = Primitive.Array
+   in
+     val toStringElt=Word.toString
+     fun toString s = let
+       val temp = Array.arrayUnsafe (Int64.fromInt(elements))
+       val _ = toArray (temp,s)
+       fun make (s:string list,n:Int64.int) =
+      if n = 0 then
+        concat ("("::toStringElt(Array.subUnsafe(temp,n))::s)
+      else make((","::toStringElt(Array.subUnsafe(temp,n))::s),Int64.-(n,1))
+     in make ([")"],Int64.fromInt(elements-1)) end
+     fun toStringScalar s = let
+       val temp = toScalar s
+     in (toStringElt temp) end
+   end
+end
+structure Simd128_Word8:SIMD_WORD = SimdWord(
+  struct
+    structure Word = Word8                       
+    structure Simd = Primitive.Simd128_Word8
+    type elt = Word.word
+    type simdWord = Simd.simdWord
+    val zero = 0w0:elt
+    val elements = 16
+  end)
+structure Simd128_Word16:SIMD_WORD = SimdWord(
+  struct
+    structure Word = Word16                       
+    structure Simd = Primitive.Simd128_Word16
+    type elt = Word.word
+    type simdWord = Simd.simdWord
+    val zero = 0w0:elt
+    val elements = 8
+  end)
+structure Simd128_Word32:SIMD_WORD = SimdWord(
+  struct
+    structure Word = Word32                       
+    structure Simd = Primitive.Simd128_Word32
+    type elt = Word.word
+    type simdWord = Simd.simdWord
+    val zero = 0w0:elt
+    val elements = 4
+  end)
+structure Simd128_Word64:SIMD_WORD = SimdWord(
+  struct
+    structure Word = Word64                       
+    structure Simd = Primitive.Simd128_Word64
+    type elt = Word.word
+    type simdWord = Simd.simdWord
+    val zero = 0w0:elt
+    val elements = 2
+  end)
+(*structure Simd128_Word8 : SIMD_WORD =
 struct
    val vec_size = 128
    val word_size = 8
@@ -21,7 +105,7 @@ val toArray = _import "Simd128_Word8_store" private :
               (word) array * simdWord -> unit;
 val toStringElt = Word8.toString
 fun toString s = let
-  val temp = Unsafe.Array.create (elements,0w0:word)
+  val temp = Primitive.Array.arrayUnsafe (elements)
   val _ = toArray (temp,s)
   fun make (s:string list,n:int) =
       if n = 0 then
@@ -117,3 +201,4 @@ fun toString s = let
   in (toStringElt temp) end
 end
 end
+*)

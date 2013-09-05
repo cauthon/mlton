@@ -1300,7 +1300,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                               fun subSimdWord s =
                                  let
                                     val ty = Type.simdWord s
-                                    val elemTy = Type.word(WordSize.fromBytes(SimdWordSize.bytes s))
+                                    val elemTy = Type.word(WordSize.fromBytes(SimdWordSize.wordBytes s))
                                  in
                                     move (ArrayOffset {base = a 0,
                                                        index = a 1,
@@ -1311,7 +1311,7 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                               fun updateSimdWord s =
                                  let
                                     val ty = Type.simdWord s
-                                    val elemTy =  Type.word(WordSize.fromBytes(SimdWordSize.bytes s))
+                                    val elemTy =  Type.word(WordSize.fromBytes(SimdWordSize.wordBytes s))
                                  in
                                     add (Statement.Move {dst= 
                                                     (ArrayOffset 

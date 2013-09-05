@@ -225,12 +225,12 @@ struct
     = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgX,
                   index = Immediate.int i,
                   scale = Scale.Eight,
-                  size = Size.VYMM,
+                  size = Size.VXMM,
                   class = Classes.CArg}
   val applyFFTempXmmRegArgY = Label.fromString "applyFFTempXmmRegArgY"
   fun applyFFTempXmmRegArgYContents i
     = MemLoc.imm {base = Immediate.label applyFFTempXmmRegArgY,
-                  index = Immediate.int (i*4),
+                  index = Immediate.int i,
                   scale = Scale.Eight,
                   size = Size.VYMM,
                   class = Classes.CArg}

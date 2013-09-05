@@ -1860,6 +1860,8 @@ because 16 => XMMS or XMMD or XMMW and
           | SSE_MOVSD  (*Move scalar fp value*)
           | SSE_MOVDQA (*move aligned double quadword*)
           | SSE_MOVDQU (*move unaligned double quadword*)
+          | SSE_MOVDW (*Move doubleword*)
+          | SSE_MOVQ (*Move quadword*)
           (*SSE4.1*)
           | SSE_PMOVSX (*packed move with sign extend*)
           | SSE_PMOVZX (*packed move with zero extend*)
@@ -1880,7 +1882,9 @@ because 16 => XMMS or XMMD or XMMW and
                 | SSE_MOVDQA => str "movdqa"
                 | SSE_MOVDQU => str "movdqu"
                 | SSE_PMOVSX => str "pmovsx"
-                | SSE_PMOVZX => str "pmovzx"
+                | SSE_PMOVZX => str "pmovz"
+                | SSE_MOVDW => str "movd"
+                | SSE_MOVQ => str "movq"
             end
       (*Now integer sse instructions*)
 (*TODO: Deal with layout issues somehow *)
@@ -2377,7 +2381,8 @@ because 16 => XMMS or XMMD or XMMW and
                    str size,
                    str " ",
                    oper1,
-                   str " ",
+                   str ",
+",
                    oper2]
           in 
             fn NOP
