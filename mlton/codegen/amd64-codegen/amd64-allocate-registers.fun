@@ -11126,6 +11126,174 @@ struct
                       assembly_post],
                    registerAllocation = registerAllocation}
                 end
+             | SSE_MOVQ {src, srcsize, dst, dstsize, ...}
+               (* Scalar SSE move data instruction.
+                * Require src/dst operands as follows:
+                *
+                *              dst
+                *          reg xmm imm lab add 
+                *      reg      X
+                *      xmm  X               X
+                *  src imm
+                *      lab
+                *      add      X
+                *
+                * Require size modifier class as follows: FLT/INT
+                *)
+             => let
+                  val {uses,defs,kills} 
+                    = Instruction.uses_defs_kills instruction
+                  val {assembly = assembly_pre,
+                       registerAllocation}
+                    = RA.pre {uses = uses,
+                              defs = defs,
+                              kills = kills,
+                              info = info,
+                              registerAllocation = registerAllocation}
+
+                   val {operand = final_src,
+                        assembly = assembly_src,
+                        registerAllocation}
+                     = let
+                          fun doitINT () =
+                             RA.allocateOperand 
+                             {operand = src,
+                              options = {register = true,
+                                         immediate = NONE,
+                                         label = false,
+                                         address = false},
+                              info = info,
+                              size = srcsize,
+                              move = true,
+                              supports = [dst],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
+                          fun doitFLT () =
+                             RA.allocateXmmOperand 
+                             {operand = src,
+                              options = {xmmregister = true,
+                                         address = false},
+                              info = info,
+                              size = srcsize,
+                              move = true,
+                              supports = [dst],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
+                          fun doitVEC () =
+                             RA.allocateXmmOperand 
+                             {operand = src,
+                              options = {xmmregister = true,
+                                         address = false},
+                              info = info,
+                              size = srcsize,
+                              move = true,
+                              supports = [dst],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
+                       in
+                          case src of
+                             Operand.MemLoc memloc =>
+                                (case Size.class (MemLoc.size memloc) of
+                                    Size.INT => doitINT ()
+                                  | Size.FLT => doitFLT ()
+                                  | Size.VEC => doitVEC ())
+                           | Operand.Immediate _ => doitINT ()
+                           | _ => Error.bug "amd64AllocateRegisters.Instruction.allocateRegisters: SSE_MOVQ, src"
+                       end
+
+                   val {operand = final_dst,
+                        assembly = assembly_dst,
+                        registerAllocation}
+                     = let
+                          fun doitINT () =
+                             RA.allocateOperand 
+                             {operand = dst,
+                              options = {register = true,
+                                         immediate = NONE,
+                                         label = false,
+                                         address = false},
+                              info = info,
+                              size = dstsize,
+                              move = false,
+                              supports = [src,final_src],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
+                          fun doitFLT () =
+                             RA.allocateXmmOperand 
+                             {operand = dst,
+                              options = {xmmregister = true,
+                                         address = false},
+                              info = info,
+                              size = dstsize,
+                              move = false,
+                              supports = [src,final_src],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
+                          fun doitVEC () =
+                             RA.allocateXmmOperand 
+                             {operand = dst,
+                              options = {xmmregister = true,
+                                         address = false},
+                              info = info,
+                              size = dstsize,
+                              move = false,
+                              supports = [src,final_src],
+                              saves = [],
+                              force = [],
+                              registerAllocation 
+                              = registerAllocation}
+                       in
+                          case dst of
+                             Operand.MemLoc memloc =>
+                                (case Size.class (MemLoc.size memloc) of
+                                    Size.INT => doitINT ()
+                                  | Size.FLT => doitFLT ()
+                                  | Size.VEC => doitVEC ())
+                           | _ => Error.bug "amd64AllocateRegisters.Instruction.allocateRegisters: SSE_MOVQ, dst"
+                       end
+
+                  val instruction
+                    = Instruction.SSE_MOVQ
+                      {src = final_src,
+                       srcsize = srcsize,
+                       dst = final_dst,
+                       dstsize = dstsize}
+
+                  val {uses = final_uses,
+                       defs = final_defs,  
+                       ...}
+                    = Instruction.uses_defs_kills instruction
+
+                  val {assembly = assembly_post,
+                       registerAllocation}
+                    = RA.post {uses = uses,
+                               final_uses = final_uses,
+                               defs = defs,
+                               final_defs = final_defs,
+                               kills = kills,
+                               info = info,
+                               registerAllocation = registerAllocation}
+                in
+                  {assembly 
+                   = AppendList.appends 
+                     [assembly_pre,
+                      assembly_src,
+                      assembly_dst,
+                      AppendList.single
+                      (Assembly.instruction instruction),
+                      assembly_post],
+                   registerAllocation = registerAllocation}
+                end
              | _ => Error.bug (concat ["amd64AllocateRegisters.Instruction.allocateRegisters: unimplemented: ", Instruction.toString instruction])
 
       val (allocateRegisters, allocateRegisters_msg)

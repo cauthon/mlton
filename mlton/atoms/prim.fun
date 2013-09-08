@@ -195,7 +195,9 @@ datatype 'a t =
  | Simd_Word_fromScalar of SimdWordSize.t
  | Simd_Word_toScalar of SimdWordSize.t
  | Simd_Word_fromArray of SimdWordSize.t
+(* | Simd_Word_fromIntArray of SimdWordSize.t*)
  | Simd_Word_toArray of SimdWordSize.t
+(* | Simd_Word_toIntArray of SimdWordSize.t*)
  | String_toWord8Vector (* defunctorize *)
  | Thread_atomicBegin (* backend *)
  | Thread_atomicEnd (* backend *)
@@ -274,7 +276,7 @@ fun toString (n: 'a t): string =
             | SOME {signed} => if signed then "s" else "u"
       fun simd_word (s: SimdWordSize.t,str: string,sign): string =
           concat ["Simd", SimdWordSize.toStringSimd s, "_","Word",
-                  SimdWordSize.toStringWord s,"_", str, simd_sign sign]
+                  SimdWordSize.toStringWord s,"_", str, simd_sign sign]  
       fun sign {signed} = if signed then "WordS" else "WordU"
       fun word (s: WordSize.t, str: string): string =
          concat ["Word", WordSize.toString s, "_", str]
@@ -426,6 +428,7 @@ fun toString (n: 'a t): string =
        | Simd_Word_cmpeq w => simd_word (w,"cmpeq", NONE)
        | Simd_Word_cmpgt w => simd_word (w,"cmpgt", NONE)
        | Simd_Word_fromArray w => simd_word (w,"load", NONE)
+(*       | Simd_Word_fromIntArray w => simd_word (w,"load", NONE)*)
        | Simd_Word_fromScalar w => simd_word (w,"loads", NONE)
        | Simd_Word_hadd w => simd_word (w,"hadd", NONE)
        | Simd_Word_hsub w => simd_word (w,"hsub", NONE)
@@ -445,6 +448,7 @@ fun toString (n: 'a t): string =
        | Simd_Word_sub w => simd_word (w,"sub", NONE)
        | Simd_Word_subs (w,s) => simd_word (w,"subs", SOME s)
        | Simd_Word_toArray w => simd_word (w,"store", NONE)
+(*       | Simd_Word_toIntArray w => simd_word (w,"store", NONE)*)
        | Simd_Word_toScalar w => simd_word (w,"stores", NONE)
        | Simd_Word_xorb w => simd_word (w,"xorb", NONE)
        | String_toWord8Vector => "String_toWord8Vector"
@@ -662,6 +666,14 @@ val equals: 'a t * 'a t -> bool =
           SimdWordSize.equals(w,w')
     | (Simd_Word_toScalar w, Simd_Word_toScalar w') =>
           SimdWordSize.equals(w,w')
+    | (Simd_Word_fromArray w, Simd_Word_fromArray w') =>
+          SimdWordSize.equals(w,w')
+    | (Simd_Word_toArray w, Simd_Word_toArray w') =>
+          SimdWordSize.equals(w,w')
+(*    | (Simd_Word_fromIntArray w, Simd_Word_fromIntArray w') =>
+          SimdWordSize.equals(w,w')
+    | (Simd_Word_toIntArray w, Simd_Word_toIntArray w') =>
+          SimdWordSize.equals(w,w')*)
     | (String_toWord8Vector, String_toWord8Vector) => true
     | (Thread_atomicBegin, Thread_atomicBegin) => true
     | (Thread_atomicEnd, Thread_atomicEnd) => true
@@ -876,6 +888,8 @@ val map: 'a t * ('a -> 'b) -> 'b t =
     | Simd_Word_toScalar w => Simd_Word_toScalar w
     | Simd_Word_fromArray w => Simd_Word_fromArray w
     | Simd_Word_toArray w => Simd_Word_toArray w
+(*    | Simd_Word_fromIntArray w => Simd_Word_fromIntArray w
+    | Simd_Word_toIntArray w => Simd_Word_toIntArray w*)
     | Simd_Word_shuffle w => Simd_Word_shuffle w
     | String_toWord8Vector => String_toWord8Vector
     | Thread_atomicBegin => Thread_atomicBegin
@@ -1205,8 +1219,9 @@ val kind: 'a t -> Kind.t =
        | Simd_Word_toScalar _ => SideEffect
        | Simd_Word_fromArray _ => SideEffect
        | Simd_Word_toArray _ => SideEffect
+(*       | Simd_Word_fromIntArray _ => SideEffect
+       | Simd_Word_toIntArray _ => SideEffect*)
        | Simd_Word_shuffle _ => Functional
-
        | String_toWord8Vector => Functional
        | Thread_atomicBegin => SideEffect
        | Thread_atomicEnd => SideEffect
@@ -1333,6 +1348,7 @@ local
        (Simd_Word_cmpeq s),
        (Simd_Word_cmpgt s),
        (Simd_Word_fromArray s),
+(*       (Simd_Word_fromIntArray s),*)
        (Simd_Word_fromScalar s),
        (Simd_Word_hadd s),
        (Simd_Word_hsub s),
@@ -1348,6 +1364,7 @@ local
        (Simd_Word_slri s),
        (Simd_Word_sub s),
        (Simd_Word_toArray s),
+(*       (Simd_Word_toIntArray s),*)
        (Simd_Word_toScalar s),
        (Simd_Word_xorb s)]
       @ simdWordSigns (s, true)

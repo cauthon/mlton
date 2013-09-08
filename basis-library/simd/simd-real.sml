@@ -50,7 +50,10 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     in
       val elements = elements
       val arrElements = elements-1
-      val toArray = toArray
+      fun toArray(a,s) = 
+          if Array.length(a)<elements then
+            raise Subscript
+          else Simd.toArray(a,s)
       fun fromArrayOffset (a,i) = 
 (*            if (Int64.<=((Int64.fromInt(Array.length a)),(Int64.+(i,arrElements))))
                orelse (Int64.<(i,0)) then*)

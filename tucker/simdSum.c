@@ -232,7 +232,7 @@ int main(){
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2);  \
   b                                             \
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t3);  \
-  printf(c,t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec)))
+  printf(c,(t2.tv_nsec-t1.tv_nsec),(t3.tv_nsec-t2.tv_nsec))
   
   fp = times2_m128;
   fs = times2;

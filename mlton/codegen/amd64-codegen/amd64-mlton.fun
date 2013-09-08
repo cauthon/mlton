@@ -588,6 +588,26 @@ struct
                     srcsize = srcsize}],
                 transfer = NONE}]
             end
+        fun sse_movq ()
+          = let
+              val (dst,dstsize) = getDst1 ()
+              val (src,srcsize) = getSrc1 ()
+              val _
+                = Assert.assert
+                  ("amd64MLton.prim: sse_movq, dstsize/srcsize",
+                   fn () => srcsize <> dstsize)
+            in
+              AppendList.fromList
+              [Block.mkBlock'
+               {entry = NONE,
+                statements
+                = [Assembly.instruction_sse_movq
+                   {dst = dst,
+                    dstsize = dstsize,
+                    src = src,
+                    srcsize = srcsize}],
+                transfer = NONE}]
+            end
 
         fun sse_movp (instr:Instruction.sse_movp)
           = let
@@ -1694,10 +1714,10 @@ nil nil))*)
      | _ => Error.bug "amd64.mlton, unimplemented")
 (* | Simd_Word_fromScalar s =>
    (case s of
-       V128W8 => sse_movp (Instruction.SSE_MOVP,"b")
-     | V128W16 => sse_movp (Instruction.SSE_MOVP,"w")
-     | V128W32 => sse_movp (Instruction.SSE_MOVP,"d")
-     | V128W64 => sse_movp (Instruction.SSE_MOVP,"q")
+       V128W8 => sse_movp (Instruction.SSE_MOVD)
+     | V128W16 => sse_movp (Instruction.SSE_MOVD)
+     | V128W32 => sse_movp (Instruction.SSE_MOVD)
+     | V128W64 => sse_movp (Instruction.SSE_MOVQ)
      | _ => Error.bug "amd64.mlton, unimplemented")*)
  | Simd_Word_hadd s =>
    (case s of
@@ -1710,8 +1730,32 @@ nil nil))*)
      | V128W32 => ssse3_ibinap (Instruction.SSE_PHSUB,"d")   
      | _ => Error.bug "amd64.mlton, unimplemented")
 
-(*( | Simd_Word_max (s,g) => true
- | Simd_Word_min (s,g) => true*)
+ | Simd_Word_max (s,{signed}) => 
+   let
+     val sign = 
+         (case signed of
+              true => "s"
+            | false => "u")
+   in
+     (case s of
+       V128W8 => sse_ibinap (Instruction.SSE_PMAX,sign^"b")
+     | V128W16 => sse_ibinap (Instruction.SSE_PMAX,sign^"w")
+     | V128W32 => sse_ibinap (Instruction.SSE_PMAX,sign^"d")
+     | _ => Error.bug "amd64.mlton, unimplemented")
+   end
+ | Simd_Word_min (s,{signed}) => 
+   let
+     val sign = 
+         (case signed of
+              true => "s"
+            | false => "u")
+   in
+     (case s of
+       V128W8 => sse_ibinap (Instruction.SSE_PMIN,sign^"b")
+     | V128W16 => sse_ibinap (Instruction.SSE_PMIN,sign^"w")
+     | V128W32 => sse_ibinap (Instruction.SSE_PMIN,sign^"d")
+     | _ => Error.bug "amd64.mlton, unimplemented")
+   end
 (* | Simd_Word_mul32 s =>
    (case s of
         V128W32 => sse_mul32 (Instruction.SSE_mul32,"d")

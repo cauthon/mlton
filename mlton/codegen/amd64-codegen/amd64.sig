@@ -520,8 +520,6 @@ signature AMD64 =
           | SSE_MOVSD  (*Move scalar fp value*)
           | SSE_MOVDQA (*move aligned double quadword*)
           | SSE_MOVDQU (*move unaligned double quadword*)
-          | SSE_MOVDW
-          | SSE_MOVQ
         (*SSE4.1*)
           | SSE_PMOVSX (*packed move with sign extend*)
           | SSE_PMOVZX (*packed move with zero extend*)
@@ -541,6 +539,8 @@ signature AMD64 =
         (* TODO: Integer SSE instructions(TUCKER)*)
         (* Packed SSE binary arithmetic instructions. (w/o mul/div/horizontal*)
         (*b=byte,w=word,d=doubleword,q=quadword,dq=doublequadword*)
+        datatype sse_iunap
+          = SSE_PABS
         datatype sse_ibinap
           = SSE_PADD (*add signed or unsignedb,w,d,q*)
           | SSE_PADDS (*add signed integers w/saturation,b,w*)
@@ -549,6 +549,8 @@ signature AMD64 =
           | SSE_PSUBS (*subtract signed ints w/saturation, b,w*)
           | SSE_PSUBUS (*subtract unsigned ints w/saturation, b,w*)
           | SSE_PMAXS (*max of signed ints, w(sse2), b,d(sse4.1)*)
+          | SSE_PMAX
+          | SSE_PMIN
           | SSE_PMAXU (*max of unsigned ints b(sse2), d,w(sse4.1)*)
           | SSE_PMINS (*min of signed ints w(sse2), b,d(sse4.1)*)
           | SSE_PMINU (*min of unsigned ints b(sse2), d,w (sse4.1)*)
@@ -806,6 +808,10 @@ signature AMD64 =
                         src: Operand.t,
                         dst: Operand.t,
                         size: string}
+          | SSE_IUnAP of {oper: sse_iunap,
+                         src: Operand.t,
+                         dst: Operand.t,
+                         size: string}
           (* Packed SSE floating point compare*)
           | SSE_CMPFP of {oper: sse_cmpfp,
                           src: Operand.t,
@@ -867,8 +873,10 @@ signature AMD64 =
                          srcsize: Size.t,
                          dst: Operand.t,
                          dstsize: Size.t}
-
-
+          | SSE_MOVQ of {src: Operand.t,
+                         srcsize: Size.t,
+                         dst: Operand.t,
+                         dstsize: Size.t}
         val toString : t -> string
         val uses_defs_kills : t -> {uses: Operand.t list,
                                     defs: Operand.t list,
@@ -1208,6 +1216,10 @@ signature AMD64 =
                                     src: Operand.t,
                                     dst: Operand.t,
                                     size: Size.t} -> t
+        val instruction_sse_iunap : {oper: Instruction.sse_iunap,
+                                    src: Operand.t,
+                                    dst: Operand.t,
+                                    size: string} -> t
         val instruction_sse_binlp : {oper: Instruction.sse_binlp,
                                      src: Operand.t,
                                      dst: Operand.t,
@@ -1268,6 +1280,10 @@ signature AMD64 =
                                          dst: Operand.t,
                                          dstsize: Size.t} -> t
         val instruction_sse_movd : {src: Operand.t,
+                                    srcsize: Size.t,
+                                    dst: Operand.t,
+                                    dstsize: Size.t} -> t
+        val instruction_sse_movq : {src: Operand.t,
                                     srcsize: Size.t,
                                     dst: Operand.t,
                                     dstsize: Size.t} -> t

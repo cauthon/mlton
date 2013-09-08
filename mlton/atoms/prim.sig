@@ -155,6 +155,7 @@ signature PRIM =
              | Simd_Real_sqrt of SimdRealSize.t 
              | Simd_Real_sub of SimdRealSize.t 
              | Simd_Real_toArray of SimdRealSize.t
+             | Simd_Real_toIntArray of SimdRealSize.t
              | Simd_Real_toScalar of SimdRealSize.t
              | Simd_Real_xor of SimdRealSize.t 
              | Simd_Word_abs of SimdWordSize.t
@@ -165,6 +166,7 @@ signature PRIM =
              | Simd_Word_cmpeq of SimdWordSize.t
              | Simd_Word_cmpgt of SimdWordSize.t
              | Simd_Word_fromArray of SimdWordSize.t
+             | Simd_Word_fromIntArray of SimdWordSize.t
              | Simd_Word_fromScalar of SimdWordSize.t
              | Simd_Word_hadd of SimdWordSize.t
              | Simd_Word_hsub of SimdWordSize.t

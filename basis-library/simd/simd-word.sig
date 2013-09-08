@@ -9,6 +9,7 @@ signature SIMD_WORD = sig
   val wordSize : Int32.int
   val elements : Int32.int
   type elt 
+  type intElt
   type simdWord
 (*functions are commented with hardware supported element types,
  *key: b = Word8, w = Word16, d = Word32, q = Word64, dq = `Word128`*)
@@ -20,8 +21,14 @@ signature SIMD_WORD = sig
 (*  val toArrayOffset:elt array * Int32.int * simdWord -> unit*)
   val fromArray:elt array -> simdWord
   val fromArrayOffset:elt array * Int32.int -> simdWord
+  val toIntArray:intElt array * simdWord -> unit
+(*  val toIntArrayOffset:elt array * Int32.int * simdWord -> unit*)
+  val fromIntArray:intElt array -> simdWord
+  val fromIntArrayOffset:intElt array * Int32.int -> simdWord
   val toScalar: simdWord -> elt
   val fromScalar:elt -> simdWord
+  val toScalarInt: simdWord -> intElt
+  val fromScalarInt: intElt -> simdWord
   val add:simdWord*simdWord->simdWord (* b w d q *)
   val adds:simdWord*simdWord->simdWord (* b w *)
   val addus:simdWord*simdWord->simdWord (* b w *)
@@ -50,7 +57,7 @@ signature SIMD_WORD = sig
   val orb: simdWord*simdWord->simdWord
   val xorb:simdWord*simdWord->simdWord
   val andnb:simdWord*simdWord->simdWord
-  (*val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)*)
+  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val sar:simdWord*simdWord->simdWord
   val slr:simdWord*simdWord->simdWord
@@ -60,12 +67,17 @@ signature SIMD_WORD = sig
   val slli:simdWord*Word8.word->simdWord
 (*we can also logically shift a full 128bit vector left/right*)
 (*Comparison*)
-  (*this is all we get for builtin integer comparison*)
+  (*this is all we get for builtin integer comparison
+   *so we leave them as visable functions because they'll likely
+   *be more efficent that using the cmp function*)
   val cmpeq:simdWord*simdWord->simdWord
   val cmpgt:simdWord*simdWord->simdWord
   val toString: simdWord -> string
   val toStringScalar: simdWord -> string
   val toStringElt: elt -> string
+  datatype cmp = eq  | lt  | gt  | le  | ge
+               | ne  | nlt | ngt | nle | nge
+  val cmp:simdWord*simdWord*cmp -> simdWord
 (*so i'll need to write these myself
  *vcmpne(!=),vcmpgep(= | >),vcmplt(!(> | =)),vcmple(!>)
  *vcmpngt(!>),vcmpnge(!(= | >)),vcmpnlt(> | =),vcmpnle(>)*)
