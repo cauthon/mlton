@@ -421,7 +421,7 @@ structure Simd128_Word32 : PRIM_SIMD_WORD =
       val wordSize : Int32.int = 32
 
       type elt = Word32.word
-      type elt = Int32.int
+      type intElt = Int32.int
       val add = _prim "Simd128_Word32_add": simdWord * simdWord -> simdWord; (* b w d q *)
       val adds =  unimp()
       val addus =  unimp()
@@ -463,8 +463,8 @@ structure Simd128_Word32 : PRIM_SIMD_WORD =
       val fromScalarInt = _prim "Simd128_Word32_loads": intElt -> simdWord ;
       val toArray = _prim "Simd128_Word32_store": elt array * simdWord ->  unit ;
       val fromArray = _prim "Simd128_Word32_load": elt array * Int64.int -> simdWord ;
-      val toArray = _prim "Simd128_Word32_store": intElt array * simdWord ->  unit ;
-      val fromArray = _prim "Simd128_Word32_load": intElt array * Int64.int -> simdWord ;
+      val toIntArray = _prim "Simd128_Word32_store": intElt array * simdWord ->  unit ;
+      val fromIntArray = _prim "Simd128_Word32_load": intElt array * Int64.int -> simdWord ;
 end
 
 structure Simd128_Word64 : PRIM_SIMD_WORD =

@@ -75,9 +75,9 @@ signature SIMD_WORD = sig
   val toString: simdWord -> string
   val toStringScalar: simdWord -> string
   val toStringElt: elt -> string
-  datatype cmp = eq  | lt  | gt  | le  | ge
+(*  datatype cmp = eq  | lt  | gt  | le  | ge
                | ne  | nlt | ngt | nle | nge
-  val cmp:simdWord*simdWord*cmp -> simdWord
+  val cmp:simdWord*simdWord*cmp -> simdWord*)
 (*so i'll need to write these myself
  *vcmpne(!=),vcmpgep(= | >),vcmplt(!(> | =)),vcmple(!>)
  *vcmpngt(!>),vcmpnge(!(= | >)),vcmpnlt(> | =),vcmpnle(>)*)

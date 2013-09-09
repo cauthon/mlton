@@ -75,11 +75,11 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
      in (toStringElt temp) end
    end
    local
-     val simdWord1=fromArrayUnsafe(Array.array(elements,one))
+     val simdWord1=fromArrayUnsafe(Array.array(elements,one),0:Int64.int)
    in
      val notb = fn x => andnb(simdWord1,x)
    end
-   datatype cmp = eq  | lt  | gt  | le  | ge
+(*   datatype cmp = eq  | lt  | gt  | le  | ge
                 | ne  | nlt | ngt | nle | nge
    fun cmp (w:simdWord,w':simdWord,c:cmp):simdWord =
        case c of
@@ -89,7 +89,7 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
          | lt => cmpgt(w',w)
          | ge => orb(cmpgt(w,w'),cmpeq(w,w'))
          | ne => notb(cmpeq(w,w'))
-         | nlt => cmpgt(w,w')
+         | nlt => cmpgt(w,w')*)
 end
 structure Simd128_Word8:SIMD_WORD = SimdWord(
   struct
@@ -98,7 +98,7 @@ structure Simd128_Word8:SIMD_WORD = SimdWord(
     type elt = Word.word
     type simdWord = Simd.simdWord
     val zero = 0w0:elt
-    val one = 0xwff:elt
+    val one = 0wxff:elt
     val elements = 16
   end)
 structure Simd128_Word16:SIMD_WORD = SimdWord(
@@ -108,7 +108,7 @@ structure Simd128_Word16:SIMD_WORD = SimdWord(
     type elt = Word.word
     type simdWord = Simd.simdWord
     val zero = 0w0:elt
-    val one = 0xwffff:elt
+    val one = 0wxffff:elt
     val elements = 8
   end)
 structure Simd128_Word32:SIMD_WORD = SimdWord(
@@ -118,7 +118,7 @@ structure Simd128_Word32:SIMD_WORD = SimdWord(
     type elt = Word.word
     type simdWord = Simd.simdWord
     val zero = 0w0:elt
-    val one = 0xwffffffff:elt
+    val one = 0wxffffffff:elt
     val elements = 4
   end)
 structure Simd128_Word64:SIMD_WORD = SimdWord(
@@ -128,7 +128,7 @@ structure Simd128_Word64:SIMD_WORD = SimdWord(
     type elt = Word.word
     type simdWord = Simd.simdWord
     val zero = 0w0:elt
-    val one = 0xwffffffffffffffff:elt
+    val one = 0wxffffffffffffffff:elt
     val elements = 2
   end)
 (*structure Simd128_Word8 : SIMD_WORD =
