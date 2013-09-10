@@ -1,3 +1,80 @@
+SimdOverview
+=============
+== Introduction to SIMD ==
+== Introduction to SIMD in MLton ==
+Simd operations are implemented in MLton as a series of high level signatures
+and structures which are implemented by either a hardware or software backend.
+The externally visable structures and signatures were designed to be mostly
+independent of the internal implementation. That being said the only currently
+available hardware backend is for amd64, and so the design of the front end was
+infulenced largely by the avaiable amd64 simd instructions. The way in which
+Simd instructions was implemented in MLton was infulenced by the implementation
+of Simd intrinsics in many C and C++ compiliers as well as by the
+implementation of Simd instructions in the Glascow Haskell Complier. Most
+implementations of Simd instructions are fairly low level, and while that is
+somewhat true for this, an attempt was made construct an interface similar to
+other primitive sml types and hopefully integrate simd instructions into the
+language in a more natural way.
+== Implementation ==
+Simd operations in MLton can be broadly generalized into two groups, operations
+on <:SimdRealStructures:Simd Real:> types and <:SimdWordStructures:Simd Word:>
+types. The naming convention for simd types is Simd<X>_Word/Real<Y>, indicating
+a type of X bits with elements of Y bits each, for example a 128 bit simd type
+for single precision floating point numbers would be Simd128_Real32. This
+convention was adopted in order to allow scaling with larger simd types and to
+fit with the sml model of using Real/Word<X> for different sizes of types. Simd
+types are primitive types, but currently there is no way to specify a literal
+simd value and so simd values must be loaded from other types. There are
+several ways of loading a simd value present for each simd type. For a simd
+type with N elements, the fromArray function loads the first N elements and the
+fromArrayOffset function loads N elements starting at an index i. The
+fromScalar function loads a given value into the lowest bytes of a simd value
+and sets the rest to 0, and the fromScalarFill functions loads a given value
+into each element of a simd type. To get from a simd type back to another sml
+type there are the functions toArray which stores the simd value into the first
+N indices of a given array and toScalar which returns the lowest element from
+the simd value. For Simd Word types all loading and storing functions are
+available in versions for integers and words.  Other than loading and storing
+simd values behave similiary to any other sml primitive type, other than some
+exceptions noted below. 
+// May need to add more here
+== Basic Usage Tips ==
+While simd types were designed to work much like other primitive sml types
+there are still a few differences to keep in mind when working with simd
+types. First is Alignment, at least on x86 and amd64 simd values must be loaded
+from a location aligned to the length of the simd type. So a 128 bit simd type
+must be aligned to a 16 byte boundry and a 256 bit type to a 32 bit
+boundary. Loading from unaligned adresses is allowed but results in noticably
+slower performance. Foth the most part alignment is taken care of internally
+so long as the proper alignment switch is given. The one case where alignment
+must be taken into concideration is when using the toArrayOffset function, it
+is possible to load from any array index without error, but in general
+precaucion should be taken to assure that the index given lies on an aligned
+adress to insure the best performance from simd instructions. Loading and
+storing simd values is by far the most expensive part of using simd
+instructions, and so loading and storing should be mininized as much as
+possible. The key tool in minimizing memory access is the shuffle operation,
+shuffle gives the ability to manipulate indivdal elements of each simd
+type, with indexing starting at 0. For simd real values the shuffle function
+takes two simd values and 4 word8 values. The word8 values select which
+elements to place in the result, for a simd real/word64 value the first word8
+selects from the first value and the second from the second value, and the
+third and fourth are not used. For simd real/word32 the first two word8s select
+from the first value and the last two from the second. Word8 and Word16 shuffle
+operations are more complex, for details see <:SimdWordStructures:>. 
+
+There are a few gotchas with using simd types to look out for. Firstly there is
+no way to do arathmatic operations on words with carry, as this would require
+keeping track of multiple carry bits. What is provided is saturated arithmatic,
+where a mininum or maximum value will remain unchanged if subtraced from or
+multiplied/added to respectively. This makes the most sense for graphical
+programs which are where simd word instructions are mostly used. Secondly is
+that comparisons do not return booleans naturally, they return a bit mask of 1s
+for true and 0s for false. It is planned to add in convience functions to
+return tuples of booleans, but for now comparisons only return bitmasks.
+
+== Usage and Performance Tips ==
+
 assume we have 
 movss   (%rdx), %xmm0
 movss   (%rcx), %xmm3

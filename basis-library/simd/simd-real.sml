@@ -76,6 +76,9 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
           else
             toArrayUnsafe (a,s,i)
     end
+    fun fromScalarFill (r:elt) = let
+      val arr = Array.array(elements,r)
+    in fromArray(arr) end
     fun toStringGeneric f s = let
       val temp = Array.array (elements,Common.zero)
       val _ = toArray (temp,s)

@@ -60,6 +60,12 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
                    loop(j+1))
          val _ = loop(0)
        in fromIntArrayUnsafe(temp,Int64.fromInt(0)) end
+    fun fromScalarFill (w:elt) = let
+      val arr = Array.array(elements,w)
+    in fromArray(arr) end
+    fun fromScalarIntFill (w:intElt) = let
+      val arr = Array.array(elements,(w))
+    in fromIntArray(arr) end
    local
      type word = elt
      structure Array = Primitive.Array

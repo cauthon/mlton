@@ -29,6 +29,8 @@ signature SIMD_WORD = sig
   val fromScalar:elt -> simdWord
   val toScalarInt: simdWord -> intElt
   val fromScalarInt: intElt -> simdWord
+  val fromScalarFill:elt -> simdWord
+  val fromScalarIntFill:intElt -> simdWord
   val add:simdWord*simdWord->simdWord (* b w d q *)
   val adds:simdWord*simdWord->simdWord (* b w *)
   val addus:simdWord*simdWord->simdWord (* b w *)
