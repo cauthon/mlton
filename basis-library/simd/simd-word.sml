@@ -92,8 +92,7 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
 (*   in
      val notb = fn x => andnb(x,simdWord1)
    end*)
-(*   datatype cmp = eq  | lt  | gt  | le  | ge
-                  | ne  | nlt | ngt | nle | nge
+(*
    fun cmp (w:simdWord,w':simdWord,c:cmp):simdWord =
        case c of
            eq => cmpeq(w,w')
@@ -105,7 +104,8 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
          | nlt => orb(cmpgt(w,w'),cmpeq(w,w'))
          | ngt => notb(cmpgt(w,w'))
          | nle => cmpgt(w,w')
-         | nge => notb(orb(cmpgt(w,w'),cmpeq(w,w')))*)
+         | nge => notb(orb(cmpgt(w,w'),cmpeq(w,w')))
+         | nlt => cmpgt(w,w')*)
 end
 structure Simd128_Word8:SIMD_WORD = SimdWord(
   struct
