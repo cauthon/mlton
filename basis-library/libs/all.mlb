@@ -15,5 +15,6 @@ local
    ../sml-nj.mlb
    ../unsafe.mlb
    ../c-types.mlb
+   ../simd/simd.mlb
 in
 end

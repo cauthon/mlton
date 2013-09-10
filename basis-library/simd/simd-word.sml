@@ -8,25 +8,28 @@ signature SIMD_WORD_STRUCTS =
 sig
   type simdWord
   type elt
+  type intElt
   structure Word:WORD
+  structure Int:INTEGER
   structure Simd:PRIM_SIMD_WORD
   val zero:elt
   val one:elt(*all bits 1, not 2s compliment one*)
   val elements:Int32.int
+  val toIntElt:Word.word -> Int.int
   sharing type Word.word = Simd.elt = elt
   sharing type Simd.simdWord = simdWord
+  sharing type Int.int = intElt
 end
 functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
    struct        
    open S
    open Simd
-   type intElt = intElt
    val fromArrayUnsafe = fromArray
    val fromIntArrayUnsafe = fromIntArray
    val fromArray = fn x => fromArrayUnsafe(x,0:Int64.int)
    val fromIntArray = fn x => fromIntArrayUnsafe(x,0:Int64.int)
    fun fromArrayOffset (a,i) =
-       if (Array.length a <= (i + elements-1)) orelse (i <0)
+       if (Array.length a <= (i + elements)) orelse (i <0)
        then raise Subscript
        else if (Int32.mod(i,elements) = 0)
        then fromArrayUnsafe(a,Int64.fromInt(i))
@@ -62,73 +65,98 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
      structure Array = Primitive.Array
    in
      val toStringElt=Word.toString
-     fun toString s = let
+     fun toStringGeneric f s = let
        val temp = Array.arrayUnsafe (Int64.fromInt(elements))
        val _ = toArray (temp,s)
        fun make (s:string list,n:Int64.int) =
       if n = 0 then
-        concat ("("::toStringElt(Array.subUnsafe(temp,n))::s)
-      else make((","::toStringElt(Array.subUnsafe(temp,n))::s),Int64.-(n,1))
+        concat ("("::f(Array.subUnsafe(temp,n))::s)
+      else make((","::f(Array.subUnsafe(temp,n))::s),Int64.-(n,1))
      in make ([")"],Int64.fromInt(elements-1)) end
+     val toString = toStringGeneric toStringElt
+     val toStringInt = toStringGeneric (Int.toString o toIntElt)
+     val fmtInt = fn f => fn s =>
+                     toStringGeneric ((Int.fmt f) o toIntElt) s
+     val fmt = fn f => fn s =>
+                  toStringGeneric (Word.fmt f) s
      fun toStringScalar s = let
        val temp = toScalar s
      in (toStringElt temp) end
+    fun fmtScalar f s = let
+      val temp = toScalar s
+    in (Word.fmt f) temp end
    end
-   local
-     val simdWord1=fromArrayUnsafe(Array.array(elements,one))
-   in
-     val notb = fn x => andnb(simdWord1,x)
-   end
-   datatype cmp = eq  | lt  | gt  | le  | ge
-                | ne  | nlt | ngt | nle | nge
+(*   local*)
+(*     val Word1Const= Array.array(elements,one)
+     val simdWord1=fromArray(Word1Const)*)
+(*   in
+     val notb = fn x => andnb(x,simdWord1)
+   end*)
+(*   datatype cmp = eq  | lt  | gt  | le  | ge
+                  | ne  | nlt | ngt | nle | nge
    fun cmp (w:simdWord,w':simdWord,c:cmp):simdWord =
        case c of
            eq => cmpeq(w,w')
          | lt => notb(orb(cmpgt(w,w'),cmpeq(w,w')))
          | gt => cmpgt(w,w')
-         | lt => cmpgt(w',w)
          | ge => orb(cmpgt(w,w'),cmpeq(w,w'))
+         | le => cmpgt(w',w)
          | ne => notb(cmpeq(w,w'))
-         | nlt => cmpgt(w,w')
+         | nlt => orb(cmpgt(w,w'),cmpeq(w,w'))
+         | ngt => notb(cmpgt(w,w'))
+         | nle => cmpgt(w,w')
+         | nge => notb(orb(cmpgt(w,w'),cmpeq(w,w')))*)
 end
 structure Simd128_Word8:SIMD_WORD = SimdWord(
   struct
     structure Word = Word8                       
+    structure Int = Int8
     structure Simd = Primitive.Simd128_Word8
     type elt = Word.word
+    type intElt = Int.int
     type simdWord = Simd.simdWord
+    val toIntElt = Primitive.IntWordConv.idFromWord8ToInt8
     val zero = 0w0:elt
-    val one = 0xwff:elt
+    val one = 0wxff:elt
     val elements = 16
   end)
 structure Simd128_Word16:SIMD_WORD = SimdWord(
   struct
     structure Word = Word16                       
+    structure Int =Int16
     structure Simd = Primitive.Simd128_Word16
     type elt = Word.word
+    type intElt = Int.int
     type simdWord = Simd.simdWord
+    val toIntElt = Primitive.IntWordConv.idFromWord16ToInt16
     val zero = 0w0:elt
-    val one = 0xwffff:elt
+    val one = 0wxffff:elt
     val elements = 8
   end)
 structure Simd128_Word32:SIMD_WORD = SimdWord(
   struct
     structure Word = Word32                       
+    structure Int =Int32
     structure Simd = Primitive.Simd128_Word32
     type elt = Word.word
+    type intElt = Int.int
     type simdWord = Simd.simdWord
+    val toIntElt = Primitive.IntWordConv.idFromWord32ToInt32
     val zero = 0w0:elt
-    val one = 0xwffffffff:elt
+    val one = 0wxffffffff:elt
     val elements = 4
   end)
 structure Simd128_Word64:SIMD_WORD = SimdWord(
   struct
     structure Word = Word64                       
+    structure Int =Int64
     structure Simd = Primitive.Simd128_Word64
     type elt = Word.word
+    type intElt = Int.int
     type simdWord = Simd.simdWord
+    val toIntElt = Primitive.IntWordConv.idFromWord64ToInt64
     val zero = 0w0:elt
-    val one = 0xwffffffffffffffff:elt
+    val one = 0wxffffffffffffffff:elt
     val elements = 2
   end)
 (*structure Simd128_Word8 : SIMD_WORD =

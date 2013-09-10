@@ -1,0 +1,85 @@
+SimdWordStructures
+==================
+[source,sml]
+----
+signature SIMD_WORD = sig
+  val vecSize : Int32.int
+  val wordSize : Int32.int
+  val elements : Int32.int
+  type elt 
+  type intElt
+  type simdWord
+(*functions are commented with hardware supported element types,
+ *key: b = Word8, w = Word16, d = Word32, q = Word64, dq = `Word128`*)
+(*Math*)
+(*S & US suffixs are for signed and unsigned saturation, saturation means
+ *values don't wraparound, ie in an unsigned byte 255+1->0 w/o saturation
+ *but 255+1->255 w/ saturation*)
+  val toArray:elt array * simdWord -> unit
+(*  val toArrayOffset:elt array * Int32.int * simdWord -> unit*)
+  val fromArray:elt array -> simdWord
+  val fromArrayOffset:elt array * Int32.int -> simdWord
+  val toIntArray:intElt array * simdWord -> unit
+(*  val toIntArrayOffset:elt array * Int32.int * simdWord -> unit*)
+  val fromIntArray:intElt array -> simdWord
+  val fromIntArrayOffset:intElt array * Int32.int -> simdWord
+  val toScalar: simdWord -> elt
+  val fromScalar:elt -> simdWord
+  val toScalarInt: simdWord -> intElt
+  val fromScalarInt: intElt -> simdWord
+  val add:simdWord*simdWord->simdWord (* b w d q *)
+  val adds:simdWord*simdWord->simdWord (* b w *)
+  val addus:simdWord*simdWord->simdWord (* b w *)
+  val sub:simdWord*simdWord->simdWord (* b w d q *)
+  val subs:simdWord*simdWord->simdWord (* b w *)
+  val subus:simdWord*simdWord->simdWord (* b w *)
+  val minu:simdWord*simdWord->simdWord (* w, if sse4.1 then + b d *)
+  val mins:simdWord*simdWord->simdWord (* b, if sse4.1 then + w d *)
+  val maxu:simdWord*simdWord->simdWord (* w, if sse4.1 then + b d *)
+  val maxs:simdWord*simdWord->simdWord (* b, if sse4.1 then + w d *)
+(*  val pmadd:simdWord*simdWord->simdWord2(*multiply adjecent elements of t and add adjectent
+                     *elements of t2 intermediates to get t2 (unsigned)*)
+  val madds:simdWord*simdWord->simdWord2(*same as vpmadd but with signed*)*)
+  val mulshi:simdWord*simdWord->simdWord (*multiply t*t and take low bytes of t2 results*)
+  val muluhi:simdWord*simdWord->simdWord (*multiply t*t and take low bytes of t2 results*)
+  val mullo:simdWord*simdWord->simdWord (*multiply t*t and take higt bytes of t2 results*)
+(*  val mulo:simdWord*simdWord->simdWord2 (*multiply odd elements of t,t and return t2 result*)
+  val mule:simdWord*simdWord->simdWord2 (*shift arguments left element_size bytes and do vmulo*)*)
+  (*same convention as floating point hadd/hsub*)
+  val hadd:simdWord*simdWord->simdWord (* w d + saturated w *)
+  val hsub:simdWord*simdWord->simdWord (* w d + saturated w*)
+  val abs:simdWord->simdWord (* b w d *)
+(*bitwise*)
+  val andb:simdWord*simdWord->simdWord
+  (*val norb:simdWord*simdWord->simdWord*)
+  val orb: simdWord*simdWord->simdWord
+  val xorb:simdWord*simdWord->simdWord
+  val andnb:simdWord*simdWord->simdWord
+  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)
+(*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
+  val sar:simdWord*simdWord->simdWord
+  val slr:simdWord*simdWord->simdWord
+  val sll:simdWord*simdWord->simdWord
+  val sari:simdWord*Word8.word->simdWord
+  val slri:simdWord*Word8.word->simdWord
+  val slli:simdWord*Word8.word->simdWord
+(*we can also logically shift a full 128bit vector left/right*)
+(*Comparison*)
+  (*this is all we get for builtin integer comparison
+   *so we leave them as visable functions because they'll likely
+   *be more efficent that using the cmp function*)
+  val cmpeq:simdWord*simdWord->simdWord
+  val cmpgt:simdWord*simdWord->simdWord
+  val toString: simdWord -> string
+  val toStringScalar: simdWord -> string
+  val toStringElt: elt -> string
+  datatype cmp = eq  | lt  | gt  | le  | ge
+               | ne  | nlt | ngt | nle | nge
+  val cmp:simdWord*simdWord*cmp -> simdWord
+(*so i'll need to write these myself
+ *vcmpne(!=),vcmpgep(= | >),vcmplt(!(> | =)),vcmple(!>)
+ *vcmpngt(!>),vcmpnge(!(= | >)),vcmpnlt(> | =),vcmpnle(>)*)
+end
+----
+
+== Values ==

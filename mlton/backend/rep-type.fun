@@ -601,7 +601,7 @@ fun checkPrimApp {args, prim, result} =
         | SimdRealSize.V256R64 => RealSize.R64)
       val simdWordtoWord = WordSize.fromBits o SimdWordSize.wordBits
       val word = fn s => fn t => equals (t, word s)
-
+      val word64 = word(WordSize.word64)
       val cint = word (WordSize.cint ())
       val csize = word (WordSize.csize ())
       val cptrdiff = word (WordSize.cptrdiff ())
@@ -706,7 +706,7 @@ fun checkPrimApp {args, prim, result} =
          done ([seq (WordSize.fromBits(SimdRealSize.realBits s)),
                 simdReal s],NONE)
        | Simd_Real_fromArray s => 
-         done ([seq (WordSize.fromBits(SimdRealSize.realBits s)),cint], 
+         done ([seq (WordSize.fromBits(SimdRealSize.realBits s)),word64], 
                SOME (simdReal s))
        | Simd_Word_add s => simdWordBinary s
        | Simd_Word_adds (s,_) => simdWordBinary s
@@ -740,7 +740,7 @@ fun checkPrimApp {args, prim, result} =
          done ([seq (WordSize.fromBits(SimdWordSize.wordBits s)),
                 simdWord s],NONE)
        | Simd_Word_fromArray s => 
-         done ([seq (WordSize.fromBits(SimdWordSize.wordBits s)),cint], 
+         done ([seq (WordSize.fromBits(SimdWordSize.wordBits s)),word64], 
                SOME (simdWord s))
        | Thread_returnToC => done ([], NONE)
        | Word_add s => wordBinary s

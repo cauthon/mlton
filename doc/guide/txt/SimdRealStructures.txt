@@ -1,0 +1,227 @@
+SimdRealStructures
+=======================
+
+The `SIMD_REAL` signature specifies a structure for using SIMD instructions
+with floating point numbers. The signature contains constants specifying the
+size of the SIMD vector, the size of each element and the total number of
+elements, as well as a simdReal type specifying the type of the SIMD vector and
+an elt type specifying the type of each element. The functions specified allow
+loading and storing simdReal values from arrays and for converting the low bits
+of a simdReal value to and from a single scalar value. The remaining functions
+provide a set of common SIMD functions to be implemented, allowing for a mix of
+software and hardware implementations depending on the instructions
+available. The structures that implement this signature take the form of
+`Simd'M'_Real'N'` where M is the size of the simd vector and N is the size of
+each element. For example for a 128 bit SIMD type using single precision
+floating point numbers as elements the structure is Simd128_Real32. Currently
+only an amd64 hardware backend and a generic software backend are available but
+implementations for other platforms are welcome, for more details see
+<:SimdInternals:>
+
+[source,sml]
+----
+signature SIMD_REAL =
+sig
+  val vecSize:Int32.int
+  val realSize:Int32.int
+  val elements:Int32.int
+  type simdReal
+  type elt
+(*load/store operations*)
+  val fromArray:elt array -> simdReal
+  val toArray:elt array * simdReal-> unit
+  val fromArrayOffset:elt array * Int32.int -> simdReal
+  val fromScalar:elt -> simdReal
+  val toScalar:simdReal -> elt
+(*mathematical functions *)
+  val add:simdReal*simdReal->simdReal
+  val sub:simdReal*simdReal->simdReal
+  val mul:simdReal*simdReal->simdReal
+  val div:simdReal*simdReal->simdReal
+  val sqrt:simdReal->simdReal
+  val min:simdReal*simdReal->simdReal
+  val max:simdReal*simdReal->simdReal
+  val hadd:simdReal*simdReal->simdReal
+  val hsub:simdReal*simdReal->simdReal
+  val addsub:simdReal*simdReal->simdReal
+(*Logical funcitons*)
+  val andb:simdReal*simdReal->simdReal
+  val xorb:simdReal*simdReal->simdReal
+  val orb: simdReal*simdReal->simdReal
+  val andnb:simdReal*simdReal->simdReal
+//////////////////////////
+(*  val notb:t->t (*0xff..ff and opperand = ! opperand*)(*non primtive*)*)
+(*(*Round/Convert*)
+  val vroundp:t*t*word8.word->wordx.t(*actual round instruction*)
+  (*Need to implement these myself,all are just round with a different imm*)
+  (*Also need to make theme take a type argument to determine size*)
+  val vround:t*t*int->wordx.t(*imm=00*)
+  val vceil:t*t*int->wordx.t(*imm=01*)
+  val vfloor:t*t*int->wordx.t(*imm=10*)
+  val vtrunc:t*t*int->wordx.t(*imm=11*)
+(*these are a lot more complicated, but we should be able to just have a from
+ *and a to function and pick the right instruction based on the types*)
+  val vcvt2f:WordX.t->t
+  val vcvt2i:t->WordX.t*)
+//////////////////////////
+(*comparison instructions*)
+    datatype cmp = eq  | lt  | gt  | le  | ge  | ord
+                 | ne  | nlt | ngt | nle | nge | unord
+    val primitiveCmp: simdReal*simdReal*Word8.word -> simdReal
+    val cmp: simdReal*simdReal*cmp -> simdReal
+//////////////////////////
+(*return true if any of the comparisons return true, uses maskmove
+   fun cmpBool(s1,s2,cmp) =
+      let
+         val s3 = cmp(s1,s2,s3)
+      in op=(0.0,maskmove(s3)
+   end
+ *)
+(*  val cmpBool: t*t*cmp -> bool
+(*return a list of booleans, one for each comparison*)
+  val cmpBools: t*t*cmp -> bool list*)
+//////////////////////////
+(*Shuffle Instructions*)
+  val mkShuffleConst:Word8.word*Word8.word*Word8.word*Word8.word -> Word8.word
+  val primitiveShuffle:simdReal*simdReal*Word8.word->simdReal
+  val shuffle:simdReal*simdReal*(Word8.word*Word8.word*Word8.word*Word8.word)
+              -> simdReal
+//////////////////////////
+(*  val blend:t*t*t->t
+  val extract:t*word8.word -> e*)
+//////////////////////////
+(*string formatting functions*)
+  val toString: simdReal -> string
+  val toStringScalar: simdReal -> string
+  val fmt: StringCvt.realfmt -> simdReal -> string
+end
+----
+
+== Values ==
+NOTE: in the following descriptions 'N' is used to refer to the number of
+elements in a given SIMD vector. In addition the term vector is used to refer
+to a SIMD type and not an sml vector, unless stated otherwise.
++
+* `vecSize`
++
+The size of the SIMD vector in bits, should be a multiple of 128
+
+* `realSize`
++
+The size of each element, should be 32 or 64 however if a platform supports
+half-width floats than 16 would also be acceptable
+
+* `elements`
++
+The number of elements in each SIMD vector, equivalent to vecSize/realSize
+included for convenience.
+
+* `type simdReal`
++
+The type of the SIMD vector. Can either be a primitive type or a composite type
+for a software (for example a tuple of 4 Real32's for Simd128_Real32)
+* `type elt`
++
+The type of the elements. for Simd'X'_Real'Y' Equivalent to Real'Y'.real.
+* `fromArray a`
++
+Create a simdReal from the first N values of the given array.
+* `fromArrayOffset (a,i)`
++
+Create a simdReal using the values i-i+N in the given array.
+raises subscript if the given array is too small. For best performance
+insure that i is a multiple of N to allow an aligned load.
+Other values are allowed but will result in decreased performance.
+* `toArray (a,s)`
++
+Store the simdReal s into the first N elements of a. Raises Subscript if the
+length of a is smaller than N.
+* `fromScalar r`
++
+Create a simdReal with the lowest element set to r and all other elements set
+to 0
+* `toScalar s`
++
+Return the lowest element of s as a value of type elt
+* add|sub|mul|div (x,y)
++
+Perform addition, subtraction, multiplication, or division on the given SIMD
+values.
+* sqrt x
++
+Return the square root of the SIMD value x.
+* min|max (x,y)
++
+Return a SIMD vector consisting of the minimum/maximum of each pair of elements
+in x and y.
+* hadd|hsub (x,y)
++
+Perform horizontal addition/subtraction on x and y. 
+HADD/HSUB example +
+ SRC1:|X3|X2|X1|X0| +
+ SRC2:|Y3|Y2|Y1|Y0| +
+ DST :|Y2+/-Y3|Y0+/-Y1|X2+/-X3|X0+/-X1| +
+* `addsub(x,y)`
++
+Perform addition on the odd indices of x and y (i.e 1st and 3rd) and perform
+subtraction on the even indices (i.e. 0th 2nd and 4th)
+* `cmp (x,y,c)`
++
+Compare x and y using one of the possible comparisons from the datatype cmp
+the equivalent actions using standard compairson opperators are
+eq => x=y +
+lt => x<y +
+gt => x>y +
+le => x[underline]#<#y +
+ge => x[underline]#>#y +
+ne => !(x=y) +
+nlt => !(x<y) +
+ngt => !(x>y) +
+nle => !(x[underline]#<#y) +
+nge => !(x[underline]#>#y) +
+ord and unord compare x and y for order, that is to say if the are actual
+numbers or inf/NaN, ord returns true if x and y are actual numbers and unord
+returns true if x or y is inf/NaN.
+The value returned by a cmp operation is a simdReal value. A true comparison is
+indicated by an element consisting of all one bits, which is a -NaN, a false
+comparison is indicated by an element of all zero bits, which is 0.
+* `shuffle (x,y,(w1,w2,w3,w4))`
++ `primitiveShuffle(x,y,w)`
++ `mkShuffleConst(w1,w2,w3,w4)`
++
+These functions allow for shuffling of simdReals. Shuffling allows one to
+permute the elements of a simdReal without converting to an array. Loading and
+storing simdReals from Arrays is generally an expensive operation, so using
+shuffling wherever possible to permute simdReal values is key to writing
+efficient programs with SIMD instructions.
+
+Shuffling simdReals requires a Word8 value to determine how to shuffle the
+values. This can be provided as is to the primitiveShuffle function or more
+conveniently generated using mkShuffleConst, or by using the shuffle function. 
+The format of these instructions takes a tuple of 4 word8 values which
+determine which values go in the corresponding index in the result. the possible
+values go from 0-(N-1) and only the first N values are actually used. The first
+N/2 word8s select from x and the remaining select from y.
+
+Example shuffle for Simd128_Real32, using little endian ordering: +
+ BITS:127.........0      +
+ SRC1:|X3|X2|X1|X0| +
+ SRC2:|Y3|Y2|Y1|Y0| +
+ Word8 Tuple:(0,3,1,2) +
+ DST:|Y1|Y2|X0|X3| +
+using big endian ordering: +
+BITS:0............127 +
+ SRC1:|X0|X1|X2|X3| +
+ SRC2:|Y0|Y1|Y2|Y3| +
+ Word8 Tuple:(0,3,1,2) +
+ DST:|X3|X0|Y1|Y2| +
+* toString s
++ toStringScalar s
++
+toStringScalar converts the lowest element in s into a string, in the manner of
+ Real.toString. toString returns a string "(a,b,c,d)" where a-d are the string
+ representations of the elements of s
+* fmt f s
++
+Returns a string "(a,b,c,d)" where a-d are equivalent to running Real.fmt f on
+the corresponding element of s

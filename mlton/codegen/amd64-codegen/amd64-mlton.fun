@@ -116,7 +116,7 @@ struct
 (*         | Simd_Word_cmpeq _ => true
          | Simd_Word_cmpgt _ => true*)
          | Simd_Word_fromArray _ => true
-         | Simd_Word_fromScalar _ => true
+(*         | Simd_Word_fromScalar _ => true*)
          | Simd_Word_hadd _ => true
          | Simd_Word_hsub _ => true
 (*         | Simd_Word_max _ => true

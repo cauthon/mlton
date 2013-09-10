@@ -11,8 +11,8 @@ signature SIMD_WORD = sig
   type elt 
   type intElt
   type simdWord
-(*functions are commented with hardware supported element types,
- *key: b = Word8, w = Word16, d = Word32, q = Word64, dq = `Word128`*)
+(*  val simdWord1 : simdWord*)
+ (*key: b = Word8, w = Word16, d = Word32, q = Word64, dq = `Word128`*)
 (*Math*)
 (*S & US suffixs are for signed and unsigned saturation, saturation means
  *values don't wraparound, ie in an unsigned byte 255+1->0 w/o saturation
@@ -57,7 +57,7 @@ signature SIMD_WORD = sig
   val orb: simdWord*simdWord->simdWord
   val xorb:simdWord*simdWord->simdWord
   val andnb:simdWord*simdWord->simdWord
-  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)
+(*  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val sar:simdWord*simdWord->simdWord
   val slr:simdWord*simdWord->simdWord
@@ -73,11 +73,15 @@ signature SIMD_WORD = sig
   val cmpeq:simdWord*simdWord->simdWord
   val cmpgt:simdWord*simdWord->simdWord
   val toString: simdWord -> string
+  val toStringInt: simdWord -> string
   val toStringScalar: simdWord -> string
   val toStringElt: elt -> string
-  datatype cmp = eq  | lt  | gt  | le  | ge
+  val fmt: StringCvt.radix -> simdWord -> string
+  val fmtInt: StringCvt.radix -> simdWord -> string
+  val fmtScalar: StringCvt.radix -> simdWord -> string
+(*  datatype cmp = eq  | lt  | gt  | le  | ge
                | ne  | nlt | ngt | nle | nge
-  val cmp:simdWord*simdWord*cmp -> simdWord
+  val cmp:simdWord*simdWord*cmp -> simdWord*)
 (*so i'll need to write these myself
  *vcmpne(!=),vcmpgep(= | >),vcmplt(!(> | =)),vcmple(!>)
  *vcmpngt(!>),vcmpnge(!(= | >)),vcmpnlt(> | =),vcmpnle(>)*)
@@ -182,7 +186,7 @@ signature SIMD_WORD16 = sig
   val orb: simdWord*simdWord->simdWord
   val xorb:simdWord*simdWord->simdWord
   val andnb:simdWord*simdWord->simdWord
-  (*val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)*)
+  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val sar:simdWord*simdWord->simdWord
   val slr:simdWord*simdWord->simdWord

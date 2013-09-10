@@ -226,19 +226,9 @@ struct
                   val index = Machine.Register.index r
                   val base = amd64.Immediate.label (amd64MLton.local_base ty)
                   fun isSimd128 (s):bool =
-                      case s of
-                          Simd128_Real32 => true
-                        | Simd128_Real64 => true
-                        | Simd128_Word8 => true
-                        | Simd128_Word16 => true
-                        | Simd128_Word32 => true
-                        | Simd128_Word64 => true
-                        | _ => false
+                      (amd64.Size.toBytes (Vector.sub ((amd64.Size.fromCType s),0))) = 128
                   fun isSimd256 (s):bool =
-                      case s of
-                          Simd256_Real32 => true
-                        | Simd256_Real64 => true
-                        | _ => false
+                      (amd64.Size.toBytes (Vector.sub ((amd64.Size.fromCType s),0))) = 256
                   val origin =
                       (if (isSimd128 ty) then
                         amd64.MemLoc.imm

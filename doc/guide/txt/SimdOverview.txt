@@ -1,0 +1,9 @@
+assume we have 
+movss   (%rdx), %xmm0
+movss   (%rcx), %xmm3
+unpcklps        %xmm0, %xmm3
+movss   (%rdi), %xmm1
+movss   (%rsi), %xmm2
+unpcklps        %xmm1, %xmm2
+movaps  %xmm3, %xmm0
+movlhps %xmm2, %xmm0

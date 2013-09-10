@@ -30,6 +30,12 @@ end
 functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
   struct
   open S
+(*  local
+    structure Shuffle = mkShuffle(struct type simd = simdReal
+                                         val shuffle = Simd.shuffle end)
+  in
+    val primitiveShuffle = Shuffle.shuffle
+  end*)
 (*  type t = simdReal*)
   local
     type real = elt
@@ -50,10 +56,10 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     in
       val elements = elements
       val arrElements = elements-1
-      fun toArray(a,s) = 
-          if Array.length(a)<elements then
+      val toArray = toArray
+(*          if Array.length(a)<elements then
             raise Subscript
-          else Simd.toArray(a,s)
+          else Simd.toArray(a,s)*)
       fun fromArrayOffset (a,i) = 
 (*            if (Int64.<=((Int64.fromInt(Array.length a)),(Int64.+(i,arrElements))))
                orelse (Int64.<(i,0)) then*)
@@ -84,6 +90,9 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     fun toStringScalar s = let
       val temp = toScalar s
     in (Real.toString temp) end
+    fun fmtScalar f s = let
+      val temp = toScalar s
+    in (Real.fmt f) temp end
     val primitiveCmp = Simd.cmp
     val primitiveShuffle = Simd.shuffle
     fun shuffle (s1,s2,wconst) =

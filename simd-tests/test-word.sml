@@ -6,8 +6,12 @@
 (*simd128_word16 tests*)
 local
   type word = Word16.word
+  type int16 = Int16.int
   type simdConst = word*word*word*word*word*word*word*word
+  type simdConstInt = int16*int16*int16*int16*int16*int16*int16*int16
   fun toConst (a:word array,i:int):simdConst =
+        (Array.sub(a,i),Array.sub(a,i+1),Array.sub(a,i+2),Array.sub(a,i+3),Array.sub(a,i+4),Array.sub(a,i+5),Array.sub(a,i+6),Array.sub(a,i+7))
+  fun toConstInt (a:int16 array,i:int):simdConstInt =
         (Array.sub(a,i),Array.sub(a,i+1),Array.sub(a,i+2),Array.sub(a,i+3),Array.sub(a,i+4),Array.sub(a,i+5),Array.sub(a,i+6),Array.sub(a,i+7))
   fun toStringConst (s:simdConst as (a,b,c,d,e,f,g,h)) =
         concat(["(",Word16.toString(a),",",Word16.toString(b),",",
@@ -68,6 +72,10 @@ local
                           0w14049,0w20711,0w18621,0w31938,0w9868,0w28962,
                           0w23927,0w2066,0w23053,0w18596])
   val C_d2:simdConst = toConst(d2,0)
+  val i1:int16 array = Array.fromList([1,~3,5,~7,11,~13,17,~23])
+  val C_i1:simdConst = let val temp:int array = Array.fromList([1,~3,5,~7,11,~13,17,~23])
+                           val temp2 = Array.tabulate (8,(fn i => Word16.fromInt (Array.sub(temp,i))))
+                       in toConst(temp2,0:Int32.int) end
   fun gen_expected (f,arr1,arr2,i) = 
       toConst(Array.fromList
                 (List.tabulate
@@ -83,6 +91,11 @@ in
    val _ = print_test(b1',C_b1,"fromArray b1")
    val b2'= S.fromArray(b2)
    val _ = print_test(b2',C_b2,"fromArray b2")
+   val i1'= S.fromIntArray(i1);
+(*   val i2'=S.notb(i1')*)
+   val _ = print_test(i1',C_i1,"fromIntArray i1")
+   val _ = TextIO.print ((S.fmtInt StringCvt.DEC i1' ) ^ "i1 using fmtInt\n")
+(*   val _ = TextIO.print ((S.fmtInt StringCvt.DEC i2' ) ^ "i2 using fmtInt\n")*)
 (*   val c1'= S.fromArrayOffset(c1,4)
    val _ = print_test(c1',C_c1(4),"fromArrayOffset c1")
    val c2'= S.fromArrayOffset(c2,8)
@@ -102,7 +115,8 @@ in
        (print_test(S.add(a1',a2'),gen_expected(op+,a1,a2,0),"simd add a1 + a2");
         print_test(S.sub(a1',a2'),gen_expected(op-,a1,a2,0),"simd sub a1 + a2");
         print_test(S.mins(a1',a2'),gen_expected(Word16.min,a1,a2,0), "simd min a1 + a2");
-        print_test(S.maxs(a1',a2'),gen_expected(Word16.max,a1,a2,0),"simd max a1 + a2"))
+        print_test(S.maxs(a1',a2'),gen_expected(Word16.max,a1,a2,0),"simd max a1 + a2");
+        print_test(S.andnb(a1',a2'),gen_expected((Word16.notb o Word16.andb),a1,a2,0),"simd andnb a1 & a2"))
 (*n   val e32' = S.fromScalar(e32)
    val pi32' = S.fromScalar(pi32)
    val phi32' = S.fromScalar(phi32)

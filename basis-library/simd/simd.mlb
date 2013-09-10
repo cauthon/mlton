@@ -5,6 +5,11 @@ in
      ../default.mlb
      ../primitive/primitive.mlb
    in
+(*      local
+        simd-shuffle.sml               
+      in
+        signature SIMD_SHUFFLE
+        functor mkShuffle                  *)
       local
         simd-real.sig
         simd-real.sml
