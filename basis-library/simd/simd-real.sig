@@ -16,12 +16,13 @@ sig
 (*load/store*)
   val fromArray:elt array -> simdReal
   val toArray:elt array * simdReal-> unit
+  val toArrayOffset:elt array * Int32.int * simdReal-> unit
   val fromArrayOffset:elt array * Int32.int -> simdReal
-(*  val fromArraySlice:elt slice -> t (*non primtive*)
-  val set:elt list -> t(*aka from list*) (*non primtive*)
+(*  val set:elt list -> t(*aka from list*) (*non primtive*)
   val set1:elt -> t(*fill with duplicates of elt*) (*non primtive*)*)
   val fromScalar:elt -> simdReal
   val toScalar:simdReal -> elt(*e = lowest eltent in t*)
+  val fromScalarFill:elt -> simdReal
 (* because of toScalar we can get any element of a simd vector,
  * albeit not super efficently, via shuffling.*)
 (*math*)

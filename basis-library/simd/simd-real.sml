@@ -56,7 +56,8 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     in
       val elements = elements
       val arrElements = elements-1
-      val toArray = toArray
+      val toArrayUnsafe = toArray
+      val toArray = fn (x,s) => toArrayUnsafe(x,0:Int64.int,s)
 (*          if Array.length(a)<elements then
             raise Subscript
           else Simd.toArray(a,s)*)
@@ -68,13 +69,13 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
             else
               fromArrayUnsafe (a,Int64.fromInt(i))
       val fromArray = fn x => fromArrayUnsafe(x,0:Int64.int)
-      fun toArrayOffset (a,s,i) = 
+      fun toArrayOffset (a,i,s) = 
 (*          if (Int64.<=((Int64.fromInt(Array.length a)),(Int64.+(i,arrElements))))
              orelse (Int64.<(i,0)) then*)
           if (Array.length a <= (i + arrElements)) orelse (i < 0) then
             raise Subscript
           else
-            toArrayUnsafe (a,s,i)
+            toArrayUnsafe (a,Int64.fromInt(i),s)
     end
     fun fromScalarFill (r:elt) = let
       val arr = Array.array(elements,r)

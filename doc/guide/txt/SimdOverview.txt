@@ -74,8 +74,72 @@ for true and 0s for false. It is planned to add in convience functions to
 return tuples of booleans, but for now comparisons only return bitmasks.
 
 == Usage and Performance Tips ==
+A general use case of Simd instructions is to vectorize loops, taking what
+would be a normal loop over an array and using simd instructions in the body of
+the loop to increase performance.
+[source,sml]
+----
+fun SimdLoop(a:elt array,b:elt array) =
+    let
+       val len = Array.length(a)
 
-assume we have 
+       if len <> Array.length(b) then raise Subscript else 
+       val dstArray = Array.array(len,Array.sub(a,0))
+       (* this loop will do most of the work using simd instructions*)
+       fun loop(i:int) =
+       if i > len then i
+       else 
+          let
+             val simdA = fromArrayOffset(a,i)
+             val simdB = fromArrayOffset(b,i)
+             (* Body of loop goes here *)
+             val simdC = (* Result of Simd operations
+                          * ex. add(simdA,simdB) *)
+             val _ = toArrayOffset(dstArray,i,simdC)
+           in
+              loop(i+elements)
+           end
+       (* do calculations for excess elements that won't fill a simd value*)
+       fun cleanUp(j:int) =
+       if j = len then dstArray
+       else
+         let
+            val scalarA = Array.sub(a,j)
+            val scalarB = Array.sub(b,j)
+            (* Body of loop here *)
+            val scalarC = (* Result of loop
+                           * ex. scalarA + scalarB *)
+            val _ = Array.update(dstArray,j,scalarC)
+         end
+   in
+      cleanUp(loop(0)-elements)
+   end
+----
+
+This example shows a common setup for using simd instructions, as is obvious 
+looking at it simdimd instructions are noticably more complicated to use that
+simple scalar instructions. Looking at the example there are two main reasons
+for the complexity, the first is the loading and storing of simd values, which
+has already been adressed, the second is the necessity for the second scalar
+loop. Vectorizing a loop with simd instrcutions is much like loop unrolling,
+where the loop body is expanded to perform multiple iterations of the loop in
+one iteration of the unrolled loop. This brings causes a problem with
+vectorized loops as with unrolled loops, dealing with excess elements that will
+not fit cleanly into a single iteration. For example if the above loop was
+performed on two Real32 arrays of 15 elements each the simd loop could only
+handle the first 12 elements, leaving 3 extra elements to be processed. It is
+for this reason that the additonal loop is required, in actual code there is an
+option of forcing all input arrays to have lengths that are a multiple of the
+number of elements in a simd value, but this severly limits the flexiblity of
+the resulting program.
+
+A key consideration in deciding weather or not to use simd instructions is the
+size of the input, while simd instructions can cause a significant increase in
+performance this is not always worth the additonal programming complexity. It
+is best to use simd instructions on loops that are used with large inputs or
+repeated often, as this will result in noticable performance gains.
+
+
 movss   (%rdx), %xmm0
 movss   (%rcx), %xmm3
 unpcklps        %xmm0, %xmm3

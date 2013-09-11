@@ -1290,11 +1290,11 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                     add (Statement.Move {dst= 
                                                     (ArrayOffset 
                                                     {base = a 0,
-                                                     index = Operand.zero WordSize.word64,
+                                                     index = a 1,
                                                      offset = Bytes.zero,
                                                      scale = Type.scale elemTy,
                                                      ty = ty}),
-                                                    src = a 1})
+                                                    src = a 2})
                                  end
 
                               fun subSimdWord s =
@@ -1316,11 +1316,11 @@ fun convert (program as S.Program.T {functions, globals, main, ...},
                                     add (Statement.Move {dst= 
                                                     (ArrayOffset 
                                                     {base = a 0,
-                                                     index =  Operand.zero WordSize.word64,
+                                                     index =a 1,
                                                      offset = Bytes.zero,
                                                      scale = Type.scale elemTy,
                                                      ty = ty}),
-                                                    src = a 1})
+                                                    src = a 2})
                                  end
 
 

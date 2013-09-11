@@ -26,8 +26,12 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
    open Simd
    val fromArrayUnsafe = fromArray
    val fromIntArrayUnsafe = fromIntArray
+   val toArrayUnsafe = toArray
+   val toIntArrayUnsafe = toIntArray
    val fromArray = fn x => fromArrayUnsafe(x,0:Int64.int)
    val fromIntArray = fn x => fromIntArrayUnsafe(x,0:Int64.int)
+   val toArray = fn (x,s) => toArrayUnsafe(x,0:Int64.int,s) 
+   val toIntArray = fn (x,s) => toIntArrayUnsafe(x,0:Int64.int,s)
    fun fromArrayOffset (a,i) =
        if (Array.length a <= (i + elements)) orelse (i <0)
        then raise Subscript
@@ -60,6 +64,40 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
                    loop(j+1))
          val _ = loop(0)
        in fromIntArrayUnsafe(temp,Int64.fromInt(0)) end
+   fun toArrayOffset (a,i,s) =
+       if (Array.length a <= (i + elements)) orelse (i <0)
+       then raise Subscript
+       else if (Int32.mod(i,elements) = 0)
+       then toArrayUnsafe(a,Int64.fromInt(i),s)
+       (*Deal with unaligned index
+        *we copy the desired elements to a new array, and load to that*)
+       else let
+         val temp = Primitive.Array.arrayUnsafe(Int64.fromInt(elements))
+         (*I assume this'll be optimized into a simple loop*)
+         val _ = toArrayUnsafe(temp,0:Int64.int,s)
+         fun loop (j) = 
+             if j = elements then ()
+             else (Primitive.Array.updateUnsafe(a,Int64.fromInt(j+1),Array.sub(temp,j));
+                   loop(j+1))
+         val _ = loop(0)
+       in () end
+   fun toIntArrayOffset (a,i,s) =
+       if (Array.length a <= (i + elements-1)) orelse (i <0)
+       then raise Subscript
+       else if (Int32.mod(i,elements) = 0)
+       then toIntArrayUnsafe(a,Int64.fromInt(i),s)
+       (*Deal with unaligned index
+        *we copy the desired elements to a new array, and load to that*)
+       else let
+         val temp = Primitive.Array.arrayUnsafe(Int64.fromInt(elements))
+         val _ = toIntArrayUnsafe(temp,0:Int64.int,s)
+         (*I assume this'll be optimized into a simple loop*)
+         fun loop (j) = 
+             if j = elements then ()
+             else (Primitive.Array.updateUnsafe(a,Int64.fromInt(j+1),Array.sub(temp,j));
+                   loop(j+1))
+         val _ = loop(0)
+       in () end
     fun fromScalarFill (w:elt) = let
       val arr = Array.array(elements,w)
     in fromArray(arr) end

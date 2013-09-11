@@ -18,11 +18,11 @@ signature SIMD_WORD = sig
  *values don't wraparound, ie in an unsigned byte 255+1->0 w/o saturation
  *but 255+1->255 w/ saturation*)
   val toArray:elt array * simdWord -> unit
-(*  val toArrayOffset:elt array * Int32.int * simdWord -> unit*)
+  val toArrayOffset:elt array * Int32.int * simdWord -> unit
   val fromArray:elt array -> simdWord
   val fromArrayOffset:elt array * Int32.int -> simdWord
   val toIntArray:intElt array * simdWord -> unit
-(*  val toIntArrayOffset:elt array * Int32.int * simdWord -> unit*)
+  val toIntArrayOffset:intElt array * Int32.int *  simdWord -> unit
   val fromIntArray:intElt array -> simdWord
   val fromIntArrayOffset:intElt array * Int32.int -> simdWord
   val toScalar: simdWord -> elt

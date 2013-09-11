@@ -1807,7 +1807,7 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => (threeArgs(simdReal s,simdReal s,word8),simdReal s))
        | Simd_Real_toArray s =>
          noTargs (fn () => 
-                     (twoArgs (array (real (simdRealtoReal s)),simdReal s), unit))
+                     (threeArgs (array (real (simdRealtoReal s)),word64,simdReal s), unit))
        | Simd_Real_fromArray s =>
          noTargs (fn () => (twoArgs (array (real (simdRealtoReal s)),word64),
                             simdReal s))
@@ -1851,7 +1851,7 @@ fun 'a checkApp (prim: 'a t,
          noTargs (fn () => (twoArgs (array (word (simdWordtoWord w)),
                             word64), simdWord w))
        | Simd_Word_toArray w =>
-         noTargs (fn () => (twoArgs (array (word (simdWordtoWord w)),
+         noTargs (fn () => (threeArgs (array (word (simdWordtoWord w)),word64,
                                        (simdWord w)),unit))
 
        | Thread_atomicBegin => noTargs (fn () => (noArgs, unit))
