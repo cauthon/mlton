@@ -130,12 +130,12 @@ functor SimdWord (S: SIMD_WORD_STRUCTS):SIMD_WORD =
       val temp = toScalar s
     in (Word.fmt f) temp end
    end
-(*   local
+   local
      val Word1Const= Array.array(elements,one)
      val simdWord1=fromArray(Word1Const)
    in
      val notb = fn x => andnb(x,simdWord1)
-   end*)
+   end
 (*
    fun cmp (w:simdWord,w':simdWord,c:cmp):simdWord =
        case c of

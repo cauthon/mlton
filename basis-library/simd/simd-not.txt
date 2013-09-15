@@ -1,0 +1,7 @@
+The patch simd-not.patch will patch simd-word.sml and simd-word.sig to include
+the notb function. When using a basis library compiled with the simd-word notb
+instruction any program using simd instructions(via including the simd.mlb file
+in an mlb file) will fail to compile from an uncaught option exception in the
+ssa-to-rssa pass. Its worth noting that it doesn't matter if the simd not
+function is actually using, mearly including the simd.mlb file is enough to
+trigger the error.

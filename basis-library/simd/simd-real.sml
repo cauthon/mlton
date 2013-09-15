@@ -24,8 +24,9 @@ sig
   structure Real:REAL
   structure Simd:PRIM_SIMD_REAL
   structure Common:SIMD_REAL_COMMON
+  structure Shuffle:SIMD_SHUFFLE
   sharing type Real.real = Simd.elt = Common.elt = elt
-  sharing type Simd.simdReal = Common.simdReal = simdReal
+  sharing type Simd.simdReal = Common.simdReal = Shuffle.simd = simdReal
 end
 functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
   struct
@@ -49,6 +50,7 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     end
   in
     open Simd
+    open Shuffle
     local
       open Common
       val fromArrayUnsafe = fromArray
@@ -94,6 +96,8 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
     fun toStringScalar s = let
       val temp = toScalar s
     in (Real.toString temp) end
+    (*just convience*)
+    val toStringElt = Real.toString
     fun fmtScalar f s = let
       val temp = toScalar s
     in (Real.fmt f) temp end
@@ -125,6 +129,9 @@ structure Simd128_Real32 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real32
     structure Simd = Primitive.Simd128_Real32
+    structure Shuffle = mkShuffle(struct
+                                 open Simd
+                                 type simd=Simd.simdReal end)
     structure Common = 
        struct
           type simdReal = Simd.simdReal
@@ -151,6 +158,9 @@ structure Simd128_Real64 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real64
     structure Simd = Primitive.Simd128_Real64
+    structure Shuffle = mkShuffle(struct
+                                 open Simd
+                                 type simd=Simd.simdReal end)
     structure Common = 
        struct
           type simdReal = Simd.simdReal
@@ -178,6 +188,9 @@ structure Simd256_Real32 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real32
     structure Simd = Primitive.Simd256_Real32
+    structure Shuffle = mkShuffle(struct
+                                 open Simd
+                                 type simd=Simd.simdReal end)
     structure Common = 
        struct
           type simdReal = Simd.simdReal
@@ -204,6 +217,9 @@ structure Simd256_Real64 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real64
     structure Simd = Primitive.Simd256_Real64
+    structure Shuffle = mkShuffle(struct
+                                 open Simd
+                                 type simd=Simd.simdReal end)
     structure Common = 
        struct
           type simdReal = Simd.simdReal

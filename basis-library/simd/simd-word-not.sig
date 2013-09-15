@@ -59,7 +59,7 @@ signature SIMD_WORD = sig
   val orb: simdWord*simdWord->simdWord
   val xorb:simdWord*simdWord->simdWord
   val andnb:simdWord*simdWord->simdWord
-(*  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)*)
+  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)
 (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
   val sar:simdWord*simdWord->simdWord
   val slr:simdWord*simdWord->simdWord

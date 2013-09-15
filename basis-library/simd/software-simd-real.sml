@@ -13,16 +13,20 @@ sig
   val vecSize:Int32.int
   val realSize:Int32.int
   val simdBinOp:simdReal*simdReal*(elt*elt->elt)->simdReal
-  val toArray:elt array * simdReal * Int32.int -> unit
-  val toList:simdReal -> elt list
+  val toArray:elt array * Int32.int * simdReal-> unit
   val fromArray:elt array * Int32.int -> simdReal
+  val toList:simdReal -> elt list
+  val fromList:elt list -> simdReal
 (*for compairsons*)
-  val negNaN:real
-  val posZero:real
+  val negNaN:Real.real
+  val posZero:Real.real
   val toWord:Real.real -> Word.word
   val fromWord:Word.word -> Real.real
   val shuffle:simdReal*simdReal*
               (Word8.word*Word8.word*Word8.word*Word8.word) -> simdReal
+  val fromScalar: elt -> simdReal
+  val toScalar: simdReal -> elt
+  val fromScalarFill: elt -> simdReal
   sharing type elt = Real.real
 end
 
@@ -37,22 +41,27 @@ struct
             case ls of
                 x::[] => concat ("("::(f x)::str)
               | x::xs => make(xs,(","::(f x)::str))
+              | [] => raise Empty
       in
         make (toList s,[")"])
       end
   val toString = toStringGeneric Real.toString
   val fmt = fn f => fn s =>
                toStringGeneric (Real.fmt f) s
-  val toStringScalar = Real.toString o #1
-  val fromArray = fn x => fromArray (x,0)
-  val toArray = fn (x,y) => toArray (x,y,0)
+  val toStringScalar = (Real.toString o toScalar)
+  fun fmtScalar f s = let
+    val temp = toScalar s
+  in (Real.fmt f) temp end
+  val toStringElt = Real.toString
+  val toArrayOffset = toArray
+  val toArray = fn (x,y) => toArrayOffset (x,0,y)
   val fromArrayOffset = fromArray
-  fun toList (s:simdReal as (a,b,c,d)):elt list = [a,b,c,d]
-  fun fromList (a::b::c::d::_):simdReal = (a,b,c,d)
+  val fromArray = fn x => fromArrayOffset (x,0)
   fun mkBinOp f = fn (x,y) => simdBinOp (x,y,f)
   val add = mkBinOp Real.+
   val sub = mkBinOp Real.-
   val mul = mkBinOp Real.*
+  nonfix div
   val div = mkBinOp Real./
   val min = mkBinOp Real.min
   val max = mkBinOp Real.max
@@ -75,6 +84,7 @@ struct
                             ([],[],z) => fromList z
                           | ((n::m::x),y,z) => doit(x,y,(f(n,m)::z))
                           | ([],(n::m::y),z) => doit([],y,(f(n,m)::z))
+                          | _ => raise Empty
         in doit (l1,l2,[]) end
   in
     val hadd = fn (x,y) => hop(x,y,Real.+)
@@ -90,6 +100,7 @@ struct
               doit(xs,ys,(Real.-(x,y)::z),false)
             else
               doit(xs,ys,(Real.+(x,y)::z),true)
+          | doit (_) = raise Empty
       in doit(l1,l2,[],true) end
   local
     fun simdBinLp (f:Word.word*Word.word->Word.word):elt*elt->elt =
@@ -98,7 +109,7 @@ struct
   val andb = mkBinOp(simdBinLp Word.andb)
   val orb = mkBinOp(simdBinLp Word.orb)
   val xorb = mkBinOp(simdBinLp Word.xorb)
-  val andnb = mkBinOp(simdBinLp (Word.andb o Word.notb))
+  val andnb = mkBinOp(simdBinLp (Word.notb o Word.andb))
   end
   local
     open Word8
@@ -111,12 +122,15 @@ struct
       shuffle(s1,s2,decodeShuffleConst(w))                      
   datatype cmp = eq  | lt  | gt  | le  | ge  | ord
                | ne  | nlt | ngt | nle | nge | unord
+  local
+    type real = elt
+  in
   fun cmp (s1:simdReal,s2:simdReal,c:cmp) =
       let
         fun IEEECmp (order:IEEEReal.real_order,not:bool->bool) =
-            fn(x,y) =>
-              if not(order = Real.compareReal(x,y)) then
-                negNaN else posZero
+            fn(x:Real.real,y:Real.real) =>
+              (if not(order = Real.compareReal(x,y)) then
+                negNaN else posZero)
         val t:bool->bool = fn x => x
         val f:bool->bool = Bool.not
         fun doit (order:IEEEReal.real_order,not:bool->bool):simdReal =
@@ -135,7 +149,7 @@ struct
         | nge => doit(IEEEReal.LESS,t)
         | ord => doit(IEEEReal.UNORDERED,f)
         | unord => doit(IEEEReal.UNORDERED,t)
-      end
+      end end
   fun primitiveCmp (s1:simdReal,s2:simdReal,c:Word8.word) = let
     val imm = case c of
                   0w0 => eq
@@ -144,44 +158,48 @@ struct
                 | 0w2 => le 
                 | 0w5 => ge 
                 | 0w4 => ne
-                | 0w5 => nlt 
-                | 0w2 => ngt 
-                | 0w6 => nle 
-                | 0w1 => nge
                 | 0w7 => ord
                 | 0w3  => unord
+                | _ => raise Fail ("Comparison using immediate of " ^ 
+                                   Word8.toString(c)^ " is undefined")
   in
     cmp(s1,s2,imm)
   end
 end
-structure Simd128_Real32_Software = SoftwareSimdReal(
+structure Simd128_Real32 = SoftwareSimdReal(
  struct
   structure Real = Real32
   structure Word = Word32
-  open Real
   type elt = Real32.real
+  type real = Real32.real
   type simdReal = real*real*real*real
   val elements = 4
   val vecSize = 128
   val realSize = 32
   fun simdBinOp (s1 as (a1,b1,c1,d1),s2 as (a2,b2,c2,d2),f) =
       (f(a1,a2),f(b1,b2),f(c1,c2),f(d1,d2))
-  fun toArray (a,s as (s1,s2,s3,s4),i) =
+  fun toArray (a,i,s as (s1,s2,s3,s4)) =
       (Array.update(a,i,s1);Array.update(a,i+1,s2);
        Array.update(a,i+2,s3);Array.update(a,i+3,s4))
   fun fromArray (a,i) =
-      (Array.sub(i),Array.sub(i+1),Array.sub(i+2),Array.sub(i+3))
+      (Array.sub(a,i),Array.sub(a,i+1),Array.sub(a,i+2),Array.sub(a,i+3))
+  fun toList(s as (a,b,c,d)) = [a,b,c,d]
+  fun fromList(a::b::c::d::e) = (a,b,c,d)
+    | fromList(_) = raise Empty
+  fun fromScalar r = (r,0.0:real,0.0:real,0.0:real)
+  fun fromScalarFill r = (r,r,r,r)
+  val toScalar = fn (a,b,c,d) => a
   local
     open Primitive.PackReal32
   in
      val toWord = castToWord
      val fromWord = castFromWord
   end
-  val negNaN = fromWord 0wxffffffff
-  val posZero = fromWord 0wx00000000
+  val negNaN:Real32.real = fromWord 0wxffffffff
+  val posZero:Real32.real = fromWord 0wx00000000
   fun shuffle (s1, s2, (w1,w2,w3,w4))=
    let
-     fun select(s:simdWord,w:Word8.word) =
+     fun select(s:simdReal,w:Word8.word) =
          case w of
              0w0 => #1(s)
            | 0w1 => #2(s)
@@ -192,22 +210,27 @@ structure Simd128_Real32_Software = SoftwareSimdReal(
      (select(s1,w1),select(s1,w2),select(s2,w3),select(s2,w4))
    end
 end)
-structure Simd128_Real64_Software = SoftwareSimdReal(
+structure Simd128_Real64  = SoftwareSimdReal(
  struct
   structure Real = Real64
   structure Word = Word64
-  open Real
-  type elt = Rea64.real
-  type simdReal = real*real*real*real
+  type elt = Real64.real
+  type simdReal = real*real
   val elements = 2
   val vecSize = 128
   val realSize = 64
   fun simdBinOp (s1 as (a1,b1),s2 as (a2,b2),f) =
       (f(a1,a2),f(b1,b2))
-  fun toArray (a,s as (s1,s2),i) =
+  fun toArray (a,i,s as (s1,s2)) =
       (Array.update(a,i,s1);Array.update(a,i+1,s2))
   fun fromArray (a,i) =
-      (Array.sub(i),Array.sub(i+1))
+      (Array.sub(a,i),Array.sub(a,i+1))
+  fun toList (s as (a,b))=[a,b]
+  fun fromList (a::b::c) = (a,b)
+    | fromList (_) = raise Empty
+  fun fromScalar r = (r,0.0)
+  fun fromScalarFill r = (r,r)
+  val toScalar = fn (a,b) => a
   local
     open Primitive.PackReal64
   in
@@ -216,9 +239,9 @@ structure Simd128_Real64_Software = SoftwareSimdReal(
   end
   val negNaN = fromWord 0wxffffffffffffffff
   val posZero = fromWord 0wx0000000000000000
-  fun shuffle (s1, s2, (w1,w2,_w3,_w4))=
+  fun shuffle (s1, s2, (w1,w2,w3,w4))=
    let
-     fun select(s:simdWord,w:Word8.word) =
+     fun select(s:simdReal,w:Word8.word) =
          case w of
              0w0 => #1(s)
            | 0w1 => #2(s)

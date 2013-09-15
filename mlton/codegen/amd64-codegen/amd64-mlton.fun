@@ -97,8 +97,8 @@ struct
          | Simd_Real_min  _ => true
          | Simd_Real_mul  _ => true
          | Simd_Real_or  _ => true
-(*       | Simd_Real_shuffle _ => true
-         | Simd_Real_sqrt  _ => true*)
+(*         | Simd_Real_shuffle _ => true*)
+(*         | Simd_Real_sqrt  _ => true*)
          | Simd_Real_sub  _ => true
          | Simd_Real_xor  _ => true
 (*         | Simd_Real_cmpeq _ => true
@@ -856,10 +856,11 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-(*        fun sse_shuffp (oper,imm)
+        fun sse_shuffp oper
           = let
               val ((src1,src1size),
-                   (src2,src2size)) = getSrc3 ()
+                   (src2,src2size),
+                   (src3,src3size)) = getSrc3 ()
               val (dst,dstsize) = getDst1 ()
               val _
                 = Assert.assert
@@ -867,27 +868,25 @@ struct
                    fn () => src1size = dstsize andalso
                             src2size = dstsize andalso
                             src3size = dstsize)
+              (*val imm = Operand.immediate_word src3*)
             in
               AppendList.fromList
               [Block.mkBlock'
                {entry = NONE,
                 statements
-                = [Assembly.instruction_sse_movs
-                   {dst = dst,
+                = [Assembly.instruction_sse_movp
+                   {instr = Instruction.SSE_MOVAPD,
+                    dst = dst,
                     src = src1,
                     size = src1size},
                    Assembly.instruction_sse_shuffp
                    {oper = oper,
                     dst = dst,
                     src = src2,
-                    size = dstsize},
-                   Assembly.instruction_sse_binas
-                   {oper = oper,
-                    dst = dst,
-                    src = src3,
-                    size = dstsize}],
+                    size = dstsize,
+                    imm = src3}],
                 transfer = NONE}]
-            end*)
+            end
 
 
         fun sse_unas oper
@@ -1646,6 +1645,11 @@ struct
                (case s of
                    V128R32 => sse_movp Instruction.SSE_MOVSS
                  | V128R64 => sse_movp Instruction.SSE_MOVSD
+                 | _ => Error.bug "amd64-mlton, avx unimplemented")
+             | Simd_Real_shuffle s => 
+               (case s of
+                   V128R32 => sse_shuffp Instruction.SSE_SHUFPS
+                 | V128R64 => sse_shuffp Instruction.SSE_SHUFPD
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
 (*
 (while (re-search-forward

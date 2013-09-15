@@ -1,9 +1,3 @@
-signature SIMD_SHUFFLE =
-sig
-  type simd
-  val mkShuffleConst:Word8.word*Word8.word*Word8.word*Word8.word->Word8.word
-  val shuffle:simd*simd*Word8.word -> simd
-end
 functor mkShuffle(S:sig type simd
                         val shuffle:simd*simd*Word8.word -> simd end):SIMD_SHUFFLE =
 struct
@@ -276,3 +270,9 @@ fun shuffle(s,s',w) =
       | 0w254 => shuffle(s,s',0w254)
       | 0w255 => shuffle(s,s',0w255)
 end
+structure Shuffle32:SIMD_SHUFFLE = mkShuffle(struct
+                                 open Primitive.Simd128_Real32
+                                 type simd=simdReal end)
+structure Shuffle64:SIMD_SHUFFLE = mkShuffle(struct
+                                 open Primitive.Simd128_Real64
+                                 type simd=simdReal end)

@@ -24,6 +24,7 @@ in
         simd-word.sig
         simd-word.sml
       in
+      signature SIMD_WORD
       structure Simd128_Word8
       structure Simd128_Word16
       structure Simd128_Word32

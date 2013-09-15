@@ -2387,11 +2387,12 @@ because 16 => XMMS or XMMD or XMMW and
                      oper1]
             fun binImm (oper, size, oper1, oper2, imm)
                 = seq [oper,
-                   imm,
-                   str " ",
-                   oper1,
-                   str " ",
-                   oper2]
+                       str " ",
+                       imm,
+                       str ",",
+                       oper1,
+                       str ",",
+                       oper2]
             fun binSIMD (oper, size, oper1, oper2)
                 = seq [oper,
                    str size,

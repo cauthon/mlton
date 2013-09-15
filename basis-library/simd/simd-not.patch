@@ -1,0 +1,28 @@
+--- simd-word.sig	2013-09-13 12:38:58.643395422 -0400
++++ simd-word-not.sig	2013-09-13 12:39:39.625417794 -0400
+@@ -59,7 +59,7 @@
+   val orb: simdWord*simdWord->simdWord
+   val xorb:simdWord*simdWord->simdWord
+   val andnb:simdWord*simdWord->simdWord
+-(*  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)*)
++  val notb:simdWord->simdWord(*vandn 0xff..ff*simdWord->simdWord*)
+ (*sa=arathmatic shift(preserve sign) sl=logical shift(fill w/zeros*)
+   val sar:simdWord*simdWord->simdWord
+   val slr:simdWord*simdWord->simdWord
+--- simd-word.sml	2013-09-13 12:38:55.570543374 -0400
++++ simd-word-not.sml	2013-09-13 12:39:50.736880207 -0400
+@@ -130,12 +130,12 @@
+       val temp = toScalar s
+     in (Word.fmt f) temp end
+    end
+-(*   local
++   local
+      val Word1Const= Array.array(elements,one)
+      val simdWord1=fromArray(Word1Const)
+    in
+      val notb = fn x => andnb(x,simdWord1)
+-   end*)
++   end
+ (*
+    fun cmp (w:simdWord,w':simdWord,c:cmp):simdWord =
+        case c of
