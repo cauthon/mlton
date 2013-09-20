@@ -24,7 +24,6 @@ signature PRIM_SIMD_REAL =
       val hadd : simdReal * simdReal -> simdReal
       val hsub : simdReal * simdReal -> simdReal
       val addsub : simdReal * simdReal -> simdReal
-      val shuffle : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val cmp : simdReal * simdReal * Primitive.Word8.word -> simdReal
       val sqrt : simdReal -> simdReal
       val fromArray : elt array * Primitive.Int64.int -> simdReal
@@ -146,7 +145,6 @@ structure Simd128_Real32 : PRIM_SIMD_REAL =
       val min = _prim "Simd128_Real32_min": simdReal * simdReal -> simdReal ;
       val mul = _prim "Simd128_Real32_mul": simdReal * simdReal -> simdReal ;
       val orb = _prim "Simd128_Real32_orb": simdReal * simdReal -> simdReal ;
-      val shuffle = _prim "Simd128_Real32_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd128_Real32_sqrt": simdReal -> simdReal ;
       val sub = _prim "Simd128_Real32_sub": simdReal * simdReal -> simdReal ;
       val toArray = _prim "Simd128_Real32_store": elt array * Int64.int * simdReal -> unit;
@@ -177,7 +175,6 @@ structure Simd128_Real64 : PRIM_SIMD_REAL =
       val min = _prim "Simd128_Real64_min": simdReal * simdReal -> simdReal ;
       val mul = _prim "Simd128_Real64_mul": simdReal * simdReal -> simdReal ;
       val orb = _prim "Simd128_Real64_orb": simdReal * simdReal -> simdReal ;
-      val shuffle = _prim "Simd128_Real64_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd128_Real64_sqrt": simdReal -> simdReal ;
       val sub = _prim "Simd128_Real64_sub": simdReal * simdReal -> simdReal ;
       val toArray = _prim "Simd128_Real64_store": elt array * Int64.int * simdReal -> unit;
@@ -208,7 +205,6 @@ structure Simd256_Real32 : PRIM_SIMD_REAL =
       val min = _prim "Simd256_Real32_min":simdReal * simdReal -> simdReal ;
       val mul = _prim "Simd256_Real32_mul":simdReal * simdReal -> simdReal ;
       val orb = _prim "Simd256_Real32_orb":simdReal * simdReal -> simdReal ;
-      val shuffle = _prim "Simd256_Real32_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd256_Real32_sqrt":simdReal -> simdReal ;
       val sub = _prim "Simd256_Real32_sub":simdReal * simdReal -> simdReal ;
       val toArray = _prim "Simd256_Real32_store": elt array *Int64.int *  simdReal -> unit;
@@ -239,7 +235,6 @@ structure Simd256_Real64 : PRIM_SIMD_REAL =
       val min = _prim "Simd256_Real64_min": simdReal * simdReal -> simdReal ;
       val mul = _prim "Simd256_Real64_mul": simdReal * simdReal -> simdReal ;
       val orb = _prim "Simd256_Real64_orb": simdReal * simdReal -> simdReal ;
-      val shuffle = _prim "Simd256_Real64_shuffle": simdReal * simdReal * Word8.word -> simdReal ;
       val sqrt = _prim "Simd256_Real64_sqrt": simdReal -> simdReal ;
       val sub = _prim "Simd256_Real64_sub": simdReal * simdReal -> simdReal ;
       val toArray = _prim "Simd256_Real64_store": elt array * Int64.int * simdReal -> unit;

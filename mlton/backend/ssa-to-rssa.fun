@@ -582,7 +582,7 @@ structure Name =
              | Simd_Real_hadd s => simdRealBinary s
              | Simd_Real_hsub s => simdRealBinary s
              | Simd_Real_addsub s => simdRealBinary s
-             | Simd_Real_shuffle s => simdRealBinary s
+             | Simd_Real_shuffle (s,w) => simdRealBinary s
              | Simd_Real_cmp s => simdRealBinary s
              | Simd_Real_toScalar s =>
                   let

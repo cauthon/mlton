@@ -69,7 +69,7 @@ in
    prim-real.sml
 
    prim-simd.sml          
-
+   prim-simd-shuffle.sml
    prim-pack-word.sml
    prim-pack-real.sml
 

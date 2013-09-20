@@ -23,12 +23,28 @@ structure Align =
           | Align16 => "16"
           | Align32 => "32"
    end
+structure Simd =
+   struct
+      datatype t = sse2 | ssse3 | avx | avx2 | none
+      val toString =
+          fn sse2 => "SSE2"
+        | ssse3 => "SSSE3"
+        | avx => "AVX"
+        | avx2 => "AVX2"
+        | none => "Not Avilable"
+   end
 
 datatype align = datatype Align.t
 
 val align = control {name = "align",
                      default = Align4,
                      toString = Align.toString}
+
+datatype simd = datatype Simd.t
+
+val simd = control {name = "simd",
+                     default = none,(*none is actually a value here*)
+                     toString = Simd.toString}
 
 val atMLtons = control {name = "atMLtons",
                         default = Vector.new0 (),
@@ -1074,8 +1090,6 @@ fun mlbPathMap () =
              path = String.toLower (MLton.Platform.OS.toString
                                     (!Target.os))},
             {var = "OBJPTR_REP",
-(*TUCKER: Might need to add 128 & 256 here, not sure though, so leaving it
- *alone for right now*)
              path = (case Bits.toInt (Target.Size.objptr ()) of
                         32 => "rep32"
                       | 64 => "rep64"
@@ -1099,7 +1113,12 @@ fun mlbPathMap () =
             {var = "DEFAULT_REAL",
              path = !defaultReal},
             {var = "DEFAULT_WORD",
-             path = !defaultWord}],
+             path = !defaultWord},
+            {var = "SIMD_IMPLEMENTATION",
+             path = (case (String.toLower (MLton.Platform.Arch.toString
+                                            (!Target.arch))) of
+                        "amd64" => "simd"
+                      | _ => "software_simd")}],
            !mlbPathVars])
 
 val typeCheck = control {name = "type check",

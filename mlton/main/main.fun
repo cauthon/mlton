@@ -64,6 +64,7 @@ val debugFormat: debugFormat option ref = ref NONE
 val expert: bool ref = ref true
 val explicitAlign: Control.align option ref = ref NONE
 val explicitChunk: Control.chunk option ref = ref NONE
+val explicitSimd: Control.simd option ref = ref NONE
 datatype explicitCodegen = Native | Explicit of Control.codegen
 val explicitCodegen: explicitCodegen option ref = ref NONE
 val keepGenerated = ref false
@@ -194,7 +195,6 @@ fun defaultAlignIs8 () =
        | S390 => true
        | _ => false
    end
-
 fun makeOptions {usage} =
    let
       val usage = fn s => (ignore (usage s); raise Fail "unreachable")
@@ -707,7 +707,7 @@ fun makeOptions {usage} =
         SpaceString (fn s => List.push (runtimeArgs, s))),
        (Expert, "show", " {anns|path-map}", "print specified data and stop",
         SpaceString
-        (fn s =>
+          (fn s =>
          show := SOME (case s of
                           "anns" => Show.Anns
                         | "path-map" => Show.PathMap
@@ -718,6 +718,17 @@ fun makeOptions {usage} =
         SpaceString (fn s => showDefUse := SOME s)),
        (Expert, "show-types", " {true|false}", "show types in ILs",
         boolRef showTypes),
+       (Expert, "simd", " {sse2|ssse3|avx|avx2|none}",
+        "select set of hardware simd instructions available" ,
+        SpaceString
+        (fn s =>
+            explicitSimd:= (case s of
+                               "sse2" => SOME sse2
+                             | "ssse3" => SOME ssse3
+                             | "avx" => SOME avx
+                             | "avx2" => SOME avx2
+                             | "none" => NONE
+                             | _ => usage (concat ["invalid -simd ",s])))),
        (Expert, "ssa-passes", " <passes>", "ssa optimization passes",
         SpaceString
         (fn s =>
@@ -897,6 +908,10 @@ fun commandLine (args: string list): unit =
          align := (case !explicitAlign of
                       NONE => if defaultAlignIs8 () then Align8 else Align4
                     | SOME a => a)
+      val () =
+          simd := (case !explicitSimd of
+                       SOME a => a
+                     | NONE => if hasCodegen(amd64Codegen) then sse2 else none)
       val () =
          codegen := (case !explicitCodegen of
                         NONE =>

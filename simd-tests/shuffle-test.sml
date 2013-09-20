@@ -79,7 +79,7 @@ local
             ",",S.toStringElt(Array.sub(arr',f(#2SCtuple))),")"])
     end
 in
-fun testShuffle64(arr,arr',sc:Word8.word,SCtuple:w8):unit=
+(*fun testShuffle64(arr,arr',sc:Word8.word,SCtuple:w8):unit=
 let
   val simd = S.fromArray(arr)
   val simd'= S.fromArray(arr')
@@ -93,13 +93,13 @@ in
                       "result of shuffle with imm = ",Word8.toString(sc),": ",
                       shuf1,"\n","result of shuffle with tuple = ",shufImm,
                       ": ",shuf3,"\n","Expected result: ",expected,"\n"])
-end
+end*)
 end
 val _ = testShuffle32(a1,a2,sc1,sct1)
 val _ = testShuffle32(a1,a2,sc2,sct2)
 val _ = testShuffle32(a3,a4,sc3,sct3)
 val _ = testShuffle32(a3,a4,sc4,sct4)
-val _ = testShuffle64(b1,b2,sc4,sct4)
+(*val _ = testShuffle64(b1,b2,sc4,sct4)
 val _ = testShuffle64(b1,b2,sc4,sct4)
 val _ = testShuffle64(b3,b4,sc4,sct4)
-val _ = testShuffle64(b3,b4,sc4,sct4)
+val _ = testShuffle64(b3,b4,sc4,sct4)*)

@@ -137,9 +137,42 @@ A key consideration in deciding weather or not to use simd instructions is the
 size of the input, while simd instructions can cause a significant increase in
 performance this is not always worth the additonal programming complexity. It
 is best to use simd instructions on loops that are used with large inputs or
-repeated often, as this will result in noticable performance gains.
+repeated often, as this will result in the most noticable performance gains.
 
 
+Common functional programming patterns can be enhanced using simd operations,
+for example here is a sample implementation of a fold function on a simd148_word32
+type.
+[source,sml]
+----
+fun simdFold(arr:word array,f:simdWord*simdWord->simdWord)
+    let
+      val len=Array.length(arr)
+      val acc=fromArray(arr)
+      fun loop(acc,cnt)=
+        if cnt > len then
+           let
+              val acc=f(shuffle(acc,acc,(0w3,0w2,0w1,0w0)),acc)
+              val acc=f(shuffle(acc,acc,(0w2,0w3,0w0,0w1)),acc)
+           in
+              toScalar(acc)
+           end
+        else loop(f(acc,fromArrayOffset(arr,cnt)),cnt+elements)
+      in
+      loop(acc,4)
+      end
+----
+A few things off note, shuffling is used to permute the elements and reduce
+the set of 4 simd elements to a single scalar, which is then extracted as the
+answer. This implementation relies on the function being used to accumulate
+being assoitative and communtive, however if this is the case, simple addition
+or multiplication for instance, this will run much faster than the scalar
+version.
+This raises an important point for simd floating point calculations. As no
+floating point operations are assoicative care must be taken with vectorizing
+floating point operations if accuracy is important. However if a little
+accuracy can be sacrificed a notable increase in speed can be had in using
+vectorized floating point calculations
 movss   (%rdx), %xmm0
 movss   (%rcx), %xmm3
 unpcklps        %xmm0, %xmm3

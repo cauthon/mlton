@@ -86,18 +86,18 @@ struct
          | Real_round _ => false
          | Real_sub _ => true
          | Simd_Real_add  _ => true
-(*         | Simd_Real_addsub _ => true*)
+         | Simd_Real_addsub _ => true
          | Simd_Real_and  _ => true
          | Simd_Real_andn  _ => true(*
          | Simd_Real_cmp _ => true*)
          | Simd_Real_div  _ => true
          | Simd_Real_hadd  _ => true
-        (* | Simd_Real_hsub  _ => true*)
+         | Simd_Real_hsub  _ => true
          | Simd_Real_max  _ => true
          | Simd_Real_min  _ => true
          | Simd_Real_mul  _ => true
          | Simd_Real_or  _ => true
-(*         | Simd_Real_shuffle _ => true*)
+         | Simd_Real_shuffle _ => true
 (*         | Simd_Real_sqrt  _ => true*)
          | Simd_Real_sub  _ => true
          | Simd_Real_xor  _ => true
@@ -106,8 +106,8 @@ struct
          | Simd_Real_cmpgt _ => true*)
          | Simd_Real_fromArray _ => true
          | Simd_Real_toArray _ => true
-(*         | Simd_Real_fromScalar _ => true
-         | Simd_Real_toScalar _ => true*)
+         | Simd_Real_fromScalar _ => true
+         | Simd_Real_toScalar _ => true
 (*         | Simd_Word_abs _ => true)*)
          | Simd_Word_add _ => true
 (*         | Simd_Word_adds _ => true*)
@@ -856,18 +856,16 @@ struct
                     size = dstsize}],
                 transfer = NONE}]
             end
-        fun sse_shuffp oper
+        fun sse_shuffp (oper,imm8)
           = let
               val ((src1,src1size),
-                   (src2,src2size),
-                   (src3,src3size)) = getSrc3 ()
+                   (src2,src2size)) = getSrc2 ()
               val (dst,dstsize) = getDst1 ()
               val _
                 = Assert.assert
                   ("amd64MLton.prim: binal, dstsize/src1size/src2size",
                    fn () => src1size = dstsize andalso
-                            src2size = dstsize andalso
-                            src3size = dstsize)
+                            src2size = dstsize)
               (*val imm = Operand.immediate_word src3*)
             in
               AppendList.fromList
@@ -884,7 +882,7 @@ struct
                     dst = dst,
                     src = src2,
                     size = dstsize,
-                    imm = src3}],
+                    imm = Operand.immediate_word imm8}],
                 transfer = NONE}]
             end
 
@@ -1646,10 +1644,10 @@ struct
                    V128R32 => sse_movp Instruction.SSE_MOVSS
                  | V128R64 => sse_movp Instruction.SSE_MOVSD
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
-             | Simd_Real_shuffle s => 
+             | Simd_Real_shuffle (s,w) => 
                (case s of
-                   V128R32 => sse_shuffp Instruction.SSE_SHUFPS
-                 | V128R64 => sse_shuffp Instruction.SSE_SHUFPD
+                   V128R32 => sse_shuffp (Instruction.SSE_SHUFPS,w)
+                 | V128R64 => sse_shuffp (Instruction.SSE_SHUFPD,w)
                  | _ => Error.bug "amd64-mlton, avx unimplemented")
 (*
 (while (re-search-forward

@@ -151,7 +151,7 @@ signature PRIM =
              | Simd_Real_min of SimdRealSize.t 
              | Simd_Real_mul of SimdRealSize.t 
              | Simd_Real_or of SimdRealSize.t 
-             | Simd_Real_shuffle of SimdRealSize.t
+             | Simd_Real_shuffle of SimdRealSize.t * Const.WordX.t
              | Simd_Real_sqrt of SimdRealSize.t 
              | Simd_Real_sub of SimdRealSize.t 
              | Simd_Real_toArray of SimdRealSize.t

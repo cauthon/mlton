@@ -18,15 +18,13 @@ signature SIMD_REAL_STRUCTS =
 sig
   type simdReal
   type elt
-(*Ask if dead code elimnation will get rid of most of this
- *because otherwise pulling it all of the Real structure is
- *excessive*)
+  val elements:Int32.int
+  val zero:elt
   structure Real:REAL
   structure Simd:PRIM_SIMD_REAL
-  structure Common:SIMD_REAL_COMMON
   structure Shuffle:SIMD_SHUFFLE
-  sharing type Real.real = Simd.elt = Common.elt = elt
-  sharing type Simd.simdReal = Common.simdReal = Shuffle.simd = simdReal
+  sharing type Real.real = Simd.elt = elt
+  sharing type Simd.simdReal = Shuffle.simd = simdReal
 end
 functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
   struct
@@ -40,19 +38,10 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
 (*  type t = simdReal*)
   local
     type real = elt
-    local
-      open Word8
-      infix 4 <<
-    in
-(*include this in public sig or no?*)
-    fun mkShuffleConst(w1:word,w2:word,w3:word,w4:word):word =
-        orb(w1 << 0w6,orb(w2 << 0w4,orb(w3 << 0w2,w4 << 0w0)))
-    end
   in
     open Simd
     open Shuffle
     local
-      open Common
       val fromArrayUnsafe = fromArray
 (*      type int = Int64.int*)
     in
@@ -83,7 +72,7 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
       val arr = Array.array(elements,r)
     in fromArray(arr) end
     fun toStringGeneric f s = let
-      val temp = Array.array (elements,Common.zero)
+      val temp = Array.array (elements,zero)
       val _ = toArray (temp,s)
       fun make (s:string list,n:int) =
           if n = 0 then
@@ -102,9 +91,19 @@ functor SimdReal (S: SIMD_REAL_STRUCTS):SIMD_REAL =
       val temp = toScalar s
     in (Real.fmt f) temp end
     val primitiveCmp = Simd.cmp
-    val primitiveShuffle = Simd.shuffle
-    fun shuffle (s1,s2,wconst) =
-        primitiveShuffle(s1,s2,mkShuffleConst(wconst))
+    fun primitiveShuffle (s,s',w) =
+        let
+          val f = primShuffle(w)
+        in
+          f(s,s')
+        end
+    fun shuffle (s,s',imm)=
+        let
+          val w = mkShuffleConst(imm)
+          val f = primShuffle(w)
+        in
+          f(s,s')
+        end
     datatype cmp = eq  | lt  | gt  | le  | ge  | ord
                  | ne  | nlt | ngt | nle | nge | unord
     fun cmp (s1:simdReal,s2:simdReal,c:cmp) = let
@@ -129,28 +128,9 @@ structure Simd128_Real32 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real32
     structure Simd = Primitive.Simd128_Real32
-    structure Shuffle = mkShuffle(struct
-                                 open Simd
-                                 type simd=Simd.simdReal end)
-    structure Common = 
-       struct
-          type simdReal = Simd.simdReal
-          type elt = Real.real                       
-          val elements = 4
-          val zero = 0.0:Real32.real
-          local
-            type real = elt
-          in
-          val fromArray = _import "Simd128_Real32_load" private :
-                          (real) array -> simdReal;
-          val toArray = _import "Simd128_Real32_store" private :
-                        (real) array * simdReal -> unit;
-          val fromArrayUnsafe = _import "Simd128_Real32_fromArray" private :
-                                (real) array * int -> simdReal;
-          val toArrayUnsafe = _import "Simd128_Real32_toArray" private :
-                                (real) array * simdReal* int -> unit;
-          end
-       end
+    structure Shuffle = Primitive.Shuffle32
+    val elements = 4
+    val zero = 0.0:Real32.real
     type elt = Real.real
     type simdReal = Simd.simdReal
   end)
@@ -158,29 +138,9 @@ structure Simd128_Real64 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real64
     structure Simd = Primitive.Simd128_Real64
-    structure Shuffle = mkShuffle(struct
-                                 open Simd
-                                 type simd=Simd.simdReal end)
-    structure Common = 
-       struct
-          type simdReal = Simd.simdReal
-          type elt = Real.real
-          local
-            type real = elt
-
-          in
-          val elements = 2
-          val zero = 0.0:Real64.real
-          val fromArray = _import "Simd128_Real64_load" private :
-                          (real) array -> simdReal;
-          val toArray = _import "Simd128_Real64_store" private :
-                        (real) array * simdReal -> unit;
-          val fromArrayUnsafe = _import "Simd128_Real64_fromArray" private :
-                                (real) array * int -> simdReal;
-          val toArrayUnsafe = _import "Simd128_Real64_toArray" private :
-                                (real) array *  simdReal * int -> unit;
-          end
-       end
+    structure Shuffle = Primitive.Shuffle64
+    val elements = 2
+    val zero = 0.0:Real64.real
     type elt = Real.real
     type simdReal = Simd.simdReal
   end)
@@ -188,28 +148,9 @@ structure Simd256_Real32 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real32
     structure Simd = Primitive.Simd256_Real32
-    structure Shuffle = mkShuffle(struct
-                                 open Simd
-                                 type simd=Simd.simdReal end)
-    structure Common = 
-       struct
-          type simdReal = Simd.simdReal
-          type elt = Real.real
-          local
-            type real = elt
-          in
-          val elements = 8
-          val zero = 0.0:Real32.real
-          val fromArray = _import "Simd256_Real32_load" private :
-                          (real) array -> simdReal;
-          val toArray = _import "Simd256_Real32_store" private :
-                        (real) array * simdReal -> unit;
-          val fromArrayUnsafe = _import "Simd256_Real32_fromArray" private :
-                                (real) array * int -> simdReal;
-          val toArrayUnsafe = _import "Simd256_Real32_fromArray" private :
-                                (real) array *  simdReal * int -> unit;
-          end
-       end
+    structure Shuffle = Primitive.Shuffle32_avx
+    val elements = 8
+    val zero = 0.0:Real32.real
     type elt = Real.real
     type simdReal = Simd.simdReal
   end)
@@ -217,28 +158,9 @@ structure Simd256_Real64 : SIMD_REAL = SimdReal(
   struct
     structure Real = Real64
     structure Simd = Primitive.Simd256_Real64
-    structure Shuffle = mkShuffle(struct
-                                 open Simd
-                                 type simd=Simd.simdReal end)
-    structure Common = 
-       struct
-          type simdReal = Simd.simdReal
-          type elt = Real.real
-          val elements = 4
-          val zero = 0.0:Real64.real
-          local
-            type real = elt
-          in
-          val fromArray = _import "Simd256_Real64_load" private :
-                          (real) array -> simdReal;
-          val toArray = _import "Simd256_Real64_store" private :
-                        (real) array * simdReal -> unit;
-          val fromArrayUnsafe = _import "Simd256_Real64_fromArray" private :
-                                (real) array * int -> simdReal;
-          val toArrayUnsafe = _import "Simd256_Real64_toArray" private :
-                                (real) array *  simdReal * int -> unit;
-          end
-       end
+    structure Shuffle = Primitive.Shuffle64_avx
+    val elements = 4
+    val zero = 0.0:Real64.real
     type elt = Real.real
     type simdReal = Simd.simdReal
   end)

@@ -694,7 +694,7 @@ fun checkPrimApp {args, prim, result} =
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
-       | Simd_Real_shuffle s => simdRealTernary s
+       | Simd_Real_shuffle (s,w) => simdRealTernary s
        | Simd_Real_cmp s => simdRealTernary s
 (*TUCKER: This won't work as is
  *Will it now?*)

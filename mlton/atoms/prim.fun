@@ -163,7 +163,7 @@ datatype 'a t =
  | Simd_Real_toArray of SimdRealSize.t
  | Simd_Real_fromScalar of SimdRealSize.t
  | Simd_Real_toScalar of SimdRealSize.t
- | Simd_Real_shuffle of SimdRealSize.t
+ | Simd_Real_shuffle of SimdRealSize.t * WordX.t
  | Simd_Word_add of SimdWordSize.t
  | Simd_Word_adds of SimdWordSize.t * {signed: bool}
  | Simd_Word_sub of SimdWordSize.t
@@ -414,7 +414,8 @@ fun toString (n: 'a t): string =
        | Simd_Real_min s => simd_real (s,"min")
        | Simd_Real_mul s => simd_real (s,"mul")
        | Simd_Real_or s => simd_real (s,"orb")
-       | Simd_Real_shuffle s => simd_real (s,"shuffle")
+       | Simd_Real_shuffle (s,w) => simd_real 
+                                      (s,("shuffle0x"^WordX.toString w))
        | Simd_Real_sqrt s => simd_real (s,"sqrt")
        | Simd_Real_sub s => simd_real (s,"sub")
        | Simd_Real_toArray s => simd_real (s,"store")
@@ -623,7 +624,8 @@ val equals: 'a t * 'a t -> bool =
     | (Simd_Real_hsub s, Simd_Real_hsub s') => SimdRealSize.equals (s,s')
     | (Simd_Real_addsub s, Simd_Real_addsub s') => SimdRealSize.equals (s,s')
     | (Simd_Real_cmp s,Simd_Real_cmp s') => SimdRealSize.equals(s,s')
-    | (Simd_Real_shuffle s,Simd_Real_shuffle s') => SimdRealSize.equals(s,s')
+    | (Simd_Real_shuffle (s,w),Simd_Real_shuffle (s',w')) => 
+      SimdRealSize.equals(s,s') andalso WordX.equals(w,w')
     | (Simd_Real_fromArray s, Simd_Real_fromArray s') =>
       SimdRealSize.equals (s,s')
     | (Simd_Real_toArray s, Simd_Real_toArray s') =>
@@ -1184,10 +1186,10 @@ val kind: 'a t -> Kind.t =
        | Simd_Real_hsub _ => DependsOnState
        | Simd_Real_addsub _ => DependsOnState
        | Simd_Real_cmp _ => Functional
-(*should these be SideEffect or Moveable*)
-       | Simd_Real_fromScalar _ => SideEffect
-       | Simd_Real_toScalar _ => SideEffect
-       | Simd_Real_fromArray _ => SideEffect
+(*should these be DependsOnState or Moveable*)
+       | Simd_Real_fromScalar _ => DependsOnState
+       | Simd_Real_toScalar _ => DependsOnState
+       | Simd_Real_fromArray _ => DependsOnState
        | Simd_Real_toArray _ => SideEffect
        | Simd_Real_shuffle _ => Functional
        | Simd_Word_add _ => Functional
@@ -1215,9 +1217,9 @@ val kind: 'a t -> Kind.t =
        | Simd_Word_mullo _ => Functional
        | Simd_Word_cmpeq _ => Functional
        | Simd_Word_cmpgt _ => Functional
-       | Simd_Word_fromScalar _ => SideEffect
-       | Simd_Word_toScalar _ => SideEffect
-       | Simd_Word_fromArray _ => SideEffect
+       | Simd_Word_fromScalar _ => DependsOnState
+       | Simd_Word_toScalar _ => DependsOnState
+       | Simd_Word_fromArray _ => DependsOnState
        | Simd_Word_toArray _ => SideEffect
 (*       | Simd_Word_fromIntArray _ => SideEffect
        | Simd_Word_toIntArray _ => SideEffect*)
@@ -1320,11 +1322,27 @@ local
        (Simd_Real_hsub s),
        (Simd_Real_addsub s),
        (Simd_Real_cmp s),
-       (Simd_Real_shuffle s),
        (Simd_Real_fromArray s),
        (Simd_Real_toArray s),
        (Simd_Real_fromScalar s),
        (Simd_Real_toScalar s)]
+   fun simdShuffle (s: SimdRealSize.t) =
+       let 
+         fun make (i: IntInf.t, s: WordSize.t) =
+             WordX.fromIntInf(i,s)
+       in
+       case s of
+           V128W32 => let
+          val V128R32_shuffle = fn w => Simd_Real_shuffle(s,w)
+          fun acc(256,ls) = 
+              List.rev(V128R32_shuffle(make(256,WordSize.word8))::ls)
+            | acc(w,ls) = acc(w+1,(V128R32_shuffle(make(w,WordSize.word8))::ls))
+        in acc(0,[]) end
+         | V128R64 => [Simd_Real_shuffle(s,make(0,WordSize.word8)),
+                       Simd_Real_shuffle(s,make(1,WordSize.word8)),
+                       Simd_Real_shuffle(s,make(2,WordSize.word8)),
+                       Simd_Real_shuffle(s,make(3,WordSize.word8))]
+       end
 (*Might need to make this more complicated because some instructions
  *Are only aviable for certain sizes, but might be able to push that
  *problem to somewhere else*)
@@ -1488,6 +1506,8 @@ in
                      List.concatMap (WordSize.prims, words),
                      List.concatMap (SimdRealSize.all, simdReals),
                      List.concatMap (SimdWordSize.all, simdWords)]
+      @ List.concat [simdShuffle(SimdRealSize.V128R32),
+                     simdShuffle(SimdRealSize.V128R64)]
       @ let
            val real = RealSize.all
            val word = WordSize.all
@@ -1799,8 +1819,8 @@ fun 'a checkApp (prim: 'a t,
        | Simd_Real_hadd s => simdRealBinary s
        | Simd_Real_hsub s => simdRealBinary s
        | Simd_Real_addsub s => simdRealBinary s
-       | Simd_Real_shuffle s => 
-         noTargs (fn () => (threeArgs(simdReal s,simdReal s,word8),simdReal s))
+       | Simd_Real_shuffle (s,w) => 
+         noTargs (fn () => (twoArgs(simdReal s,simdReal s),simdReal s))
   (* simd comparisons can't just return a bool as they need to
    * compare multiple objects*)
        | Simd_Real_cmp s =>

@@ -20,6 +20,10 @@ signature CONTROL_FLAGS =
       (*------------------------------------*)
 
       datatype align = Align4 | Align8 | Align16 | Align32
+      datatype simd = sse2 | ssse3 | avx | avx2 | none
+
+      val simd: simd ref
+      
       val align: align ref
 
       val atMLtons: string vector ref
